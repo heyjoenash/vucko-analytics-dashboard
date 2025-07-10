@@ -26,6 +26,9 @@ Welcome to the Signals & Actions documentation. This directory contains all proj
   - [`SESSION_HANDOFF.md`](claude-code/SESSION_HANDOFF.md) - Template for session handoffs
   - [`CURRENT_STATE.md`](claude-code/CURRENT_STATE.md) - Live project state document
   - [`COMMANDS.md`](claude-code/COMMANDS.md) - Common development commands
+  - [`SESSION_WORKFLOW.md`](claude-code/SESSION_WORKFLOW.md) - Complete A-Z session management
+  - [`BEST_PRACTICES.md`](claude-code/BEST_PRACTICES.md) - Development best practices
+  - [`NEW_SESSION_PROMPT.md`](claude-code/NEW_SESSION_PROMPT.md) - Comprehensive session startup prompt
 
 ### Task Management
 - [`tasks/`](tasks/) - Individual task documentation and tracking
@@ -57,9 +60,10 @@ Welcome to the Signals & Actions documentation. This directory contains all proj
 2. [`planning/roadmap/`](planning/roadmap/) - Strategic direction
 
 ### For Claude Code Sessions
-1. [`claude-code/SESSION_HANDOFF.md`](claude-code/SESSION_HANDOFF.md) - Session context template
-2. [`claude-code/CURRENT_STATE.md`](claude-code/CURRENT_STATE.md) - Current project state
-3. [`tasks/active/`](tasks/active/) - Current work items
+1. [`claude-code/NEW_SESSION_PROMPT.md`](claude-code/NEW_SESSION_PROMPT.md) - Comprehensive session startup prompt
+2. [`claude-code/SESSION_WORKFLOW.md`](claude-code/SESSION_WORKFLOW.md) - Complete A-Z session management
+3. [`claude-code/CURRENT_STATE.md`](claude-code/CURRENT_STATE.md) - Current project state
+4. [`tasks/active/`](tasks/active/) - Current work items
 
 ## 📝 Contributing to Documentation
 
