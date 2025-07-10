@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Run Action Status Migration</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Add Action Status Field</h1>
+    <button onclick="runMigration()">Run Migration</button>
+    <div id="results"></div>
+    
+    <script>
+        const SUPABASE_CONFIG = {
+            url: 'https://misuahtcociqkmkajvrw.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pc3VhaHRjb2NpcWtta2FqdnJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTM4NzY4NCwiZXhwIjoyMDY2OTYzNjg0fQ.eI3NTRguummX2Fs4iaRA4a6vutDPV2av0at9pJRDlSc'
+        };
+        
+        async function runMigration() {
+            const supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>Running migration...</p>';
+            
+            try {
+                // Check if column exists first
+                const { data: columns, error: checkError } = await supabase
+                    .from('engagements')
+                    .select('action_status')
+                    .limit(1);
+                
+                if (!checkError || checkError.code === '42703') {
+                    // Column doesn't exist, need to add it
+                    results.innerHTML += '<p>Adding action_status column...</p>';
+                    
+                    // Since we can't run raw SQL, we'll work with what we have
+                    // The column should be added through Supabase dashboard
+                    results.innerHTML += `
+                        <div style="background: #fef3c7; padding: 20px; margin: 20px 0; border-radius: 8px;">
+                            <h3>Manual Step Required</h3>
+                            <p>Please add the following column to the engagements table in Supabase:</p>
+                            <ul>
+                                <li><strong>Column Name:</strong> action_status</li>
+                                <li><strong>Type:</strong> text or varchar(50)</li>
+                                <li><strong>Default Value:</strong> 'new'</li>
+                                <li><strong>Nullable:</strong> Yes</li>
+                            </ul>
+                            <p>You can do this in the Supabase dashboard under Table Editor > engagements table > Add Column</p>
+                        </div>
+                    `;
+                } else {
+                    // Column exists
+                    results.innerHTML += '<p style="color: green;">✅ action_status column already exists!</p>';
+                    
+                    // Update any null values
+                    const { error: updateError } = await supabase
+                        .from('engagements')
+                        .update({ action_status: 'new' })
+                        .is('action_status', null);
+                    
+                    if (!updateError) {
+                        results.innerHTML += '<p style="color: green;">✅ Updated null values to "new"</p>';
+                    }
+                }
+                
+            } catch (error) {
+                results.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

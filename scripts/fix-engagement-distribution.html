@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix Engagement Distribution</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .post-info {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Fix Engagement Distribution</h1>
+    <button onclick="analyzeEngagements()">Analyze Current Distribution</button>
+    <button onclick="redistributeEngagements()">Redistribute Engagements</button>
+    <div id="results"></div>
+    
+    <script>
+        const SUPABASE_CONFIG = {
+            url: 'https://misuahtcociqkmkajvrw.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pc3VhaHRjb2NpcWtta2FqdnJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTM4NzY4NCwiZXhwIjoyMDY2OTYzNjg0fQ.eI3NTRguummX2Fs4iaRA4a6vutDPV2av0at9pJRDlSc'
+        };
+        
+        async function analyzeEngagements() {
+            const supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>Analyzing current distribution...</p>';
+            
+            try {
+                // Get all posts with engagement counts
+                const { data: posts, error: postsError } = await supabase
+                    .from('posts')
+                    .select(`
+                        id,
+                        linkedin_url,
+                        title,
+                        engagements (count)
+                    `)
+                    .eq('tenant_id', '00000000-0000-0000-0000-000000000001');
+                
+                if (postsError) throw postsError;
+                
+                // Get total engagement count
+                const { count: totalEngagements } = await supabase
+                    .from('engagements')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('tenant_id', '00000000-0000-0000-0000-000000000001');
+                
+                results.innerHTML = '<h2>Current Engagement Distribution</h2>';
+                results.innerHTML += `<p class="info">Total engagements in database: ${totalEngagements}</p>`;
+                
+                posts.forEach(post => {
+                    const engagementCount = post.engagements[0]?.count || 0;
+                    results.innerHTML += `
+                        <div class="post-info">
+                            <strong>Post ID: ${post.id}</strong><br>
+                            Title: ${post.title || 'Untitled'}<br>
+                            URL: ${post.linkedin_url}<br>
+                            Engagements: <strong>${engagementCount}</strong>
+                        </div>
+                    `;
+                });
+                
+                // Get all unique people in engagements
+                const { data: uniquePeople, error: peopleError } = await supabase
+                    .from('engagements')
+                    .select('person_id')
+                    .eq('tenant_id', '00000000-0000-0000-0000-000000000001');
+                
+                const uniquePersonCount = new Set(uniquePeople.map(e => e.person_id)).size;
+                results.innerHTML += `<p class="info">Unique people with engagements: ${uniquePersonCount}</p>`;
+                
+            } catch (error) {
+                results.innerHTML += `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function redistributeEngagements() {
+            const supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>Redistributing engagements...</p>';
+            
+            try {
+                // Get all posts
+                const { data: posts, error: postsError } = await supabase
+                    .from('posts')
+                    .select('id, linkedin_url')
+                    .eq('tenant_id', '00000000-0000-0000-0000-000000000001')
+                    .order('id');
+                
+                if (postsError) throw postsError;
+                
+                if (posts.length < 2) {
+                    results.innerHTML += '<p class="error">Need at least 2 posts to redistribute engagements</p>';
+                    return;
+                }
+                
+                // Get all engagements currently on post 1
+                const { data: engagements, error: engagementsError } = await supabase
+                    .from('engagements')
+                    .select('id, person_id')
+                    .eq('post_id', posts[0].id)
+                    .eq('tenant_id', '00000000-0000-0000-0000-000000000001');
+                
+                if (engagementsError) throw engagementsError;
+                
+                results.innerHTML += `<p>Found ${engagements.length} engagements on post ${posts[0].id}</p>`;
+                
+                // Redistribute: Move half to the second post
+                const halfPoint = Math.floor(engagements.length / 2);
+                const toMove = engagements.slice(halfPoint);
+                
+                results.innerHTML += `<p>Moving ${toMove.length} engagements to post ${posts[1].id}...</p>`;
+                
+                // Update in batches
+                const batchSize = 50;
+                for (let i = 0; i < toMove.length; i += batchSize) {
+                    const batch = toMove.slice(i, i + batchSize);
+                    const ids = batch.map(e => e.id);
+                    
+                    const { error: updateError } = await supabase
+                        .from('engagements')
+                        .update({ post_id: posts[1].id })
+                        .in('id', ids);
+                    
+                    if (updateError) {
+                        results.innerHTML += `<p class="error">Error updating batch: ${updateError.message}</p>`;
+                    } else {
+                        results.innerHTML += `<p>Updated batch ${Math.floor(i/batchSize) + 1}...</p>`;
+                    }
+                }
+                
+                results.innerHTML += '<p class="success">✅ Redistribution complete!</p>';
+                
+                // Show new distribution
+                await analyzeEngagements();
+                
+            } catch (error) {
+                results.innerHTML += `<p class="error">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

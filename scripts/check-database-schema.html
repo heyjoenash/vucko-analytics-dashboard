@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Check Database Schema</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Database Schema Check</h1>
+    <button onclick="checkSchema()">Check Schema</button>
+    <div id="results"></div>
+    
+    <script>
+        const SUPABASE_CONFIG = {
+            url: 'https://misuahtcociqkmkajvrw.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pc3VhaHRjb2NpcWtta2FqdnJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTM4NzY4NCwiZXhwIjoyMDY2OTYzNjg0fQ.eI3NTRguummX2Fs4iaRA4a6vutDPV2av0at9pJRDlSc'
+        };
+        
+        async function checkSchema() {
+            const supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>Checking Database Schema...</h2>';
+            
+            try {
+                // Check if lead_status and is_notable columns exist
+                const { data: samplePerson, error: personError } = await supabase
+                    .from('persons')
+                    .select('id, name, lead_status, is_notable, notable_reason')
+                    .limit(1);
+                
+                if (personError) {
+                    results.innerHTML += `<p style="color: red;">❌ Persons table error: ${personError.message}</p>`;
+                    results.innerHTML += `<p>This suggests the lead tracking columns haven't been added yet.</p>`;
+                    
+                    // Show the SQL that needs to be run
+                    results.innerHTML += `<h3>SQL to Run in Supabase:</h3>`;
+                    results.innerHTML += `<pre style="background: #f5f5f5; padding: 10px; border-radius: 5px;">
+ALTER TABLE persons
+ADD COLUMN IF NOT EXISTS lead_status VARCHAR(50),
+ADD COLUMN IF NOT EXISTS is_notable BOOLEAN DEFAULT false,
+ADD COLUMN IF NOT EXISTS notable_reason TEXT,
+ADD COLUMN IF NOT EXISTS last_lead_update TIMESTAMPTZ;
+
+CREATE INDEX IF NOT EXISTS idx_persons_lead_status ON persons(lead_status);
+CREATE INDEX IF NOT EXISTS idx_persons_notable ON persons(is_notable);
+                    </pre>`;
+                } else {
+                    results.innerHTML += `<p style="color: green;">✅ Lead tracking columns exist!</p>`;
+                    if (samplePerson && samplePerson.length > 0) {
+                        results.innerHTML += `<p>Sample person data: ${JSON.stringify(samplePerson[0])}</p>`;
+                    }
+                }
+                
+                // Check if action_status column exists in engagements
+                const { data: sampleEngagement, error: engagementError } = await supabase
+                    .from('engagements')
+                    .select('id, action_status')
+                    .limit(1);
+                
+                if (engagementError) {
+                    results.innerHTML += `<p style="color: red;">❌ Engagements action_status error: ${engagementError.message}</p>`;
+                    results.innerHTML += `<p>The action_status column might not exist.</p>`;
+                    
+                    results.innerHTML += `<h3>SQL to Run for Engagements:</h3>`;
+                    results.innerHTML += `<pre style="background: #f5f5f5; padding: 10px; border-radius: 5px;">
+ALTER TABLE engagements
+ADD COLUMN IF NOT EXISTS action_status VARCHAR(50) DEFAULT 'new';
+
+CREATE INDEX IF NOT EXISTS idx_engagements_action_status ON engagements(action_status);
+                    </pre>`;
+                } else {
+                    results.innerHTML += `<p style="color: green;">✅ Action status column exists!</p>`;
+                }
+                
+            } catch (error) {
+                results.innerHTML += `<p style="color: red;">Unexpected error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

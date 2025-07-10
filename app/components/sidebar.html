@@ -1,0 +1,216 @@
+<!-- Shared Sidebar Navigation Component -->
+<nav class="sidebar-nav">
+    <div class="sidebar-header">
+        <h1 class="sidebar-title">Signals & Actions</h1>
+        <div class="sidebar-subtitle">LinkedIn Analytics</div>
+    </div>
+    
+    <div class="sidebar-content">
+        <!-- Core Dashboard Section -->
+        <div class="nav-section">
+            <a href="index.html#dashboard" class="nav-item" data-view="dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="signals.html" class="nav-item" data-view="signals">
+                <i class="fas fa-bolt"></i>
+                <span>Signals</span>
+            </a>
+            <a href="pipeline.html" class="nav-item" data-view="pipeline">
+                <i class="fas fa-tasks"></i>
+                <span>Pipeline</span>
+            </a>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Content Section -->
+        <div class="nav-section">
+            <a href="index.html#campaigns" class="nav-item" data-view="campaigns">
+                <i class="fas fa-bullhorn"></i>
+                <span>Campaigns</span>
+            </a>
+            <a href="index.html#posts" class="nav-item" data-view="posts">
+                <i class="fas fa-file-alt"></i>
+                <span>Posts</span>
+            </a>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- People & Companies Section -->
+        <div class="nav-section">
+            <a href="index.html#people" class="nav-item" data-view="people">
+                <i class="fas fa-users"></i>
+                <span>People</span>
+            </a>
+            <a href="index.html#companies" class="nav-item" data-view="companies">
+                <i class="fas fa-building"></i>
+                <span>Companies</span>
+            </a>
+        </div>
+        
+        <div class="section-divider"></div>
+        
+        <!-- Strategy Section -->
+        <div class="nav-section">
+            <div class="nav-section-header">Strategy & Targets</div>
+            <a href="strategies.html" class="nav-item" data-view="strategies">
+                <i class="fas fa-chess"></i>
+                <span>Strategies</span>
+            </a>
+            <a href="linkedin-campaigns.html" class="nav-item" data-view="linkedin-campaigns">
+                <i class="fab fa-linkedin"></i>
+                <span>LinkedIn Campaigns</span>
+            </a>
+            <a href="audiences.html" class="nav-item" data-view="audiences">
+                <i class="fas fa-bullseye"></i>
+                <span>Audiences</span>
+            </a>
+            <a href="personas.html" class="nav-item" data-view="personas">
+                <i class="fas fa-user-tag"></i>
+                <span>Personas</span>
+            </a>
+        </div>
+    </div>
+    
+    <div class="sidebar-footer">
+        <div class="sidebar-actions">
+            <button class="sidebar-btn primary" onclick="app.showImportModal?.()">
+                <i class="fas fa-download"></i>
+                <span>Import Data</span>
+            </button>
+            <button class="sidebar-btn secondary" onclick="app.exportCSV?.()">
+                <i class="fas fa-file-export"></i>
+                <span>Export</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Sidebar Overlay for Mobile -->
+<div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+<script>
+// Sidebar Navigation JavaScript
+function navigateFromSidebar(view) {
+    // Pages that exist in the main dashboard
+    const dashboardViews = ['dashboard', 'posts', 'people', 'companies', 'campaigns'];
+    
+    // Pages with their own HTML files
+    const standalonePages = {
+        'signals': 'signals.html',
+        'pipeline': 'pipeline.html',
+        'strategies': 'strategies.html',
+        'linkedin-campaigns': 'linkedin-campaigns.html',
+        'audiences': 'audiences.html',
+        'personas': 'personas.html'
+    };
+    
+    // Handle navigation based on view
+    if (dashboardViews.includes(view)) {
+        // Navigate to dashboard views
+        if (window.location.pathname.includes('index.html') || window.location.pathname.endsWith('/')) {
+            // On main dashboard, use app.showView if available
+            if (window.app && window.app.showView) {
+                window.app.showView(view);
+            } else {
+                window.location.href = `index.html#${view}`;
+            }
+        } else {
+            // On detail pages, navigate to main dashboard with fragment
+            window.location.href = `index.html#${view}`;
+        }
+    } else if (standalonePages[view]) {
+        // Navigate to standalone pages
+        window.location.href = standalonePages[view];
+    } else {
+        // For pages not yet created, show alert
+        alert(`The ${view.charAt(0).toUpperCase() + view.slice(1)} page is coming soon!`);
+    }
+    
+    // Update active state
+    updateSidebarActiveState(view);
+    
+    // Close mobile sidebar
+    closeSidebar();
+}
+
+function updateSidebarActiveState(activeView) {
+    // Remove active class from all nav items
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Add active class to current view
+    const activeItem = document.querySelector(`[data-view="${activeView}"]`);
+    if (activeItem) {
+        activeItem.classList.add('active');
+    }
+}
+
+function toggleSidebar() {
+    document.body.classList.toggle('sidebar-open');
+}
+
+function closeSidebar() {
+    document.body.classList.remove('sidebar-open');
+}
+
+// Initialize sidebar based on current page/view
+function initializeSidebar() {
+    let currentView = 'dashboard'; // default
+    
+    // Detect current view from URL or app state
+    if (window.location.hash) {
+        const hash = window.location.hash.substring(1);
+        if (['dashboard', 'posts', 'people', 'companies', 'campaigns', 'signals', 'pipeline', 'strategies', 'linkedin-campaigns', 'audiences', 'personas'].includes(hash)) {
+            currentView = hash;
+        }
+    } else if (window.location.pathname.includes('post-analysis')) {
+        currentView = 'posts';
+    } else if (window.location.pathname.includes('person-detail')) {
+        currentView = 'people';
+    } else if (window.location.pathname.includes('company-detail')) {
+        currentView = 'companies';
+    } else if (window.location.pathname.includes('campaign-detail')) {
+        currentView = 'campaigns';
+    } else if (window.location.pathname.includes('signals')) {
+        currentView = 'signals';
+    } else if (window.location.pathname.includes('pipeline')) {
+        currentView = 'pipeline';
+    } else if (window.location.pathname.includes('strategies')) {
+        currentView = 'strategies';
+    } else if (window.location.pathname.includes('linkedin-campaigns')) {
+        currentView = 'linkedin-campaigns';
+    } else if (window.location.pathname.includes('audiences')) {
+        currentView = 'audiences';
+    } else if (window.location.pathname.includes('personas')) {
+        currentView = 'personas';
+    }
+    
+    updateSidebarActiveState(currentView);
+}
+
+// Initialize sidebar immediately when loaded
+(function() {
+    // Add click handlers to navigation items
+    setTimeout(() => {
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const view = item.getAttribute('data-view');
+                if (view) {
+                    navigateFromSidebar(view);
+                }
+            });
+        });
+        
+        // Initialize sidebar state
+        initializeSidebar();
+        
+        // Listen for hash changes to update active state
+        window.addEventListener('hashchange', initializeSidebar);
+    }, 100);
+})();
+</script>

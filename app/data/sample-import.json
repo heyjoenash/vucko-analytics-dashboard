@@ -1,0 +1,40 @@
+[
+  {
+    "profileUrl": "https://www.linkedin.com/in/johndoe",
+    "name": "John Doe",
+    "headline": "Senior Product Manager at Apple | Building the future of AI",
+    "profilePicture": "https://media.licdn.com/dms/image/sample1.jpg",
+    "company": "Apple",
+    "reactionType": "like"
+  },
+  {
+    "profileUrl": "https://www.linkedin.com/in/janesmith",
+    "name": "Jane Smith",
+    "headline": "VP Engineering | Google Cloud Platform",
+    "photoUrl": "https://media.licdn.com/dms/image/sample2.jpg",
+    "company": "Google",
+    "reactionType": "celebrate"
+  },
+  {
+    "profileUrl": "https://www.linkedin.com/in/mikejohnson",
+    "name": "Mike Johnson",
+    "headline": "CTO @ TechStartup | Former Meta",
+    "profilePicture": "https://media.licdn.com/dms/image/sample3.jpg",
+    "reactionType": "love"
+  },
+  {
+    "profileUrl": "https://www.linkedin.com/in/sarahwilliams",
+    "name": "Sarah Williams",
+    "headline": "Design Director at Microsoft",
+    "company": "Microsoft",
+    "reactionType": "insightful"
+  },
+  {
+    "profileUrl": "https://www.linkedin.com/in/johndoe",
+    "name": "John Doe",
+    "headline": "Senior Product Manager at Apple | Building the future of AI",
+    "profilePicture": "https://media.licdn.com/dms/image/sample1.jpg",
+    "company": "Apple",
+    "reactionType": "support"
+  }
+]

@@ -1,0 +1,91 @@
+<!-- Shared Header Component for Signals & Actions -->
+<!-- Include this in all pages for consistent navigation -->
+
+<header class="bg-white shadow-sm border-b sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+            <div class="flex items-center gap-6">
+                <h1 class="text-xl font-semibold text-gray-900">Signals & Actions</h1>
+                <div class="text-sm text-muted">LinkedIn Engagement Analytics</div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="app.toggleReviewMode && app.toggleReviewMode()" class="btn btn-primary">
+                    Review Mode
+                </button>
+                <button onclick="app.exportData && app.exportData()" class="btn btn-secondary">
+                    Export
+                </button>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Navigation Tabs -->
+<nav class="bg-white border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex space-x-8">
+            <button onclick="navigateTo('dashboard')" class="nav-tab" id="nav-dashboard">
+                Dashboard
+            </button>
+            <button onclick="navigateTo('posts')" class="nav-tab" id="nav-posts">
+                Posts
+            </button>
+            <button onclick="navigateTo('people')" class="nav-tab" id="nav-people">
+                People
+            </button>
+            <button onclick="navigateTo('companies')" class="nav-tab" id="nav-companies">
+                Companies
+            </button>
+            <button onclick="navigateTo('campaigns')" class="nav-tab" id="nav-campaigns">
+                Campaigns
+            </button>
+        </div>
+    </div>
+</nav>
+
+<script>
+// Navigation helper function
+function navigateTo(page) {
+    const routes = {
+        'dashboard': 'index.html',
+        'posts': 'index.html',
+        'people': 'index.html#people',
+        'companies': 'index.html#companies',
+        'campaigns': 'index.html#campaigns'
+    };
+    
+    // Update active tab styling
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    const activeTab = document.getElementById(`nav-${page}`);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+    
+    // Navigate
+    const route = routes[page] || 'index.html';
+    if (!window.location.href.includes(route)) {
+        window.location.href = route;
+    }
+}
+
+// Set active tab based on current page
+document.addEventListener('DOMContentLoaded', function() {
+    const currentPath = window.location.pathname;
+    const currentHash = window.location.hash;
+    
+    if (currentPath.includes('post-analysis.html')) {
+        document.getElementById('nav-posts')?.classList.add('active');
+    } else if (currentHash === '#people') {
+        document.getElementById('nav-people')?.classList.add('active');
+    } else if (currentHash === '#companies') {
+        document.getElementById('nav-companies')?.classList.add('active');
+    } else if (currentHash === '#campaigns') {
+        document.getElementById('nav-campaigns')?.classList.add('active');
+    } else {
+        document.getElementById('nav-dashboard')?.classList.add('active');
+    }
+});
+</script>

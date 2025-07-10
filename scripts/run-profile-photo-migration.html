@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Run Profile Photo Migration</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Profile Photo Migration</h1>
+    <button onclick="runMigration()">Run Migration</button>
+    <div id="results"></div>
+    
+    <script>
+        const SUPABASE_CONFIG = {
+            url: 'https://misuahtcociqkmkajvrw.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pc3VhaHRjb2NpcWtta2FqdnJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTM4NzY4NCwiZXhwIjoyMDY2OTYzNjg0fQ.eI3NTRguummX2Fs4iaRA4a6vutDPV2av0at9pJRDlSc'
+        };
+        
+        async function runMigration() {
+            const supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            const results = document.getElementById('results');
+            results.innerHTML = '<p>Running migration...</p>';
+            
+            try {
+                // First check the current state
+                const { data: checkData, error: checkError } = await supabase.rpc('query_json', {
+                    query_text: `
+                        SELECT 
+                            COUNT(*) as total,
+                            COUNT(profile_picture) as has_profile_picture,
+                            COUNT(profile_image_url) as has_profile_image_url
+                        FROM persons
+                        WHERE tenant_id = '00000000-0000-0000-0000-000000000001'
+                    `
+                });
+                
+                if (checkError) {
+                    // Try a different approach
+                    const { data: persons, error: selectError } = await supabase
+                        .from('persons')
+                        .select('id, profile_picture, profile_image_url')
+                        .eq('tenant_id', '00000000-0000-0000-0000-000000000001');
+                    
+                    if (selectError) throw selectError;
+                    
+                    const total = persons.length;
+                    const hasProfilePicture = persons.filter(p => p.profile_picture).length;
+                    const hasProfileImageUrl = persons.filter(p => p.profile_image_url).length;
+                    
+                    results.innerHTML += `<p><strong>Before migration:</strong><br>
+                        Total: ${total}<br>
+                        Has profile_picture: ${hasProfilePicture}<br>
+                        Has profile_image_url: ${hasProfileImageUrl}</p>`;
+                    
+                    // Update records that need migration
+                    const needsMigration = persons.filter(p => !p.profile_picture && p.profile_image_url);
+                    
+                    if (needsMigration.length > 0) {
+                        results.innerHTML += `<p>Migrating ${needsMigration.length} records...</p>`;
+                        
+                        for (const person of needsMigration) {
+                            const { error: updateError } = await supabase
+                                .from('persons')
+                                .update({ profile_picture: person.profile_image_url })
+                                .eq('id', person.id);
+                            
+                            if (updateError) {
+                                results.innerHTML += `<p style="color: red;">Error updating ${person.id}: ${updateError.message}</p>`;
+                            }
+                        }
+                        
+                        // Check results
+                        const { data: afterPersons, error: afterError } = await supabase
+                            .from('persons')
+                            .select('id, profile_picture, profile_image_url')
+                            .eq('tenant_id', '00000000-0000-0000-0000-000000000001');
+                        
+                        if (!afterError) {
+                            const afterHasProfilePicture = afterPersons.filter(p => p.profile_picture).length;
+                            results.innerHTML += `<p style="color: green;"><strong>After migration:</strong><br>
+                                Has profile_picture: ${afterHasProfilePicture}</p>`;
+                            results.innerHTML += `<p style="color: green;">✅ Migration complete! Migrated ${needsMigration.length} records.</p>`;
+                        }
+                    } else {
+                        results.innerHTML += `<p style="color: blue;">No records need migration. All photos are already in profile_picture field.</p>`;
+                    }
+                } else {
+                    results.innerHTML += `<p>Check data: ${JSON.stringify(checkData)}</p>`;
+                }
+                
+            } catch (error) {
+                results.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

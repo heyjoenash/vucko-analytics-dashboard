@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Backfill Engagement Records</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Backfill Missing Engagement Records</h1>
+    <div id="status"></div>
+    <button onclick="backfillEngagements()" style="padding: 10px 20px; background: blue; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Start Backfill
+    </button>
+    
+    <script>
+        // Copy config from app
+        const SUPABASE_CONFIG = {
+            url: 'https://misuahtcociqkmkajvrw.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pc3VhaHRjb2NpcWtta2FqdnJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTM4NzY4NCwiZXhwIjoyMDY2OTYzNjg0fQ.eI3NTRguummX2Fs4iaRA4a6vutDPV2av0at9pJRDlSc'
+        };
+        
+        const DEFAULT_TENANT_ID = '00000000-0000-0000-0000-000000000001';
+        
+        async function backfillEngagements() {
+            const supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            const status = document.getElementById('status');
+            
+            try {
+                status.innerHTML += '<p>Starting backfill process...</p>';
+                
+                // Get all posts
+                const { data: posts, error: postsError } = await supabase
+                    .from('posts')
+                    .select('id, linkedin_url, created_at')
+                    .eq('tenant_id', DEFAULT_TENANT_ID);
+                
+                if (postsError) throw postsError;
+                
+                status.innerHTML += `<p>Found ${posts.length} posts</p>`;
+                
+                // Get all people with engagement scores
+                const { data: people, error: peopleError } = await supabase
+                    .from('persons')
+                    .select('id, name, engagement_score, created_at')
+                    .eq('tenant_id', DEFAULT_TENANT_ID)
+                    .gt('engagement_score', 0);
+                
+                if (peopleError) throw peopleError;
+                
+                status.innerHTML += `<p>Found ${people.length} people with engagement scores</p>`;
+                
+                let engagementsCreated = 0;
+                
+                // For each person, try to link them to the most recent post
+                // (In reality, we'd want better logic to determine which post they engaged with)
+                for (const person of people) {
+                    // Find the post that was created closest to when this person was first seen
+                    const mostLikelyPost = posts.reduce((closest, post) => {
+                        const personTime = new Date(person.created_at);
+                        const postTime = new Date(post.created_at);
+                        const closestTime = new Date(closest.created_at);
+                        
+                        return Math.abs(postTime - personTime) < Math.abs(closestTime - personTime) ? post : closest;
+                    });
+                    
+                    // Check if engagement already exists
+                    const { data: existingEngagement } = await supabase
+                        .from('engagements')
+                        .select('id')
+                        .eq('post_id', mostLikelyPost.id)
+                        .eq('person_id', person.id)
+                        .eq('tenant_id', DEFAULT_TENANT_ID)
+                        .maybeSingle();
+                    
+                    if (!existingEngagement) {
+                        // Create engagement record for each engagement score point
+                        for (let i = 0; i < person.engagement_score; i++) {
+                            const { error: engagementError } = await supabase
+                                .from('engagements')
+                                .insert({
+                                    post_id: mostLikelyPost.id,
+                                    person_id: person.id,
+                                    engagement_type: 'reaction',
+                                    reaction_type: 'like',
+                                    engaged_at: person.created_at,
+                                    tenant_id: DEFAULT_TENANT_ID
+                                });
+                            
+                            if (engagementError) {
+                                console.error('Error creating engagement:', engagementError);
+                            } else {
+                                engagementsCreated++;
+                            }
+                        }
+                    }
+                    
+                    if (engagementsCreated % 10 === 0) {
+                        status.innerHTML += `<p>Created ${engagementsCreated} engagement records...</p>`;
+                    }
+                }
+                
+                status.innerHTML += `<h2 style="color: green;">✅ Backfill Complete!</h2>`;
+                status.innerHTML += `<p>Created ${engagementsCreated} engagement records</p>`;
+                status.innerHTML += `<p>You can now refresh the main app and see engagement counts on posts!</p>`;
+                
+            } catch (error) {
+                status.innerHTML += `<p style="color: red;">❌ Error: ${error.message}</p>`;
+                console.error('Backfill error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

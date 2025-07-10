@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Post Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Debug Post Analysis</h1>
+    <button onclick="debugPostAnalysis()">Debug Post ID 2</button>
+    <div id="results"></div>
+    
+    <script>
+        const SUPABASE_CONFIG = {
+            url: 'https://misuahtcociqkmkajvrw.supabase.co',
+            anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pc3VhaHRjb2NpcWtta2FqdnJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTM4NzY4NCwiZXhwIjoyMDY2OTYzNjg0fQ.eI3NTRguummX2Fs4iaRA4a6vutDPV2av0at9pJRDlSc'
+        };
+        const DEFAULT_TENANT_ID = '00000000-0000-0000-0000-000000000001';
+        
+        async function debugPostAnalysis() {
+            const supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            const results = document.getElementById('results');
+            results.innerHTML = '<h2>Debugging Post ID 2</h2>';
+            
+            try {
+                // Test post loading
+                const { data: post, error: postError } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('id', 2)
+                    .single();
+                
+                if (postError) {
+                    results.innerHTML += `<p style="color: red;">❌ Post Error: ${postError.message}</p>`;
+                } else {
+                    results.innerHTML += `<p style="color: green;">✅ Post loaded: ${post.post_title || post.linkedin_url}</p>`;
+                }
+                
+                // Test engagements - try different approaches
+                results.innerHTML += '<h3>Testing Engagements...</h3>';
+                
+                // Approach 1: Simple query
+                const { data: simpleEngagements, error: simpleError } = await supabase
+                    .from('engagements')
+                    .select('*')
+                    .eq('post_id', 2);
+                
+                if (simpleError) {
+                    results.innerHTML += `<p style="color: red;">❌ Simple query failed: ${simpleError.message}</p>`;
+                } else {
+                    results.innerHTML += `<p style="color: green;">✅ Simple query: ${simpleEngagements.length} engagements</p>`;
+                }
+                
+                // Approach 2: With person data
+                const { data: fullEngagements, error: fullError } = await supabase
+                    .from('engagements')
+                    .select('*, person:persons(*)')
+                    .eq('post_id', 2);
+                
+                if (fullError) {
+                    results.innerHTML += `<p style="color: red;">❌ Full query failed: ${fullError.message}</p>`;
+                } else {
+                    results.innerHTML += `<p style="color: green;">✅ Full query: ${fullEngagements.length} engagements</p>`;
+                    
+                    if (fullEngagements.length > 0) {
+                        results.innerHTML += '<h4>Sample Engagement:</h4>';
+                        const sample = fullEngagements[0];
+                        results.innerHTML += `<pre>${JSON.stringify(sample, null, 2)}</pre>`;
+                    }
+                }
+                
+                // Approach 3: Check if tenant_id is causing issues
+                const { data: allEngagements, error: allError } = await supabase
+                    .from('engagements')
+                    .select('post_id, tenant_id')
+                    .eq('post_id', 2);
+                
+                if (!allError && allEngagements.length > 0) {
+                    results.innerHTML += `<p>Tenant IDs found: ${[...new Set(allEngagements.map(e => e.tenant_id))].join(', ')}</p>`;
+                }
+                
+                // Test direct URL
+                results.innerHTML += `<p><a href="post-analysis.html?id=2" target="_blank">🔗 Test Post Analysis Page</a></p>`;
+                
+            } catch (error) {
+                results.innerHTML += `<p style="color: red;">Unexpected error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
