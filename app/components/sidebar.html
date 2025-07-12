@@ -94,46 +94,63 @@
 <script>
 // Sidebar Navigation JavaScript
 function navigateFromSidebar(view) {
-    // Pages that exist in the main dashboard
-    const dashboardViews = ['dashboard', 'posts', 'people', 'companies', 'campaigns'];
-    
-    // Pages with their own HTML files
-    const standalonePages = {
-        'signals': 'signals.html',
-        'pipeline': 'pipeline.html',
-        'strategies': 'strategies.html',
-        'linkedin-campaigns': 'linkedin-campaigns.html',
-        'audiences': 'audiences.html',
-        'personas': 'personas.html'
-    };
-    
-    // Handle navigation based on view
-    if (dashboardViews.includes(view)) {
-        // Navigate to dashboard views
-        if (window.location.pathname.includes('index.html') || window.location.pathname.endsWith('/')) {
-            // On main dashboard, use app.showView if available
-            if (window.app && window.app.showView) {
-                window.app.showView(view);
+    try {
+        console.log('Sidebar navigation triggered for view:', view);
+        
+        // Pages that exist in the main dashboard
+        const dashboardViews = ['dashboard', 'posts', 'people', 'companies', 'campaigns'];
+        
+        // Pages with their own HTML files
+        const standalonePages = {
+            'signals': 'signals.html',
+            'pipeline': 'pipeline.html',
+            'strategies': 'strategies.html',
+            'linkedin-campaigns': 'linkedin-campaigns.html',
+            'audiences': 'audiences.html',
+            'personas': 'personas.html'
+        };
+        
+        // Handle navigation based on view
+        if (dashboardViews.includes(view)) {
+            // Navigate to dashboard views
+            if (window.location.pathname.includes('index.html') || window.location.pathname.endsWith('/')) {
+                // On main dashboard, use app.showView if available
+                if (window.app && typeof window.app.showView === 'function') {
+                    console.log('Using app.showView for navigation to:', view);
+                    window.app.showView(view);
+                } else {
+                    console.log('App not available, using URL navigation for:', view);
+                    window.location.href = `index.html#${view}`;
+                }
             } else {
+                // On detail pages, navigate to main dashboard with fragment
+                console.log('Navigating from detail page to:', view);
                 window.location.href = `index.html#${view}`;
             }
+        } else if (standalonePages[view]) {
+            // Navigate to standalone pages
+            console.log('Navigating to standalone page:', standalonePages[view]);
+            window.location.href = standalonePages[view];
         } else {
-            // On detail pages, navigate to main dashboard with fragment
+            // For pages not yet created, show alert
+            console.log('Page not yet created:', view);
+            alert(`The ${view.charAt(0).toUpperCase() + view.slice(1)} page is coming soon!`);
+        }
+        
+        // Update active state
+        updateSidebarActiveState(view);
+        
+        // Close mobile sidebar
+        closeSidebar();
+        
+        console.log('Sidebar navigation completed successfully for:', view);
+    } catch (error) {
+        console.error('Error in sidebar navigation:', error);
+        // Fallback to simple URL navigation
+        if (['dashboard', 'posts', 'people', 'companies', 'campaigns'].includes(view)) {
             window.location.href = `index.html#${view}`;
         }
-    } else if (standalonePages[view]) {
-        // Navigate to standalone pages
-        window.location.href = standalonePages[view];
-    } else {
-        // For pages not yet created, show alert
-        alert(`The ${view.charAt(0).toUpperCase() + view.slice(1)} page is coming soon!`);
     }
-    
-    // Update active state
-    updateSidebarActiveState(view);
-    
-    // Close mobile sidebar
-    closeSidebar();
 }
 
 function updateSidebarActiveState(activeView) {
