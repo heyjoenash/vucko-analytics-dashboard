@@ -248,19 +248,21 @@
             }
 
             grid.innerHTML = personas.map(persona => {
-                const matchCount = persona.persona_match_counts?.match_count || 0;
+                const matchCount = persona.persona_match_counts?.[0]?.match_count || 0;
                 
                 return `
-                    <div class="persona-card" onclick="viewPersona(${persona.id})">
+                    <div class="persona-card" onclick="viewPersona('${persona.id}')">
                         <div class="persona-header">
-                            <div class="persona-icon">${persona.icon || '👤'}</div>
+                            <div class="persona-icon" style="background: var(--gray-${persona.icon_color === 'blue' ? '800' : '600'});">
+                                <i class="fas fa-user" style="color: var(--white);"></i>
+                            </div>
                             <div>
-                                <h3 class="persona-name">${persona.persona_name}</h3>
+                                <h3 class="persona-name">${persona.name}</h3>
                                 <p class="persona-matches">${matchCount} matches</p>
                             </div>
                         </div>
                         <div class="persona-criteria">
-                            ${renderCriteria(persona.criteria)}
+                            ${renderCriteria(persona)}
                         </div>
                     </div>
                 `;
@@ -268,61 +270,67 @@
         }
 
         // Render criteria
-        function renderCriteria(criteria) {
+        function renderCriteria(persona) {
             const items = [];
             
-            if (criteria.job_titles && criteria.job_titles.length > 0) {
+            // Title keywords
+            if (persona.title_keywords?.include?.length > 0) {
                 items.push(`
                     <div class="criteria-item">
-                        <span class="criteria-label">Titles</span>
-                        <span class="criteria-value">${criteria.job_titles.slice(0, 2).join(', ')}${criteria.job_titles.length > 2 ? '...' : ''}</span>
+                        <span class="criteria-label">Keywords</span>
+                        <span class="criteria-value">${persona.title_keywords.include.slice(0, 2).join(', ')}${persona.title_keywords.include.length > 2 ? '...' : ''}</span>
                     </div>
                 `);
             }
             
-            if (criteria.job_functions && criteria.job_functions.length > 0) {
+            // Seniority levels
+            if (persona.seniority_levels && persona.seniority_levels.length > 0) {
                 items.push(`
                     <div class="criteria-item">
-                        <span class="criteria-label">Functions</span>
-                        <span class="criteria-value">${criteria.job_functions.slice(0, 2).join(', ')}</span>
+                        <span class="criteria-label">Seniority</span>
+                        <span class="criteria-value">${persona.seniority_levels.join(', ')}</span>
                     </div>
                 `);
             }
             
-            if (criteria.company_size && criteria.company_size.length > 0) {
-                items.push(`
-                    <div class="criteria-item">
-                        <span class="criteria-label">Company Size</span>
-                        <span class="criteria-value">${criteria.company_size.join(', ')}</span>
-                    </div>
-                `);
+            // Company criteria
+            if (persona.company_criteria) {
+                if (persona.company_criteria.size) {
+                    items.push(`
+                        <div class="criteria-item">
+                            <span class="criteria-label">Company Size</span>
+                            <span class="criteria-value">${persona.company_criteria.size}</span>
+                        </div>
+                    `);
+                }
+                if (persona.company_criteria.industry) {
+                    items.push(`
+                        <div class="criteria-item">
+                            <span class="criteria-label">Industry</span>
+                            <span class="criteria-value">${persona.company_criteria.industry}</span>
+                        </div>
+                    `);
+                }
             }
             
-            if (criteria.industries && criteria.industries.length > 0) {
-                items.push(`
-                    <div class="criteria-item">
-                        <span class="criteria-label">Industries</span>
-                        <span class="criteria-value">${criteria.industries.slice(0, 2).join(', ')}${criteria.industries.length > 2 ? '...' : ''}</span>
-                    </div>
-                `);
-            }
-            
-            if (criteria.engagement_score) {
-                items.push(`
-                    <div class="criteria-item">
-                        <span class="criteria-label">Engagement</span>
-                        <span class="criteria-value">${criteria.engagement_score}</span>
-                    </div>
-                `);
-            }
-            
-            if (criteria.is_follower) {
-                items.push(`
-                    <div class="criteria-item">
-                        <span class="criteria-label">Follower</span>
-                        <span class="criteria-value">Required</span>
-                    </div>
-                `);
+            // Engagement criteria
+            if (persona.engagement_criteria) {
+                if (persona.engagement_criteria.min_score > 0) {
+                    items.push(`
+                        <div class="criteria-item">
+                            <span class="criteria-label">Min Engagement</span>
+                            <span class="criteria-value">${persona.engagement_criteria.min_score}+</span>
+                        </div>
+                    `);
+                }
+                if (persona.engagement_criteria.follower_status === 'follower') {
+                    items.push(`
+                        <div class="criteria-item">
+                            <span class="criteria-label">Follower</span>
+                            <span class="criteria-value">Required</span>
+                        </div>
+                    `);
+                }
             }
             
             return items.slice(0, 3).join('');

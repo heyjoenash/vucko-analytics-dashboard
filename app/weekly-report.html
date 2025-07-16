@@ -33,6 +33,27 @@
             margin-bottom: var(--space-3xl);
         }
 
+        .metric-card {
+            background: var(--white);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl) var(--space-xl);
+            text-align: center;
+        }
+
+        .metric-card .stat-value {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-sm);
+        }
+
+        .metric-card .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .week-stats {
             display: flex;
             gap: var(--space-2xl);
@@ -168,24 +189,24 @@
             <!-- Week Overview -->
             <div class="metric-grid">
                 <div class="metric-card">
-                    <div class="stat-value" id="weekly-posts">12</div>
+                    <div class="stat-value" id="weekly-posts">0</div>
                     <div class="stat-label">Posts Published</div>
-                    <div class="trend up">+20% from last week</div>
+                    <div class="trend" id="posts-trend"></div>
                 </div>
                 <div class="metric-card">
-                    <div class="stat-value" id="weekly-engagements">3,429</div>
+                    <div class="stat-value" id="weekly-engagements">0</div>
                     <div class="stat-label">Total Engagements</div>
-                    <div class="trend up">+15% from last week</div>
+                    <div class="trend" id="engagements-trend"></div>
                 </div>
                 <div class="metric-card">
-                    <div class="stat-value" id="weekly-reach">45.2K</div>
+                    <div class="stat-value" id="weekly-reach">0</div>
                     <div class="stat-label">Total Reach</div>
-                    <div class="trend down">-5% from last week</div>
+                    <div class="trend" id="reach-trend"></div>
                 </div>
                 <div class="metric-card">
-                    <div class="stat-value" id="weekly-ctr">2.8%</div>
+                    <div class="stat-value" id="weekly-ctr">0%</div>
                     <div class="stat-label">Average CTR</div>
-                    <div class="trend up">+0.3% from last week</div>
+                    <div class="trend" id="ctr-trend"></div>
                 </div>
             </div>
 
@@ -195,36 +216,7 @@
                 <div class="report-section">
                     <h3 class="section-title">Top Performing Content</h3>
                     <div class="activity-list">
-                        <div class="activity-item">
-                            <div>
-                                <div class="font-medium">The Future of Enterprise AI</div>
-                                <div class="text-xs text-muted">Published Mon</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">892</div>
-                                <div class="text-xs text-muted">engagements</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div>
-                                <div class="font-medium">Building Scalable Design Systems</div>
-                                <div class="text-xs text-muted">Published Wed</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">654</div>
-                                <div class="text-xs text-muted">engagements</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div>
-                                <div class="font-medium">Remote Work Best Practices</div>
-                                <div class="text-xs text-muted">Published Fri</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">521</div>
-                                <div class="text-xs text-muted">engagements</div>
-                            </div>
-                        </div>
+                        <p class="text-muted">No posts published this week</p>
                     </div>
                 </div>
 
@@ -232,26 +224,7 @@
                 <div class="report-section">
                     <h3 class="section-title">Campaign Performance</h3>
                     <div class="activity-list">
-                        <div class="activity-item">
-                            <div>
-                                <div class="font-medium">Q1 Enterprise Push</div>
-                                <div class="text-xs text-muted">3 posts this week</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">$450</div>
-                                <div class="text-xs text-muted">spent</div>
-                            </div>
-                        </div>
-                        <div class="activity-item">
-                            <div>
-                                <div class="font-medium">Thought Leadership Series</div>
-                                <div class="text-xs text-muted">2 posts this week</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="font-medium">Organic</div>
-                                <div class="text-xs text-muted">no spend</div>
-                            </div>
-                        </div>
+                        <p class="text-muted">No active campaigns this week</p>
                     </div>
                 </div>
 
@@ -260,31 +233,20 @@
                     <h3 class="section-title">Audience Insights</h3>
                     <div class="week-stats">
                         <div>
-                            <div class="stat-value">156</div>
+                            <div class="stat-value" id="new-followers">0</div>
                             <div class="stat-label">New Followers</div>
                         </div>
                         <div>
-                            <div class="stat-value">89</div>
+                            <div class="stat-value" id="new-companies">0</div>
                             <div class="stat-label">New Companies</div>
                         </div>
                         <div>
-                            <div class="stat-value">23</div>
+                            <div class="stat-value" id="hot-prospects">0</div>
                             <div class="stat-label">Hot Prospects</div>
                         </div>
                     </div>
                     <div class="simple-list">
-                        <div class="metric-row">
-                            <span class="metric-label">Top Industry</span>
-                            <span class="metric-value">Technology</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-label">Top Company Size</span>
-                            <span class="metric-value">1000-5000 employees</span>
-                        </div>
-                        <div class="metric-row">
-                            <span class="metric-label">Top Job Function</span>
-                            <span class="metric-value">Engineering</span>
-                        </div>
+                        <p class="text-muted text-center">No audience data available</p>
                     </div>
                 </div>
             </div>

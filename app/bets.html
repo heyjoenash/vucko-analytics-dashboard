@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategic Bets - Signals & Actions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/swiss-minimal.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Signals & Actions</h1>
+                <p class="sidebar-subtitle">Vucko</p>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Overview</div>
+                <a href="/index.html" class="nav-link">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    Dashboard
+                </a>
+                <a href="/signals.html" class="nav-link">
+                    <i class="fas fa-signal nav-icon"></i>
+                    Signals
+                </a>
+                <a href="/actions.html" class="nav-link">
+                    <i class="fas fa-tasks nav-icon"></i>
+                    Actions
+                </a>
+                <a href="/weekly-report.html" class="nav-link">
+                    <i class="fas fa-calendar nav-icon"></i>
+                    Weekly Report
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Content</div>
+                <a href="/content-calendar.html" class="nav-link">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    Content Calendar
+                </a>
+                <a href="/content-database.html" class="nav-link">
+                    <i class="fas fa-database nav-icon"></i>
+                    Content Database
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Campaigns</div>
+                <a href="/audiences.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Audiences
+                </a>
+                <a href="/campaigns.html" class="nav-link">
+                    <i class="fas fa-bullhorn nav-icon"></i>
+                    Campaigns
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Contacts</div>
+                <a href="/people.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    People
+                </a>
+                <a href="/companies.html" class="nav-link">
+                    <i class="fas fa-building nav-icon"></i>
+                    Companies
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Strategy</div>
+                <a href="/personas.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Personas
+                </a>
+                <a href="/bets.html" class="nav-link active">
+                    <i class="fas fa-chess nav-icon"></i>
+                    Bets
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Data Import</div>
+                <a href="/import-data.html" class="nav-link">
+                    <i class="fas fa-upload nav-icon"></i>
+                    Import Data
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">Strategic Bets</h1>
+                <div class="page-actions">
+                    <select class="form-select" id="quarter-select" onchange="loadBets()">
+                        <option value="Q4-2024">Q4 2024</option>
+                        <option value="Q1-2025" selected>Q1 2025</option>
+                        <option value="Q2-2025">Q2 2025</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="createNewBet()">
+                        <i class="fas fa-plus"></i>
+                        New Bet
+                    </button>
+                </div>
+            </header>
+
+            <!-- Bets Grid -->
+            <div class="bets-container">
+                <!-- Big Bets Section -->
+                <div class="bets-section">
+                    <h2 class="section-title">Big Bets</h2>
+                    <p class="section-description">Major strategic initiatives that will define our quarter</p>
+                    <div class="bets-grid" id="big-bets-grid">
+                        <!-- Big bets will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Small Bets Section -->
+                <div class="bets-section" style="margin-top: var(--space-3xl);">
+                    <h2 class="section-title">Small Bets</h2>
+                    <p class="section-description">Quick wins and experiments to test and learn</p>
+                    <div class="bets-grid" id="small-bets-grid">
+                        <!-- Small bets will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <style>
+        .bets-container {
+            margin-top: var(--space-2xl);
+        }
+
+        .section-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-sm);
+        }
+
+        .section-description {
+            color: var(--gray-600);
+            margin-bottom: var(--space-xl);
+        }
+
+        .bets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--space-xl);
+        }
+
+        .bet-card {
+            background: var(--white);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .bet-card:hover {
+            border-color: var(--gray-400);
+        }
+
+        .bet-card.big-bet {
+            border-width: 2px;
+            border-color: var(--gray-300);
+        }
+
+        .bet-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--space-lg);
+        }
+
+        .bet-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            margin: 0;
+            flex: 1;
+        }
+
+        .bet-status {
+            display: inline-block;
+            padding: var(--space-xs) var(--space-md);
+            background: var(--gray-100);
+            border: var(--border-width) solid var(--gray-300);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            text-transform: uppercase;
+        }
+
+        .bet-status.completed {
+            background: var(--gray-800);
+            color: var(--white);
+            border-color: var(--gray-800);
+        }
+
+        .bet-status.in-progress {
+            background: var(--gray-600);
+            color: var(--white);
+            border-color: var(--gray-600);
+        }
+
+        .bet-description {
+            color: var(--gray-700);
+            margin-bottom: var(--space-lg);
+            line-height: 1.5;
+        }
+
+        .bet-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+            padding-top: var(--space-lg);
+            border-top: var(--border-width) solid var(--gray-100);
+        }
+
+        .metric-item {
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-xs);
+        }
+
+        .metric-label {
+            font-size: var(--font-size-xs);
+            color: var(--gray-600);
+            text-transform: uppercase;
+        }
+
+        .form-select {
+            padding: var(--space-sm) var(--space-md);
+            border: var(--border-width) solid var(--gray-300);
+            border-radius: var(--radius-sm);
+            background: var(--white);
+            font-size: var(--font-size-base);
+            cursor: pointer;
+        }
+    </style>
+
+    <script src="/config.js"></script>
+    <script>
+        let bets = [];
+        let supabase;
+
+        // Initialize Supabase
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                return true;
+            }
+            return false;
+        }
+
+        // Load bets
+        async function loadBets() {
+            const quarter = document.getElementById('quarter-select').value;
+            
+            if (!supabase) {
+                console.error('Supabase not initialized');
+                // Use sample data for now
+                bets = getSampleBets();
+                renderBets();
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('strategic_bets')
+                    .select('*')
+                    .eq('tenant_id', DEFAULT_TENANT_ID)
+                    .eq('quarter', quarter)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                bets = data || getSampleBets();
+                renderBets();
+            } catch (error) {
+                console.error('Error loading bets:', error);
+                bets = getSampleBets();
+                renderBets();
+            }
+        }
+
+        // Get sample bets
+        function getSampleBets() {
+            return [
+                {
+                    id: 1,
+                    title: 'Enterprise ABM Campaign',
+                    description: 'Launch targeted account-based marketing campaign for Fortune 500 companies',
+                    type: 'big',
+                    status: 'in-progress',
+                    target_accounts: 25,
+                    engaged_accounts: 8,
+                    pipeline_value: 2500000
+                },
+                {
+                    id: 2,
+                    title: 'LinkedIn Thought Leadership',
+                    description: 'Establish executive presence through consistent thought leadership content',
+                    type: 'big',
+                    status: 'in-progress',
+                    posts_planned: 24,
+                    posts_published: 12,
+                    engagement_rate: 4.2
+                },
+                {
+                    id: 3,
+                    title: 'Sales Enablement Content',
+                    description: 'Create comprehensive sales collateral and case studies',
+                    type: 'small',
+                    status: 'planning',
+                    assets_planned: 15,
+                    assets_completed: 0,
+                    adoption_rate: 0
+                },
+                {
+                    id: 4,
+                    title: 'Partner Co-Marketing',
+                    description: 'Test co-marketing initiatives with strategic partners',
+                    type: 'small',
+                    status: 'completed',
+                    partners_engaged: 3,
+                    campaigns_run: 2,
+                    leads_generated: 45
+                }
+            ];
+        }
+
+        // Render bets
+        function renderBets() {
+            const bigBetsGrid = document.getElementById('big-bets-grid');
+            const smallBetsGrid = document.getElementById('small-bets-grid');
+            
+            const bigBets = bets.filter(bet => bet.type === 'big');
+            const smallBets = bets.filter(bet => bet.type === 'small');
+            
+            bigBetsGrid.innerHTML = bigBets.length > 0 
+                ? bigBets.map(bet => renderBetCard(bet)).join('')
+                : '<p class="empty-state">No big bets defined for this quarter</p>';
+                
+            smallBetsGrid.innerHTML = smallBets.length > 0
+                ? smallBets.map(bet => renderBetCard(bet)).join('')
+                : '<p class="empty-state">No small bets defined for this quarter</p>';
+        }
+
+        // Render bet card
+        function renderBetCard(bet) {
+            return `
+                <div class="bet-card ${bet.type}-bet" onclick="viewBet(${bet.id})">
+                    <div class="bet-header">
+                        <h3 class="bet-title">${bet.title}</h3>
+                        <span class="bet-status ${bet.status}">${bet.status.replace('-', ' ')}</span>
+                    </div>
+                    <p class="bet-description">${bet.description}</p>
+                    <div class="bet-metrics">
+                        ${renderBetMetrics(bet)}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render bet metrics
+        function renderBetMetrics(bet) {
+            const metrics = [];
+            
+            if (bet.target_accounts !== undefined) {
+                metrics.push(`
+                    <div class="metric-item">
+                        <div class="metric-value">${bet.engaged_accounts}/${bet.target_accounts}</div>
+                        <div class="metric-label">Accounts</div>
+                    </div>
+                `);
+            }
+            
+            if (bet.pipeline_value !== undefined) {
+                metrics.push(`
+                    <div class="metric-item">
+                        <div class="metric-value">$${(bet.pipeline_value / 1000000).toFixed(1)}M</div>
+                        <div class="metric-label">Pipeline</div>
+                    </div>
+                `);
+            }
+            
+            if (bet.posts_published !== undefined) {
+                metrics.push(`
+                    <div class="metric-item">
+                        <div class="metric-value">${bet.posts_published}/${bet.posts_planned}</div>
+                        <div class="metric-label">Posts</div>
+                    </div>
+                `);
+            }
+            
+            if (bet.engagement_rate !== undefined) {
+                metrics.push(`
+                    <div class="metric-item">
+                        <div class="metric-value">${bet.engagement_rate}%</div>
+                        <div class="metric-label">Engagement</div>
+                    </div>
+                `);
+            }
+            
+            if (bet.assets_completed !== undefined) {
+                metrics.push(`
+                    <div class="metric-item">
+                        <div class="metric-value">${bet.assets_completed}/${bet.assets_planned}</div>
+                        <div class="metric-label">Assets</div>
+                    </div>
+                `);
+            }
+            
+            if (bet.leads_generated !== undefined) {
+                metrics.push(`
+                    <div class="metric-item">
+                        <div class="metric-value">${bet.leads_generated}</div>
+                        <div class="metric-label">Leads</div>
+                    </div>
+                `);
+            }
+            
+            return metrics.slice(0, 3).join('');
+        }
+
+        // View bet
+        function viewBet(betId) {
+            alert('Bet detail view will be implemented soon!');
+        }
+
+        // Create new bet
+        function createNewBet() {
+            alert('Bet creation will be implemented soon!');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            let attempts = 0;
+            const checkSupabase = setInterval(() => {
+                attempts++;
+                if (initSupabase()) {
+                    clearInterval(checkSupabase);
+                    loadBets();
+                } else if (attempts > 20) {
+                    clearInterval(checkSupabase);
+                    console.error('Failed to initialize Supabase after 20 attempts');
+                    bets = getSampleBets();
+                    renderBets();
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

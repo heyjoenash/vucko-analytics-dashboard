@@ -3,14 +3,10 @@
   "buildCommand": "echo 'No build required for static site'",
   "outputDirectory": ".",
   "framework": null,
-  "routes": [
+  "rewrites": [
     {
-      "src": "/",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/$1"
+      "source": "/",
+      "destination": "/index.html"
     }
   ],
   "headers": [

@@ -9,21 +9,29 @@
     <link rel="stylesheet" href="/styles/swiss-minimal.css">
     <style>
         .dashboard-container {
-            padding: var(--space-3xl);
+            padding: var(--space-2xl);
+            max-width: 1400px;
         }
 
-        .metrics-section {
+        .dashboard-header {
             margin-bottom: var(--space-3xl);
         }
 
-        .metrics-grid {
+        .dashboard-grid {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3xl);
+            margin-bottom: var(--space-3xl);
+        }
+
+        .metrics-row {
+            display: flex;
             gap: var(--space-xl);
             margin-bottom: var(--space-3xl);
         }
 
         .metric-card {
+            flex: 1;
             background: var(--white);
             border: var(--border-width) solid var(--gray-200);
             border-radius: var(--radius-md);
@@ -31,69 +39,96 @@
             text-align: center;
         }
 
-        .campaign-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: var(--space-xl);
-            margin-bottom: var(--space-3xl);
+        .stat-value {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-sm);
         }
 
-        .import-section {
+        .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--gray-600);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .dashboard-section {
             background: var(--white);
             border: var(--border-width) solid var(--gray-200);
             border-radius: var(--radius-md);
             padding: var(--space-2xl);
-            margin-bottom: var(--space-3xl);
         }
 
-        .import-form {
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-xl);
+        }
+
+        .section-title {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+        }
+
+        .item-list {
             display: flex;
             flex-direction: column;
             gap: var(--space-md);
         }
 
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: var(--space-3xl);
-            margin-bottom: var(--space-3xl);
-        }
-
-        .info-section {
-            background: var(--white);
-            border: var(--border-width) solid var(--gray-200);
-            border-radius: var(--radius-md);
-            padding: var(--space-2xl);
-        }
-
-        .info-content {
-            font-size: var(--font-size-sm);
-            color: var(--gray-600);
-            line-height: 1.6;
-        }
-
-        .link {
-            color: var(--black);
-            text-decoration: underline;
-        }
-
-        .prospects-section {
-            background: var(--white);
-            border: var(--border-width) solid var(--gray-200);
-            border-radius: var(--radius-md);
-            padding: var(--space-2xl);
-        }
-
-        .prospect-item {
+        .list-item {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             padding: var(--space-md) 0;
             border-bottom: var(--border-width) solid var(--gray-100);
-            font-size: var(--font-size-sm);
         }
 
-        .prospect-item:last-child {
+        .list-item:last-child {
             border-bottom: none;
+        }
+
+        .item-info {
+            flex: 1;
+        }
+
+        .item-title {
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-xs);
+        }
+
+        .item-meta {
+            font-size: var(--font-size-sm);
+            color: var(--gray-600);
+        }
+
+        .item-value {
+            font-weight: var(--font-weight-medium);
+            text-align: right;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-2xl);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-2xl);
+            color: var(--gray-600);
+        }
+
+        .view-all-link {
+            font-size: var(--font-size-sm);
+            color: var(--gray-600);
+            text-decoration: none;
+        }
+
+        .view-all-link:hover {
+            color: var(--gray-800);
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -168,6 +203,10 @@
                     <i class="fas fa-users nav-icon"></i>
                     Personas
                 </a>
+                <a href="/bets.html" class="nav-link">
+                    <i class="fas fa-chess nav-icon"></i>
+                    Bets
+                </a>
             </div>
             
             <div class="nav-group">
@@ -182,120 +221,95 @@
         <!-- Main Content -->
         <main class="main-content">
             <div class="dashboard-container">
-                <!-- Organic Engagement Metrics -->
-                <div class="metrics-section">
-                    <h2 class="text-sm font-medium text-muted" style="margin-bottom: var(--space-lg);">Organic Engagement</h2>
-                    <div class="metrics-grid">
-                        <div class="metric-card">
-                            <div class="stat-value" id="total-people">283</div>
-                            <div class="stat-label">Total People</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="stat-value" id="total-posts">2</div>
-                            <div class="stat-label">Posts</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="stat-value" id="total-companies">126</div>
-                            <div class="stat-label">Companies</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="stat-value" id="total-engagements">303</div>
-                            <div class="stat-label">Engagements</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="stat-value" id="hot-prospects">0</div>
-                            <div class="stat-label">Hot Prospects</div>
-                        </div>
+                <!-- Page Header -->
+                <div class="dashboard-header">
+                    <h1 class="page-title">Dashboard</h1>
+                    <p class="text-muted">Real-time overview of your LinkedIn engagement</p>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <button class="btn btn-primary" onclick="location.href='/import-data.html'">
+                        <i class="fas fa-upload"></i>
+                        Import Data
+                    </button>
+                    <button class="btn" onclick="location.href='/posts.html'">
+                        <i class="fas fa-plus"></i>
+                        New Post
+                    </button>
+                    <button class="btn" onclick="location.href='/campaigns.html'">
+                        <i class="fas fa-bullhorn"></i>
+                        New Campaign
+                    </button>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="metrics-row">
+                    <div class="metric-card">
+                        <div class="stat-value" id="total-people">0</div>
+                        <div class="stat-label">People</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="stat-value" id="total-companies">0</div>
+                        <div class="stat-label">Companies</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="stat-value" id="total-engagements">0</div>
+                        <div class="stat-label">Engagements</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="stat-value" id="active-campaigns">0</div>
+                        <div class="stat-label">Active Campaigns</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="stat-value" id="pipeline-value">$0</div>
+                        <div class="stat-label">Pipeline Value</div>
                     </div>
                 </div>
 
-                <!-- Campaign Performance -->
-                <div class="metrics-section">
-                    <h2 class="text-sm font-medium text-muted" style="margin-bottom: var(--space-lg);">Campaign Performance</h2>
-                    <div class="campaign-grid">
-                        <div class="metric-card">
-                            <div class="stat-value" id="active-campaigns">2</div>
-                            <div class="stat-label">Active Campaigns</div>
+                <!-- Main Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Recent Posts -->
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Recent Posts</h2>
+                            <a href="/posts.html" class="view-all-link">View all →</a>
                         </div>
-                        <div class="metric-card">
-                            <div class="stat-value" id="total-spend">$0</div>
-                            <div class="stat-label">Total Spend</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="stat-value" id="campaign-engagements">0</div>
-                            <div class="stat-label">Campaign Engagements</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="stat-value" id="cost-per-engagement">$0</div>
-                            <div class="stat-label">Cost per Engagement</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Import -->
-                <div class="import-section">
-                    <h3 class="font-semibold" style="margin-bottom: var(--space-xl);">Quick Import</h3>
-                    <form class="import-form" onsubmit="event.preventDefault(); quickImport();">
-                        <input type="text" id="quick-run-id" class="search-input" placeholder="Apify Run ID (e.g., qEDjxfcGtjl6vcMZk)">
-                        <input type="text" id="quick-post-url" class="search-input" placeholder="LinkedIn Post URL (optional)">
-                        <button type="submit" class="btn btn-primary">Import Run</button>
-                    </form>
-                </div>
-
-                <!-- Campaign Intelligence -->
-                <div class="metrics-section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg);">
-                        <h2 class="font-semibold">Campaign Intelligence</h2>
-                        <button class="btn" onclick="syncCampaigns()">
-                            <i class="fas fa-sync-alt"></i>
-                            Sync
-                        </button>
-                    </div>
-                    <div class="campaign-grid">
-                        <div class="metric-card">
-                            <div class="stat-value text-sm" id="linkedin-campaigns">182</div>
-                            <div class="stat-label">Active Campaigns</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="stat-value text-sm" id="sync-spend">$0</div>
-                            <div class="stat-label">Total Spend</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="stat-value text-sm" id="enhanced-posts">1</div>
-                            <div class="stat-label">Enhanced Posts</div>
-                        </div>
-                        <div class="metric-card">
-                            <div class="stat-value text-sm" id="true-cpe">$0</div>
-                            <div class="stat-label">True CPE</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Demographics Insights -->
-                <div class="info-grid">
-                    <div class="info-section">
-                        <h3 class="font-semibold" style="margin-bottom: var(--space-xl);">Demographics Insights</h3>
-                        <div style="margin-bottom: var(--space-2xl);">
-                            <h4 class="text-sm font-medium" style="margin-bottom: var(--space-sm);">Top Targeted Companies</h4>
-                            <p class="info-content">
-                                urn:li:organization:1124331, urn:li:organization:1418841, urn:li:organization:1480, urn:li:organization:1586, urn:li:organization:16140...<br>
-                                <a href="#" class="link">278 companies targeted</a>
-                            </p>
-                        </div>
-                        <div>
-                            <h4 class="text-sm font-medium" style="margin-bottom: var(--space-sm);">Job Titles Targeted</h4>
-                            <p class="info-content">
-                                urn:li:title:10164, urn:li:title:117, urn:li:title:1284, urn:li:title:14410, urn:li:title:1791...<br>
-                                <a href="#" class="link">186 job titles targeted</a>
-                            </p>
+                        <div class="item-list" id="recent-posts">
+                            <p class="empty-state">No posts yet. Create your first post to start tracking engagement.</p>
                         </div>
                     </div>
 
-                    <!-- Hot Prospects -->
-                    <div class="prospects-section">
-                        <h3 class="font-semibold" style="margin-bottom: var(--space-xl);">Hot Prospects (5+ engagements)</h3>
-                        <div id="hot-prospects-list">
-                            <p class="text-muted text-sm">No hot prospects yet. Import data to find engaged users!</p>
+                    <!-- Top Signals -->
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Top Signals</h2>
+                            <a href="/signals.html" class="view-all-link">View all →</a>
+                        </div>
+                        <div class="item-list" id="top-signals">
+                            <p class="empty-state">No signals yet. Import engagement data to see top performers.</p>
+                        </div>
+                    </div>
+
+                    <!-- Active Campaigns -->
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Active Campaigns</h2>
+                            <a href="/campaigns.html" class="view-all-link">View all →</a>
+                        </div>
+                        <div class="item-list" id="active-campaigns-list">
+                            <p class="empty-state">No active campaigns. Create a campaign to track performance.</p>
+                        </div>
+                    </div>
+
+                    <!-- Actions Pipeline -->
+                    <div class="dashboard-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Actions Pipeline</h2>
+                            <a href="/actions.html" class="view-all-link">View all →</a>
+                        </div>
+                        <div class="item-list" id="pipeline-summary">
+                            <p class="empty-state">No active opportunities. Add deals to your pipeline.</p>
                         </div>
                     </div>
                 </div>
@@ -321,100 +335,207 @@
             if (!supabase) return;
 
             try {
-                // Load people count
-                const { count: peopleCount } = await supabase
-                    .from('persons')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('tenant_id', DEFAULT_TENANT_ID);
-                
-                if (peopleCount !== null) {
-                    document.getElementById('total-people').textContent = peopleCount;
-                }
+                // Load key metrics
+                await Promise.all([
+                    loadPeopleCount(),
+                    loadCompaniesCount(), 
+                    loadEngagementsCount(),
+                    loadCampaignsCount(),
+                    loadPipelineValue()
+                ]);
 
-                // Load posts count
-                const { count: postsCount } = await supabase
-                    .from('posts')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('tenant_id', DEFAULT_TENANT_ID);
-                
-                if (postsCount !== null) {
-                    document.getElementById('total-posts').textContent = postsCount;
-                }
-
-                // Load companies (aggregate from people)
-                const { data: people } = await supabase
-                    .from('persons')
-                    .select('current_company')
-                    .not('current_company', 'is', null)
-                    .eq('tenant_id', DEFAULT_TENANT_ID);
-                
-                if (people) {
-                    const uniqueCompanies = new Set(people.map(p => p.current_company));
-                    document.getElementById('total-companies').textContent = uniqueCompanies.size;
-                }
-
-                // Load engagements count
-                const { count: engagementCount } = await supabase
-                    .from('engagements')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('tenant_id', DEFAULT_TENANT_ID);
-                
-                if (engagementCount !== null) {
-                    document.getElementById('total-engagements').textContent = engagementCount;
-                }
-
-                // Load hot prospects
-                const { data: hotProspects } = await supabase
-                    .from('persons')
-                    .select('*')
-                    .gte('engagement_score', 5)
-                    .eq('tenant_id', DEFAULT_TENANT_ID)
-                    .order('engagement_score', { ascending: false })
-                    .limit(10);
-
-                if (hotProspects && hotProspects.length > 0) {
-                    document.getElementById('hot-prospects').textContent = hotProspects.length;
-                    renderHotProspects(hotProspects);
-                }
-
+                // Load detailed sections
+                await Promise.all([
+                    loadRecentPosts(),
+                    loadTopSignals(),
+                    loadActiveCampaigns(),
+                    loadPipelineSummary()
+                ]);
             } catch (error) {
                 console.error('Error loading dashboard data:', error);
             }
         }
 
-        // Render hot prospects
-        function renderHotProspects(prospects) {
-            const container = document.getElementById('hot-prospects-list');
-            const html = prospects.map(person => `
-                <div class="prospect-item">
-                    <div>
-                        <div class="font-medium">${person.name}</div>
-                        <div class="text-xs text-muted">${person.current_company || 'Unknown'}</div>
-                    </div>
-                    <div>${person.engagement_score} engagements</div>
-                </div>
-            `).join('');
+        async function loadPeopleCount() {
+            const { count } = await supabase
+                .from('persons')
+                .select('*', { count: 'exact', head: true })
+                .eq('tenant_id', DEFAULT_TENANT_ID);
             
-            container.innerHTML = html;
-        }
-
-        // Quick import
-        async function quickImport() {
-            const runId = document.getElementById('quick-run-id').value;
-            const postUrl = document.getElementById('quick-post-url').value;
-            
-            if (!runId) {
-                alert('Please enter an Apify Run ID');
-                return;
+            if (count !== null) {
+                document.getElementById('total-people').textContent = count.toLocaleString();
             }
-
-            // TODO: Implement import functionality
-            alert('Import functionality will be implemented soon!');
         }
 
-        // Sync campaigns
-        function syncCampaigns() {
-            alert('Campaign sync will be implemented soon!');
+        async function loadCompaniesCount() {
+            const { data: people } = await supabase
+                .from('persons')
+                .select('current_company')
+                .not('current_company', 'is', null)
+                .eq('tenant_id', DEFAULT_TENANT_ID);
+            
+            if (people) {
+                const uniqueCompanies = new Set(people.map(p => p.current_company));
+                document.getElementById('total-companies').textContent = uniqueCompanies.size;
+            }
+        }
+
+        async function loadEngagementsCount() {
+            const { count } = await supabase
+                .from('engagements')
+                .select('*', { count: 'exact', head: true })
+                .eq('tenant_id', DEFAULT_TENANT_ID);
+            
+            if (count !== null) {
+                document.getElementById('total-engagements').textContent = count.toLocaleString();
+            }
+        }
+
+        async function loadCampaignsCount() {
+            const { count } = await supabase
+                .from('campaign_groups')
+                .select('*', { count: 'exact', head: true })
+                .eq('tenant_id', DEFAULT_TENANT_ID)
+                .eq('status', 'active');
+            
+            if (count !== null) {
+                document.getElementById('active-campaigns').textContent = count;
+            }
+        }
+
+        async function loadPipelineValue() {
+            const { data: deals } = await supabase
+                .from('deals')
+                .select('value')
+                .eq('tenant_id', DEFAULT_TENANT_ID)
+                .is('closed_at', null);
+            
+            if (deals) {
+                const totalValue = deals.reduce((sum, deal) => sum + (deal.value || 0), 0);
+                document.getElementById('pipeline-value').textContent = 
+                    totalValue > 0 ? `$${(totalValue / 1000).toFixed(0)}K` : '$0';
+            }
+        }
+
+        async function loadRecentPosts() {
+            const { data: posts } = await supabase
+                .from('posts')
+                .select('*')
+                .eq('tenant_id', DEFAULT_TENANT_ID)
+                .order('posted_date', { ascending: false })
+                .limit(5);
+            
+            const container = document.getElementById('recent-posts');
+            if (posts && posts.length > 0) {
+                container.innerHTML = posts.map(post => `
+                    <div class="list-item" onclick="location.href='/post-detail.html?id=${post.id}'">
+                        <div class="item-info">
+                            <div class="item-title">${post.post_title || 'Untitled Post'}</div>
+                            <div class="item-meta">${post.posted_date ? new Date(post.posted_date).toLocaleDateString() : 'No date'}</div>
+                        </div>
+                        <div class="item-value">
+                            <span class="badge ${post.is_paid_promotion ? 'high' : 'low'}">
+                                ${post.is_paid_promotion ? 'Sponsored' : 'Organic'}
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function loadTopSignals() {
+            const { data: people } = await supabase
+                .from('persons')
+                .select('*')
+                .eq('tenant_id', DEFAULT_TENANT_ID)
+                .gt('engagement_score', 0)
+                .order('engagement_score', { ascending: false })
+                .limit(5);
+            
+            const container = document.getElementById('top-signals');
+            if (people && people.length > 0) {
+                container.innerHTML = people.map(person => `
+                    <div class="list-item" onclick="location.href='/person-detail.html?id=${person.id}'">
+                        <div class="item-info">
+                            <div class="item-title">${person.name}</div>
+                            <div class="item-meta">${person.current_company || 'No company'}</div>
+                        </div>
+                        <div class="item-value">
+                            <span class="badge ${person.engagement_score >= 5 ? 'high' : 'medium'}">
+                                ${person.engagement_score} signals
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function loadActiveCampaigns() {
+            const { data: campaigns } = await supabase
+                .from('campaign_groups')
+                .select('*')
+                .eq('tenant_id', DEFAULT_TENANT_ID)
+                .eq('status', 'active')
+                .order('created_at', { ascending: false })
+                .limit(5);
+            
+            const container = document.getElementById('active-campaigns-list');
+            if (campaigns && campaigns.length > 0) {
+                container.innerHTML = campaigns.map(campaign => `
+                    <div class="list-item" onclick="location.href='/campaign-detail.html?id=${campaign.id}'">
+                        <div class="item-info">
+                            <div class="item-title">${campaign.name}</div>
+                            <div class="item-meta">${campaign.campaign_type} • ${campaign.client_name || 'No client'}</div>
+                        </div>
+                        <div class="item-value">
+                            ${campaign.budget_amount > 0 
+                                ? `$${campaign.budget_amount.toLocaleString()}` 
+                                : 'Organic'
+                            }
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function loadPipelineSummary() {
+            const { data: stages } = await supabase
+                .from('pipeline_stages')
+                .select(`
+                    *,
+                    deals (count)
+                `)
+                .eq('tenant_id', DEFAULT_TENANT_ID)
+                .eq('is_active', true)
+                .order('order_position');
+            
+            const container = document.getElementById('pipeline-summary');
+            if (stages && stages.length > 0) {
+                const { data: deals } = await supabase
+                    .from('deals')
+                    .select('stage_id')
+                    .eq('tenant_id', DEFAULT_TENANT_ID)
+                    .is('closed_at', null);
+                
+                const dealCounts = {};
+                if (deals) {
+                    deals.forEach(deal => {
+                        dealCounts[deal.stage_id] = (dealCounts[deal.stage_id] || 0) + 1;
+                    });
+                }
+                
+                container.innerHTML = stages.map(stage => `
+                    <div class="list-item">
+                        <div class="item-info">
+                            <div class="item-title">${stage.name}</div>
+                            <div class="item-meta">${stage.description || ''}</div>
+                        </div>
+                        <div class="item-value">
+                            ${dealCounts[stage.id] || 0} deals
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
         // Initialize
@@ -427,6 +548,7 @@
                     loadDashboardData();
                 } else if (attempts > 20) {
                     clearInterval(checkSupabase);
+                    console.error('Failed to initialize Supabase after 20 attempts');
                 }
             }, 100);
         });

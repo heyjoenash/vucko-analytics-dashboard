@@ -337,12 +337,11 @@
         // Render empty pipeline with default stages
         function renderEmptyPipeline() {
             stages = [
-                { id: '1', name: 'New Signal', order_position: 1 },
-                { id: '2', name: 'Qualified', order_position: 2 },
-                { id: '3', name: 'Contacted', order_position: 3 },
-                { id: '4', name: 'In Discussion', order_position: 4 },
-                { id: '5', name: 'Proposal', order_position: 5 },
-                { id: '6', name: 'Closed Won', order_position: 6 }
+                { id: '1', name: 'Are we connected?', order_position: 1 },
+                { id: '2', name: 'DM sent', order_position: 2 },
+                { id: '3', name: 'Sticky content sent', order_position: 3 },
+                { id: '4', name: 'Introduction meeting', order_position: 4 },
+                { id: '5', name: 'Status tracking', order_position: 5 }
             ];
             deals = [];
             renderPipeline();
@@ -402,7 +401,7 @@
         // Update stats
         function updateStats() {
             const totalValue = deals.reduce((sum, d) => sum + (d.value || 0), 0);
-            const activeDeals = deals.filter(d => !['Closed Won', 'Closed Lost'].includes(d.stage_name));
+            const activeDeals = deals.filter(d => d.stage_name !== 'Status tracking' || !d.closed_at);
             const avgValue = activeDeals.length > 0 ? totalValue / activeDeals.length : 0;
             const notableCount = deals.filter(d => d.is_notable).length;
 
