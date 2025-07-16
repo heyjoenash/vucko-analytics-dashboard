@@ -3,1371 +3,432 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signals & Actions - LinkedIn Engagement Tracker</title>
-    
-    <!-- External Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <title>Dashboard - Signals & Actions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Configuration -->
-    <script src="config.js"></script>
-    
-    <!-- Swiss Design System -->
-    <link rel="stylesheet" href="styles/swiss-design.css">
-    
+    <link rel="stylesheet" href="/styles/swiss-minimal.css">
     <style>
-        /* Page-specific overrides only - main styles in swiss-design.css */
+        .dashboard-container {
+            padding: var(--space-3xl);
+        }
+
+        .metrics-section {
+            margin-bottom: var(--space-3xl);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: var(--space-xl);
+            margin-bottom: var(--space-3xl);
+        }
+
+        .metric-card {
+            background: var(--white);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+            text-align: center;
+        }
+
+        .campaign-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-xl);
+            margin-bottom: var(--space-3xl);
+        }
+
+        .import-section {
+            background: var(--white);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-2xl);
+            margin-bottom: var(--space-3xl);
+        }
+
+        .import-form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3xl);
+            margin-bottom: var(--space-3xl);
+        }
+
+        .info-section {
+            background: var(--white);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-2xl);
+        }
+
+        .info-content {
+            font-size: var(--font-size-sm);
+            color: var(--gray-600);
+            line-height: 1.6;
+        }
+
+        .link {
+            color: var(--black);
+            text-decoration: underline;
+        }
+
+        .prospects-section {
+            background: var(--white);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-2xl);
+        }
+
+        .prospect-item {
+            display: flex;
+            justify-content: space-between;
+            padding: var(--space-md) 0;
+            border-bottom: var(--border-width) solid var(--gray-100);
+            font-size: var(--font-size-sm);
+        }
+
+        .prospect-item:last-child {
+            border-bottom: none;
+        }
     </style>
 </head>
-<body class="has-sidebar page-with-sidebar">
-    <div id="app" class="min-h-screen">
-        <!-- Sidebar Navigation -->
-        <div id="sidebar-container"></div>
-        
-        <!-- Mobile Sidebar Toggle -->
-        <button class="sidebar-toggle" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
-        
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Signals & Actions</h1>
+                <p class="sidebar-subtitle">Vucko</p>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Overview</div>
+                <a href="/index.html" class="nav-link active">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    Dashboard
+                </a>
+                <a href="/signals.html" class="nav-link">
+                    <i class="fas fa-signal nav-icon"></i>
+                    Signals
+                </a>
+                <a href="/actions.html" class="nav-link">
+                    <i class="fas fa-tasks nav-icon"></i>
+                    Actions
+                </a>
+                <a href="/weekly-report.html" class="nav-link">
+                    <i class="fas fa-calendar nav-icon"></i>
+                    Weekly Report
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Content</div>
+                <a href="/content-calendar.html" class="nav-link">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    Content Calendar
+                </a>
+                <a href="/content-database.html" class="nav-link">
+                    <i class="fas fa-database nav-icon"></i>
+                    Content Database
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Campaigns</div>
+                <a href="/audiences.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Audiences
+                </a>
+                <a href="/campaigns.html" class="nav-link">
+                    <i class="fas fa-bullhorn nav-icon"></i>
+                    Campaigns
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Contacts</div>
+                <a href="/people.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    People
+                </a>
+                <a href="/companies.html" class="nav-link">
+                    <i class="fas fa-building nav-icon"></i>
+                    Companies
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Strategy</div>
+                <a href="/personas.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Personas
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Data Import</div>
+                <a href="/import-data.html" class="nav-link">
+                    <i class="fas fa-upload nav-icon"></i>
+                    Import Data
+                </a>
+            </div>
+        </nav>
+
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Dashboard View -->
-            <div id="dashboard-view" class="view fade-in">
-                <!-- Organic Metrics -->
-                <div class="mb-6">
-                    <h3 class="text-sm font-medium text-gray-600 mb-3">Organic Engagement</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-6">
-                        <div class="metric-card text-center">
-                            <div class="text-2xl font-semibold text-slate-900 text-mono" id="stat-people">0</div>
-                            <div class="text-xs text-muted mt-1">Total People</div>
+            <div class="dashboard-container">
+                <!-- Organic Engagement Metrics -->
+                <div class="metrics-section">
+                    <h2 class="text-sm font-medium text-muted" style="margin-bottom: var(--space-lg);">Organic Engagement</h2>
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="stat-value" id="total-people">283</div>
+                            <div class="stat-label">Total People</div>
                         </div>
-                        <div class="metric-card text-center">
-                            <div class="text-2xl font-semibold text-slate-900 text-mono" id="stat-posts">0</div>
-                            <div class="text-xs text-muted mt-1">Posts</div>
+                        <div class="metric-card">
+                            <div class="stat-value" id="total-posts">2</div>
+                            <div class="stat-label">Posts</div>
                         </div>
-                        <div class="metric-card text-center">
-                            <div class="text-2xl font-semibold text-slate-900 text-mono" id="stat-companies">0</div>
-                            <div class="text-xs text-muted mt-1">Companies</div>
+                        <div class="metric-card">
+                            <div class="stat-value" id="total-companies">126</div>
+                            <div class="stat-label">Companies</div>
                         </div>
-                        <div class="metric-card text-center">
-                            <div class="text-2xl font-semibold text-slate-900 text-mono" id="stat-engagements">0</div>
-                            <div class="text-xs text-muted mt-1">Engagements</div>
+                        <div class="metric-card">
+                            <div class="stat-value" id="total-engagements">303</div>
+                            <div class="stat-label">Engagements</div>
                         </div>
-                        <div class="metric-card text-center">
-                            <div class="text-2xl font-semibold text-slate-900 text-mono" id="stat-hot">0</div>
-                            <div class="text-xs text-muted mt-1">Hot Prospects</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Campaign Performance Metrics -->
-                <div class="mb-8">
-                    <h3 class="text-sm font-medium text-gray-600 mb-3">Campaign Performance</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        <div class="metric-card text-center bg-blue-50 border-blue-200">
-                            <div class="text-2xl font-semibold text-blue-900 text-mono" id="stat-campaigns">0</div>
-                            <div class="text-xs text-blue-700 mt-1">Active Campaigns</div>
-                        </div>
-                        <div class="metric-card text-center bg-green-50 border-green-200">
-                            <div class="text-2xl font-semibold text-green-900 text-mono" id="stat-spend">$0</div>
-                            <div class="text-xs text-green-700 mt-1">Total Spend</div>
-                        </div>
-                        <div class="metric-card text-center bg-purple-50 border-purple-200">
-                            <div class="text-2xl font-semibold text-purple-900 text-mono" id="stat-campaign-engagements">0</div>
-                            <div class="text-xs text-purple-700 mt-1">Campaign Engagements</div>
-                        </div>
-                        <div class="metric-card text-center bg-amber-50 border-amber-200">
-                            <div class="text-2xl font-semibold text-amber-900 text-mono" id="stat-cpe">$0</div>
-                            <div class="text-xs text-amber-700 mt-1">Cost per Engagement</div>
+                        <div class="metric-card">
+                            <div class="stat-value" id="hot-prospects">0</div>
+                            <div class="stat-label">Hot Prospects</div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Quick Actions -->
-                <div class="metric-card mb-8">
-                    <h3 class="text-strong text-base mb-4">Quick Import</h3>
-                    <div class="space-y-3">
-                        <input type="text" id="quick-run-id" placeholder="Apify Run ID (e.g., qEDjxfcGtjl6vcMZk)" 
-                               class="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-blue-500 text-sm">
-                        <input type="text" id="quick-post-url" placeholder="LinkedIn Post URL (optional)" 
-                               class="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-blue-500 text-sm">
-                        <button onclick="app.quickImport()" class="w-full btn btn-primary">
-                            Import Run
+
+                <!-- Campaign Performance -->
+                <div class="metrics-section">
+                    <h2 class="text-sm font-medium text-muted" style="margin-bottom: var(--space-lg);">Campaign Performance</h2>
+                    <div class="campaign-grid">
+                        <div class="metric-card">
+                            <div class="stat-value" id="active-campaigns">2</div>
+                            <div class="stat-label">Active Campaigns</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="stat-value" id="total-spend">$0</div>
+                            <div class="stat-label">Total Spend</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="stat-value" id="campaign-engagements">0</div>
+                            <div class="stat-label">Campaign Engagements</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="stat-value" id="cost-per-engagement">$0</div>
+                            <div class="stat-label">Cost per Engagement</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Import -->
+                <div class="import-section">
+                    <h3 class="font-semibold" style="margin-bottom: var(--space-xl);">Quick Import</h3>
+                    <form class="import-form" onsubmit="event.preventDefault(); quickImport();">
+                        <input type="text" id="quick-run-id" class="search-input" placeholder="Apify Run ID (e.g., qEDjxfcGtjl6vcMZk)">
+                        <input type="text" id="quick-post-url" class="search-input" placeholder="LinkedIn Post URL (optional)">
+                        <button type="submit" class="btn btn-primary">Import Run</button>
+                    </form>
+                </div>
+
+                <!-- Campaign Intelligence -->
+                <div class="metrics-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-lg);">
+                        <h2 class="font-semibold">Campaign Intelligence</h2>
+                        <button class="btn" onclick="syncCampaigns()">
+                            <i class="fas fa-sync-alt"></i>
+                            Sync
                         </button>
                     </div>
-                </div>
-                
-                <!-- Recent Activity -->
-                <div class="metric-card">
-                    <h3 class="text-strong text-base mb-4">Hot Prospects (5+ engagements)</h3>
-                    <div id="hot-prospects-list" class="space-y-2">
-                        <p class="text-sm text-muted">No data yet. Import some engagements to get started!</p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- People View -->
-            <div id="people-view" class="view hidden">
-                <div class="metric-card mb-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-strong text-base">All People</h3>
-                        <div class="relative">
-                            <svg class="icon icon-sm absolute left-3 top-2.5 text-muted" viewBox="0 0 24 24">
-                                <circle cx="11" cy="11" r="8"></circle>
-                                <path d="m21 21-4.35-4.35"></path>
-                            </svg>
-                            <input type="text" placeholder="Search people..." onkeyup="app.filterPeople(this.value)" 
-                                   class="pl-10 pr-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-blue-500 text-sm w-64">
+                    <div class="campaign-grid">
+                        <div class="metric-card">
+                            <div class="stat-value text-sm" id="linkedin-campaigns">182</div>
+                            <div class="stat-label">Active Campaigns</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="stat-value text-sm" id="sync-spend">$0</div>
+                            <div class="stat-label">Total Spend</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="stat-value text-sm" id="enhanced-posts">1</div>
+                            <div class="stat-label">Enhanced Posts</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="stat-value text-sm" id="true-cpe">$0</div>
+                            <div class="stat-label">True CPE</div>
                         </div>
                     </div>
-                    <!-- Source Filter Buttons -->
-                    <div class="flex gap-2">
-                        <button id="filter-all-sources" class="filter-tab active" onclick="app.filterBySource('all')">
-                            All <span class="ml-1 text-mono" id="count-all-sources">0</span>
-                        </button>
-                        <button id="filter-campaign" class="filter-tab" onclick="app.filterBySource('campaign')">
-                            🎯 Campaign <span class="ml-1 text-mono" id="count-campaign">0</span>
-                        </button>
-                        <button id="filter-organic" class="filter-tab" onclick="app.filterBySource('organic')">
-                            📄 Organic <span class="ml-1 text-mono" id="count-organic">0</span>
-                        </button>
+                </div>
+
+                <!-- Demographics Insights -->
+                <div class="info-grid">
+                    <div class="info-section">
+                        <h3 class="font-semibold" style="margin-bottom: var(--space-xl);">Demographics Insights</h3>
+                        <div style="margin-bottom: var(--space-2xl);">
+                            <h4 class="text-sm font-medium" style="margin-bottom: var(--space-sm);">Top Targeted Companies</h4>
+                            <p class="info-content">
+                                urn:li:organization:1124331, urn:li:organization:1418841, urn:li:organization:1480, urn:li:organization:1586, urn:li:organization:16140...<br>
+                                <a href="#" class="link">278 companies targeted</a>
+                            </p>
+                        </div>
+                        <div>
+                            <h4 class="text-sm font-medium" style="margin-bottom: var(--space-sm);">Job Titles Targeted</h4>
+                            <p class="info-content">
+                                urn:li:title:10164, urn:li:title:117, urn:li:title:1284, urn:li:title:14410, urn:li:title:1791...<br>
+                                <a href="#" class="link">186 job titles targeted</a>
+                            </p>
+                        </div>
                     </div>
-                </div>
-                <div class="data-table">
-                    <table class="w-full" style="table-layout: fixed;">
-                        <thead>
-                            <tr>
-                                <th style="width: 25%;">Name</th>
-                                <th style="width: 20%;">Company</th>
-                                <th style="width: 20%;">Title</th>
-                                <th style="width: 20%;">Campaign Source</th>
-                                <th style="width: 15%;">Score</th>
-                            </tr>
-                        </thead>
-                        <tbody id="people-list">
-                            <tr>
-                                <td colspan="5" class="text-center py-8 text-muted">
-                                    No people yet. Import data to get started!
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Companies View -->
-            <div id="companies-view" class="view hidden">
-                <div class="metric-card mb-6">
-                    <h3 class="text-strong text-base">Companies</h3>
-                </div>
-                <div class="data-table">
-                    <table class="w-full" style="table-layout: fixed;">
-                        <thead>
-                            <tr>
-                                <th style="width: 35%;">Company</th>
-                                <th style="width: 20%;">People</th>
-                                <th style="width: 25%;">Total Engagements</th>
-                                <th style="width: 20%;">Avg Score</th>
-                            </tr>
-                        </thead>
-                        <tbody id="companies-list">
-                            <tr>
-                                <td colspan="4" class="text-center py-8 text-muted">
-                                    No companies yet. Import data to get started!
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Posts View -->
-            <div id="posts-view" class="view hidden">
-                <div class="metric-card mb-6">
-                    <h3 class="text-strong text-base">Posts</h3>
-                </div>
-                <div class="data-table">
-                    <table class="w-full" style="table-layout: fixed;">
-                        <thead>
-                            <tr>
-                                <th style="width: 40%;">Post Title</th>
-                                <th style="width: 20%;">Type</th>
-                                <th style="width: 20%;">Posted Date</th>
-                                <th style="width: 20%;">Engagements</th>
-                            </tr>
-                        </thead>
-                        <tbody id="posts-list">
-                            <tr>
-                                <td colspan="4" class="text-center py-8 text-muted">
-                                    Loading posts...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <!-- Campaigns View -->
-            <div id="campaigns-view" class="view hidden">
-                <div class="metric-card mb-6">
-                    <h3 class="text-strong text-base">Campaigns</h3>
-                </div>
-                <div class="data-table">
-                    <table class="w-full" style="table-layout: fixed;">
-                        <thead>
-                            <tr>
-                                <th style="width: 30%;">Campaign Name</th>
-                                <th style="width: 20%;">Type</th>
-                                <th style="width: 20%;">Status</th>
-                                <th style="width: 15%;">Posts</th>
-                                <th style="width: 15%;">Engagements</th>
-                            </tr>
-                        </thead>
-                        <tbody id="campaigns-list">
-                            <tr>
-                                <td colspan="5" class="text-center py-8 text-muted">
-                                    Loading campaigns...
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+
+                    <!-- Hot Prospects -->
+                    <div class="prospects-section">
+                        <h3 class="font-semibold" style="margin-bottom: var(--space-xl);">Hot Prospects (5+ engagements)</h3>
+                        <div id="hot-prospects-list">
+                            <p class="text-muted text-sm">No hot prospects yet. Import data to find engaged users!</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
-        
-        <!-- Import Modal (kept for import functionality) -->
-        <div id="import-modal" class="hidden modal-backdrop" onclick="app.closeModalOnBackdrop(event, 'import-modal')">
-            <div class="bg-white rounded-lg p-8 max-w-md w-full" onclick="event.stopPropagation()">
-                <h3 class="text-lg font-semibold mb-4">Import LinkedIn Data</h3>
-                
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Option 1: Apify Run ID</label>
-                        <input type="text" id="import-run-id" placeholder="e.g., qEDjxfcGtjl6vcMZk" 
-                               class="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-blue-500 text-sm mb-2">
-                        <input type="text" id="import-post-url" placeholder="LinkedIn Post URL (optional)" 
-                               class="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-blue-500 text-sm">
-                        <button onclick="app.importFromApify()" class="mt-2 w-full btn btn-primary">
-                            Import from Apify
-                        </button>
-                    </div>
-                    
-                    <div class="border-t pt-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Option 2: Paste JSON Data</label>
-                        <textarea id="import-json" rows="4" placeholder="Paste Apify dataset JSON here..." 
-                                  class="w-full px-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-blue-500 text-sm"></textarea>
-                        <button onclick="app.importFromJSON()" class="mt-2 w-full btn btn-secondary">
-                            Import JSON
-                        </button>
-                    </div>
-                </div>
-                
-                <div id="import-status" class="mt-4 hidden">
-                    <div class="loading"></div>
-                    <span class="ml-2">Importing...</span>
-                </div>
-                
-                <button onclick="app.hideModal('import-modal')" class="mt-4 text-gray-600 hover:text-gray-800">
-                    Cancel
-                </button>
-            </div>
-        </div>
     </div>
-    
+
+    <script src="/config.js"></script>
     <script>
-        // Wait for Supabase to load, then initialize
-        let supabaseClient;
-        
-        // Application state and methods
-        window.app = {
-            // State
-            currentView: 'dashboard',
-            people: [],
-            companies: {},
-            posts: [],
-            filteredPeople: [],
-            currentSourceFilter: 'all',
-            currentSearchTerm: '',
-            
-            // Initialize
-            async init() {
-                console.log('Initializing Signals & Actions...');
-                await this.loadData();
-                this.updateStats();
-            },
-            
-            // Load data from Supabase
-            async loadData() {
-                try {
-                    // Load people - try regular persons table first
-                    const { data: people, error: peopleError } = await supabaseClient
-                        .from('persons')
-                        .select('*')
-                        .eq('tenant_id', DEFAULT_TENANT_ID)
-                        .order('engagement_score', { ascending: false });
-                    
-                    if (peopleError) throw peopleError;
-                    this.people = people || [];
-                    
-                    this.filteredPeople = this.people;
-                    
-                    // Load posts
-                    const { data: posts, error: postsError } = await supabaseClient
-                        .from('posts')
-                        .select('*')
-                        .eq('tenant_id', DEFAULT_TENANT_ID)
-                        .order('created_at', { ascending: false });
-                    
-                    if (postsError) throw postsError;
-                    this.posts = posts || [];
-                    
-                    // Count engagements per post
-                    for (const post of this.posts) {
-                        const { count } = await supabaseClient
-                            .from('engagements')
-                            .select('*', { count: 'exact', head: true })
-                            .eq('post_id', post.id)
-                            .eq('tenant_id', DEFAULT_TENANT_ID);
-                        post.engagement_count = count || 0;
-                    }
-                    
-                    // Calculate company aggregations
-                    this.companies = {};
-                    this.people.forEach(person => {
-                        const company = person.current_company || 'Unknown';
-                        if (!this.companies[company]) {
-                            this.companies[company] = {
-                                name: company,
-                                people: [],
-                                totalEngagements: 0,
-                                avgScore: 0
-                            };
-                        }
-                        this.companies[company].people.push(person);
-                        this.companies[company].totalEngagements += person.engagement_score || 0;
-                    });
-                    
-                    // Calculate average scores
-                    Object.values(this.companies).forEach(company => {
-                        company.avgScore = company.people.length > 0 
-                            ? Math.round(company.totalEngagements / company.people.length)
-                            : 0;
-                    });
-                    
-                    this.renderCurrentView();
-                } catch (error) {
-                    console.error('Error loading data:', error);
-                    this.showMessage('Failed to load data', 'error');
+        let supabase;
+
+        // Initialize Supabase
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                return true;
+            }
+            return false;
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            if (!supabase) return;
+
+            try {
+                // Load people count
+                const { count: peopleCount } = await supabase
+                    .from('persons')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('tenant_id', DEFAULT_TENANT_ID);
+                
+                if (peopleCount !== null) {
+                    document.getElementById('total-people').textContent = peopleCount;
                 }
-            },
-            
-            // Import from Apify
-            async importFromApify() {
-                const runId = document.getElementById('import-run-id').value.trim();
-                const postUrl = document.getElementById('import-post-url').value.trim();
+
+                // Load posts count
+                const { count: postsCount } = await supabase
+                    .from('posts')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('tenant_id', DEFAULT_TENANT_ID);
                 
-                if (!runId) {
-                    alert('Please enter a Run ID');
-                    return;
+                if (postsCount !== null) {
+                    document.getElementById('total-posts').textContent = postsCount;
                 }
+
+                // Load companies (aggregate from people)
+                const { data: people } = await supabase
+                    .from('persons')
+                    .select('current_company')
+                    .not('current_company', 'is', null)
+                    .eq('tenant_id', DEFAULT_TENANT_ID);
                 
-                document.getElementById('import-status').classList.remove('hidden');
-                
-                try {
-                    // First, get the run details to find the dataset ID
-                    const runResponse = await fetch(
-                        `https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_CONFIG.token}`
-                    );
-                    
-                    if (!runResponse.ok) {
-                        throw new Error('Failed to fetch run details. Please check the Run ID.');
-                    }
-                    
-                    const runData = await runResponse.json();
-                    const datasetId = runData.data.defaultDatasetId;
-                    
-                    // Now fetch the dataset items
-                    const response = await fetch(
-                        `https://api.apify.com/v2/datasets/${datasetId}/items?token=${APIFY_CONFIG.token}`
-                    );
-                    
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch dataset items');
-                    }
-                    
-                    const data = await response.json();
-                    await this.processImportData(data, postUrl);
-                    
-                } catch (error) {
-                    console.error('Import error:', error);
-                    alert(error.message || 'Failed to import from Apify. Please check the Run ID.');
-                } finally {
-                    document.getElementById('import-status').classList.add('hidden');
+                if (people) {
+                    const uniqueCompanies = new Set(people.map(p => p.current_company));
+                    document.getElementById('total-companies').textContent = uniqueCompanies.size;
                 }
-            },
-            
-            // Import from JSON
-            async importFromJSON() {
-                const jsonText = document.getElementById('import-json').value.trim();
-                if (!jsonText) {
-                    alert('Please paste JSON data');
-                    return;
-                }
-                
-                document.getElementById('import-status').classList.remove('hidden');
-                
-                try {
-                    const data = JSON.parse(jsonText);
-                    await this.processImportData(data);
-                } catch (error) {
-                    console.error('Import error:', error);
-                    alert('Invalid JSON format or import failed');
-                } finally {
-                    document.getElementById('import-status').classList.add('hidden');
-                }
-            },
-            
-            // Process import data
-            async processImportData(data, postUrl = null) {
-                const items = Array.isArray(data) ? data : [data];
-                let successCount = 0;
-                let skipCount = 0;
-                let errorCount = 0;
-                
-                // First create/update the post
-                let postId = null;
-                if (postUrl || items[0]?.sharedPostUrl) {
-                    const url = postUrl || items[0].sharedPostUrl;
-                    const { data: post, error: postError } = await supabaseClient
-                        .from('posts')
-                        .upsert({
-                            linkedin_url: url,
-                            url: url,
-                            tenant_id: DEFAULT_TENANT_ID,
-                            is_organic: true,
-                            created_at: new Date().toISOString()
-                        }, {
-                            onConflict: 'linkedin_url,tenant_id'
-                        })
-                        .select()
-                        .single();
-                    
-                    if (!postError && post) {
-                        postId = post.id;
-                    }
-                }
-                
-                for (const item of items) {
-                    try {
-                        // Extract company from headline
-                        const company = this.extractCompanyFromHeadline(item.primarySubtitle || '');
-                        
-                        // Insert or update person
-                        const { data: person, error: personError } = await supabaseClient
-                            .from('persons')
-                            .upsert({
-                                name: item.name,
-                                linkedin_url: item.profileUrl,
-                                profile_picture: item.imageUrl || item.profileImageUrl,
-                                headline: item.primarySubtitle || item.headline,
-                                current_company: company !== 'Unknown' ? company : (item.company || null),
-                                current_title: item.title || null,
-                                is_follower: item.distance === 'DISTANCE_1' || item.isFollower || false,
-                                tenant_id: DEFAULT_TENANT_ID
-                            }, {
-                                onConflict: 'linkedin_url,tenant_id'
-                            })
-                            .select()
-                            .single();
-                        
-                        if (personError) {
-                            console.error('Error creating person:', personError);
-                            errorCount++;
-                            continue;
-                        }
-                        
-                        if (postId && person) {
-                            // Create engagement record
-                            const { error: engagementError } = await supabaseClient
-                                .from('engagements')
-                                .upsert({
-                                    person_id: person.id,
-                                    post_id: postId,
-                                    engagement_type: item.reactionType || 'reaction',
-                                    reaction_type: item.reactionType || null,
-                                    engaged_at: new Date().toISOString(),
-                                    tenant_id: DEFAULT_TENANT_ID
-                                }, {
-                                    onConflict: 'person_id,post_id,tenant_id'
-                                });
-                            
-                            if (engagementError) {
-                                console.error('Error creating engagement:', engagementError);
-                                errorCount++;
-                                continue;
-                            }
-                        }
-                        
-                        // Update engagement score
-                        const { count } = await supabaseClient
-                            .from('engagements')
-                            .select('*', { count: 'exact', head: true })
-                            .eq('person_id', person.id)
-                            .eq('tenant_id', DEFAULT_TENANT_ID);
-                        
-                        await supabaseClient
-                            .from('persons')
-                            .update({ engagement_score: count || 0 })
-                            .eq('id', person.id);
-                        
-                        successCount++;
-                    } catch (error) {
-                        console.error('Error processing item:', error, item);
-                        errorCount++;
-                    }
-                }
-                
-                // Reload data
-                await this.loadData();
-                
-                // Show result
-                const message = `Import complete! Success: ${successCount}, Errors: ${errorCount}`;
-                this.showMessage(message, errorCount > 0 ? 'warning' : 'success');
-                this.hideModal('import-modal');
-            },
-            
-            // Extract company from headline
-            extractCompanyFromHeadline(headline) {
-                if (!headline) return 'Unknown';
-                
-                // Common patterns: "Title at Company" or "Title | Company"
-                const patterns = [
-                    / at ([^|]+)$/i,
-                    / @ ([^|]+)$/i,
-                    / \| ([^|]+)$/i,
-                ];
-                
-                for (const pattern of patterns) {
-                    const match = headline.match(pattern);
-                    if (match) return match[1].trim();
-                }
-                
-                return 'Unknown';
-            },
-            
-            // Quick import
-            async quickImport() {
-                const runId = document.getElementById('quick-run-id').value.trim();
-                const postUrl = document.getElementById('quick-post-url').value.trim();
-                if (!runId) return;
-                
-                document.getElementById('import-run-id').value = runId;
-                document.getElementById('import-post-url').value = postUrl;
-                await this.importFromApify();
-                document.getElementById('quick-run-id').value = '';
-                document.getElementById('quick-post-url').value = '';
-            },
-            
-            // UI Methods
-            showView(viewName) {
-                this.currentView = viewName;
-                
-                // Hide all views
-                document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-                
-                // Show selected view
-                document.getElementById(`${viewName}-view`).classList.remove('hidden');
-                
-                // Render the view content
-                this.renderCurrentView();
-            },
-            
-            async renderCurrentView() {
-                switch (this.currentView) {
-                    case 'dashboard':
-                        await this.renderDashboard();
-                        break;
-                    case 'people':
-                        this.renderPeople();
-                        break;
-                    case 'companies':
-                        this.renderCompanies();
-                        break;
-                    case 'posts':
-                        this.renderPosts();
-                        break;
-                    case 'campaigns':
-                        this.renderCampaigns();
-                        break;
-                }
-            },
-            
-            async renderDashboard() {
-                // Load campaign stats if available
-                try {
-                    await this.loadCampaignStats();
-                } catch (error) {
-                    console.warn('Campaign stats not available');
-                }
-                
-                // Hot prospects
-                const hotProspects = this.people.filter(p => (p.engagement_score || 0) >= 5);
-                const hotList = document.getElementById('hot-prospects-list');
-                
-                if (hotProspects.length > 0) {
-                    hotList.innerHTML = hotProspects.map(person => `
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer" 
-                             onclick="app.showPerson(${JSON.stringify(person).replace(/"/g, '&quot;')})">
-                            <div>
-                                <div class="font-medium">${person.name}</div>
-                                <div class="text-sm text-gray-600">${person.current_company || 'Unknown'}</div>
-                            </div>
-                            <div class="text-right">
-                                <div class="engagement-score">${this.renderScore(person.engagement_score)}</div>
-                                <div class="text-sm text-gray-600">${person.engagement_score} engagements</div>
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    hotList.innerHTML = '<p class="text-gray-500">No hot prospects yet. Import data to find engaged users!</p>';
-                }
-            },
-            
-            async loadCampaignStats() {
-                try {
-                    // Get campaign statistics if tables exist
-                    const { data: campaigns, error: campaignsError } = await supabaseClient
-                        .from('linkedin_campaigns')
-                        .select('*')
-                        .eq('tenant_id', DEFAULT_TENANT_ID);
-                    
-                    if (campaignsError) {
-                        console.warn('Campaign tables not yet created');
-                        return;
-                    }
-                    
-                    // Get enhanced dashboard stats if available
-                    const { data: enhancedStats, error: statsError } = await supabaseClient
-                        .from('enhanced_dashboard_stats')
-                        .select('*')
-                        .single();
-                    
-                    // Calculate campaign metrics
-                    const activeCampaigns = campaigns?.filter(c => c.status === 'ACTIVE').length || 0;
-                    const totalBudget = campaigns?.reduce((sum, c) => sum + (c.total_budget_amount || 0), 0) || 0;
-                    const totalSpend = enhancedStats?.total_campaign_spend || 0;
-                    const campaignEngagements = enhancedStats?.campaign_driven_engagements || 0;
-                    const avgCostPerEngagement = enhancedStats?.avg_cost_per_engagement || 0;
-                    
-                    // Update campaign stats in UI
-                    if (document.getElementById('stat-campaigns')) {
-                        document.getElementById('stat-campaigns').textContent = activeCampaigns;
-                    }
-                    if (document.getElementById('stat-spend')) {
-                        document.getElementById('stat-spend').textContent = totalSpend > 0 ? `$${totalSpend.toFixed(0)}` : '$0';
-                    }
-                    if (document.getElementById('stat-campaign-engagements')) {
-                        document.getElementById('stat-campaign-engagements').textContent = campaignEngagements;
-                    }
-                    if (document.getElementById('stat-cpe')) {
-                        document.getElementById('stat-cpe').textContent = avgCostPerEngagement > 0 ? `$${avgCostPerEngagement.toFixed(2)}` : '$0';
-                    }
-                    
-                } catch (error) {
-                    console.error('Error loading campaign stats:', error);
-                }
-            },
-            
-            renderPeople() {
-                const tbody = document.getElementById('people-list');
-                
-                if (this.filteredPeople.length > 0) {
-                    tbody.innerHTML = this.filteredPeople.map(person => `
-                        <tr class="cursor-pointer" onclick="window.location.href='person-detail.html?id=${person.id}'">
-                            <td>
-                                <div class="flex items-center gap-3">
-                                    ${person.profile_picture ? 
-                                        `<img src="${person.profile_picture}" 
-                                             alt="${person.name}" 
-                                             class="profile-photo"
-                                             onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMCAyMXYtMmE0IDQgMCAwIDAtNC00SDhhNCA0IDAgMCAwLTQgNHYyIj48L3BhdGg+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ij48L2NpcmNsZT48L3N2Zz4=';">` :
-                                        '<div class="profile-placeholder"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>'
-                                    }
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-medium text-sm text-truncate text-strong">${person.name}</div>
-                                        ${person.is_follower ? '<div class="text-xs text-blue-600 mt-1">Follower</div>' : ''}
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="text-sm text-truncate">${person.current_company || 'Unknown'}</td>
-                            <td class="text-sm text-truncate">${person.headline || '—'}</td>
-                            <td>
-                                <div class="flex items-center gap-2 text-gray-400">
-                                    <span>📄</span>
-                                    <span class="text-xs">Organic</span>
-                                </div>
-                            </td>
-                            <td>
-                                ${this.renderEngagementScore(person.engagement_score || 0)}
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="5" class="text-center py-8 text-muted">
-                                No people found. Try importing data or adjusting your search.
-                            </td>
-                        </tr>
-                    `;
-                }
-            },
-            
-            renderCompanies() {
-                const tbody = document.getElementById('companies-list');
-                const companiesList = Object.values(this.companies).sort((a, b) => b.avgScore - a.avgScore);
-                
-                if (companiesList.length > 0) {
-                    tbody.innerHTML = companiesList.map(company => `
-                        <tr class="cursor-pointer" onclick="window.location.href='company-detail.html?name=${encodeURIComponent(company.name)}'">
-                            <td class="text-sm font-medium text-truncate">${company.name}</td>
-                            <td class="text-sm text-mono">${company.people.length}</td>
-                            <td class="text-sm text-mono">${company.totalEngagements}</td>
-                            <td>
-                                ${this.renderEngagementScore(company.avgScore)}
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="text-center py-8 text-muted">
-                                No companies yet. Import data to get started!
-                            </td>
-                        </tr>
-                    `;
-                }
-            },
-            
-            renderScore(score) {
-                const stars = Math.min(5, Math.ceil((score || 0) / 2));
-                return Array(5).fill(0).map((_, i) => 
-                    `<i class="fas fa-star ${i < stars ? 'star' : 'text-gray-300'}"></i>`
-                ).join('');
-            },
-            
-            renderEngagementScore(score) {
-                if (score >= 10) {
-                    return '<span class="data-pill high">High</span>';
-                } else if (score >= 5) {
-                    return '<span class="data-pill medium">Medium</span>';
-                } else if (score > 0) {
-                    return '<span class="data-pill low">Low</span>';
-                } else {
-                    return '<span class="data-pill">New</span>';
-                }
-            },
-            
-            renderPosts() {
-                const tbody = document.getElementById('posts-list');
-                
-                if (this.posts.length > 0) {
-                    tbody.innerHTML = this.posts.map(post => `
-                        <tr class="cursor-pointer" onclick="window.location.href='post-analysis.html?id=${post.id}'">
-                            <td>
-                                <div class="flex items-center gap-2">
-                                    ${post.linkedin_campaign_id ? 
-                                        '<span class="text-blue-600" title="Campaign Post">💰</span>' : 
-                                        '<span class="text-gray-400" title="Organic Post">📄</span>'
-                                    }
-                                    <div class="min-w-0 flex-1">
-                                        <div class="text-sm font-medium text-truncate">${post.post_title || post.content_preview || 'Untitled Post'}</div>
-                                        <div class="text-xs text-muted mt-1 text-truncate">${post.linkedin_url ? post.linkedin_url.substring(0, 50) + '...' : ''}</div>
-                                        ${post.campaign_spend ? 
-                                            `<div class="text-xs text-blue-600 mt-1">Spend: $${post.campaign_spend.toFixed(2)}</div>` : 
-                                            ''
-                                        }
-                                    </div>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="data-pill ${post.linkedin_campaign_id ? 'high' : 'medium'}">
-                                    ${post.linkedin_campaign_id ? 'Sponsored' : 'Organic'}
-                                </span>
-                            </td>
-                            <td class="text-sm">
-                                ${post.posted_date ? new Date(post.posted_date).toLocaleDateString() : '—'}
-                            </td>
-                            <td>
-                                <div class="text-sm text-mono font-medium">${post.engagement_count || 0}</div>
-                                ${post.true_cost_per_engagement ? 
-                                    `<div class="text-xs text-blue-600">$${post.true_cost_per_engagement.toFixed(2)}/eng</div>` : 
-                                    ''
-                                }
-                            </td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="4" class="text-center py-8 text-muted">
-                                No posts yet. Import data to get started!
-                            </td>
-                        </tr>
-                    `;
-                }
-            },
-            
-            renderCampaigns() {
-                const tbody = document.getElementById('campaigns-list');
-                
-                // For now, create placeholder campaigns data
-                // TODO: Load from campaigns table in database
-                const campaigns = [
-                    { id: 1, name: 'Q1 Brand Awareness', campaign_type: 'organic', status: 'active', post_count: 5, engagement_count: 127 },
-                    { id: 2, name: 'Product Launch Campaign', campaign_type: 'sponsored', status: 'active', post_count: 3, engagement_count: 89 },
-                    { id: 3, name: 'Thought Leadership', campaign_type: 'organic', status: 'paused', post_count: 8, engagement_count: 203 }
-                ];
-                
-                if (campaigns.length > 0) {
-                    tbody.innerHTML = campaigns.map(campaign => `
-                        <tr class="cursor-pointer" onclick="window.location.href='campaign-detail.html?id=${campaign.id}'">
-                            <td>
-                                <div class="text-sm font-medium text-truncate">${campaign.name}</div>
-                            </td>
-                            <td>
-                                <span class="data-pill ${campaign.campaign_type === 'organic' ? 'medium' : 'high'}">
-                                    ${campaign.campaign_type === 'organic' ? 'Organic' : 'Sponsored'}
-                                </span>
-                            </td>
-                            <td>
-                                <span class="data-pill ${campaign.status === 'active' ? 'low' : 'medium'}">
-                                    ${campaign.status}
-                                </span>
-                            </td>
-                            <td class="text-sm text-mono font-medium">${campaign.post_count}</td>
-                            <td class="text-sm text-mono font-medium">${campaign.engagement_count}</td>
-                        </tr>
-                    `).join('');
-                } else {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="5" class="text-center py-8 text-muted">
-                                No campaigns yet. Create your first campaign!
-                            </td>
-                        </tr>
-                    `;
-                }
-            },
-            
-            filterPeople(searchTerm) {
-                this.currentSearchTerm = searchTerm.toLowerCase();
-                this.applyFilters();
-            },
-            
-            filterBySource(source) {
-                this.currentSourceFilter = source;
-                
-                // Update active state on buttons
-                document.querySelectorAll('#people-view .filter-tab').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                document.getElementById(`filter-${source === 'all' ? 'all-sources' : source}`).classList.add('active');
-                
-                this.applyFilters();
-            },
-            
-            applyFilters() {
-                this.filteredPeople = this.people.filter(person => {
-                    // Apply search filter
-                    const matchesSearch = !this.currentSearchTerm || 
-                        person.name.toLowerCase().includes(this.currentSearchTerm) ||
-                        (person.current_company || '').toLowerCase().includes(this.currentSearchTerm) ||
-                        (person.headline || '').toLowerCase().includes(this.currentSearchTerm);
-                    
-                    // Apply source filter (all people are organic for now)
-                    const matchesSource = this.currentSourceFilter === 'all' ||
-                        this.currentSourceFilter === 'organic';
-                    
-                    return matchesSearch && matchesSource;
-                });
-                
-                this.updateSourceCounts();
-                this.renderPeople();
-            },
-            
-            updateSourceCounts() {
-                try {
-                    const campaignCount = 0; // No campaign data available yet
-                    const organicCount = this.people.length; // All people are organic
-                    
-                    const allSourcesEl = document.getElementById('count-all-sources');
-                    const campaignEl = document.getElementById('count-campaign');
-                    const organicEl = document.getElementById('count-organic');
-                    
-                    if (allSourcesEl) allSourcesEl.textContent = this.people.length;
-                    if (campaignEl) campaignEl.textContent = campaignCount;
-                    if (organicEl) organicEl.textContent = organicCount;
-                } catch (error) {
-                    console.warn('Error updating source counts:', error);
-                }
-            },
-            
-            updateStats() {
-                document.getElementById('stat-people').textContent = this.people.length;
-                document.getElementById('stat-posts').textContent = this.posts.length;
-                document.getElementById('stat-companies').textContent = Object.keys(this.companies).length;
-                document.getElementById('stat-engagements').textContent = 
-                    this.people.reduce((sum, p) => sum + (p.engagement_score || 0), 0);
-                const hotProspects = this.people.filter(p => (p.engagement_score || 0) >= 5);
-                document.getElementById('stat-hot').textContent = hotProspects.length;
-                
-                // Update hot prospects list
-                this.updateHotProspects(hotProspects);
-            },
-            
-            updateHotProspects(hotProspects) {
-                const container = document.getElementById('hot-prospects-list');
-                if (!container) {
-                    console.warn('Hot prospects container not found');
-                    return;
-                }
-                if (hotProspects.length > 0) {
-                    container.innerHTML = hotProspects.slice(0, 5).map(person => `
-                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer"
-                             onclick="window.location.href='person-detail.html?id=${person.id}'">
-                            <div class="flex items-center gap-2">
-                                <div>
-                                    <div class="font-medium text-sm">${person.name}</div>
-                                    <div class="text-xs text-gray-600">${person.current_company || 'Unknown'}</div>
-                                </div>
-                            </div>
-                            <div class="text-right">
-                                ${this.renderEngagementScore(person.engagement_score)}
-                            </div>
-                        </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<p class="text-sm text-muted">No hot prospects yet. Import some engagements to get started!</p>';
-                }
-            },
-            
-            showPerson(person) {
-                const content = document.getElementById('person-detail-content');
-                content.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <h3 class="text-xl font-semibold">${person.name}</h3>
-                                <p class="text-gray-600">${person.headline || 'No headline'}</p>
-                                <p class="text-gray-600">${person.current_company || 'Unknown company'}</p>
-                            </div>
-                            ${person.profile_picture ? 
-                                `<img src="${person.profile_picture}" alt="${person.name}" class="w-16 h-16 rounded-full" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center" style="display:none;"><i class="fas fa-user text-gray-400"></i></div>` :
-                                '<div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center"><i class="fas fa-user text-gray-400"></i></div>'
-                            }
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <h4 class="font-semibold mb-2">Engagement Score</h4>
-                            <div class="flex items-center gap-2">
-                                <div class="engagement-score text-2xl">${this.renderScore(person.engagement_score)}</div>
-                                <span class="text-gray-600">(${person.engagement_score || 0} engagements)</span>
-                            </div>
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <h4 class="font-semibold mb-2">LinkedIn Profile</h4>
-                            <a href="${person.linkedin_url}" target="_blank" class="text-blue-600 hover:text-blue-800">
-                                <i class="fab fa-linkedin mr-2"></i>View on LinkedIn
-                            </a>
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <h4 class="font-semibold mb-2">Actions</h4>
-                            <div class="flex gap-2">
-                                <button onclick="app.copyPersonDetails(${JSON.stringify(person).replace(/"/g, '&quot;')})" 
-                                        class="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">
-                                    <i class="fas fa-copy mr-2"></i>Copy Details
-                                </button>
-                                <button onclick="app.exportPerson(${JSON.stringify(person).replace(/"/g, '&quot;')})" 
-                                        class="px-4 py-2 bg-gray-100 rounded hover:bg-gray-200">
-                                    <i class="fas fa-download mr-2"></i>Export
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('person-modal').classList.remove('hidden');
-            },
-            
-            showCompany(company) {
-                const content = document.getElementById('company-detail-content');
-                content.innerHTML = `
-                    <div class="space-y-4">
-                        <div>
-                            <h3 class="text-xl font-semibold">${company.name}</h3>
-                            <p class="text-gray-600">${company.people.length} people engaged</p>
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <h4 class="font-semibold mb-2">Engagement Summary</h4>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <div class="text-2xl font-bold">${company.totalEngagements}</div>
-                                    <div class="text-sm text-gray-600">Total Engagements</div>
-                                </div>
-                                <div>
-                                    <div class="engagement-score text-2xl">${this.renderScore(company.avgScore)}</div>
-                                    <div class="text-sm text-gray-600">Average Score</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <h4 class="font-semibold mb-2">Top Engaged People</h4>
-                            <div class="space-y-2">
-                                ${company.people.slice(0, 5).map(person => `
-                                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded hover:bg-gray-100 cursor-pointer" 
-                                         onclick="app.showPerson(${JSON.stringify(person).replace(/"/g, '&quot;')})">
-                                        <div>
-                                            <div class="font-medium">${person.name}</div>
-                                            <div class="text-sm text-gray-600">${person.headline || 'No title'}</div>
-                                        </div>
-                                        <div class="engagement-score">${this.renderScore(person.engagement_score)}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('company-modal').classList.remove('hidden');
-            },
-            
-            async showPost(post) {
-                const content = document.getElementById('post-detail-content');
-                
-                // Show loading state
-                content.innerHTML = `
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="text-xl font-semibold">${post.post_title || 'Untitled Post'}</h3>
-                                <span class="px-3 py-1 text-sm rounded-full ${post.is_organic ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">
-                                    ${post.is_organic ? 'Organic' : 'Sponsored'}
-                                </span>
-                            </div>
-                            <button onclick="app.expandPost(${post.id})" class="text-blue-600 hover:text-blue-800 text-sm">
-                                <i class="fas fa-expand-alt mr-1"></i>Full View
-                            </button>
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <h4 class="font-semibold mb-2">LinkedIn Post</h4>
-                            <div class="bg-gray-50 p-4 rounded-lg">
-                                <a href="${post.linkedin_url || post.url}" target="_blank" class="text-blue-600 hover:text-blue-800 break-all">
-                                    <i class="fab fa-linkedin mr-2"></i>${post.linkedin_url || post.url || 'No URL'}
-                                </a>
-                            </div>
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <h4 class="font-semibold mb-2">Loading Engagements...</h4>
-                            <div class="loading"></div>
-                        </div>
-                    </div>
-                `;
-                
-                document.getElementById('post-modal').classList.remove('hidden');
-                
-                // Load engagement data
-                try {
-                    const engagements = await this.loadEngagements(post.id);
-                    const signals = this.computeSignals(engagements);
-                    
-                    // Update content with engagements
-                    content.innerHTML = this.renderPostDetail(post, engagements, signals);
-                } catch (error) {
-                    console.error('Error loading engagements:', error);
-                    content.innerHTML += '<div class="text-red-600">Failed to load engagements</div>';
-                }
-            },
-            
-            async loadEngagements(postId) {
-                const { data: engagements, error } = await supabaseClient
+
+                // Load engagements count
+                const { count: engagementCount } = await supabase
                     .from('engagements')
-                    .select(`
-                        *,
-                        person:persons(
-                            id,
-                            name,
-                            profile_picture,
-                            headline,
-                            current_title,
-                            current_company,
-                            linkedin_url,
-                            engagement_score,
-                            is_follower
-                        )
-                    `)
-                    .eq('post_id', postId)
+                    .select('*', { count: 'exact', head: true })
+                    .eq('tenant_id', DEFAULT_TENANT_ID);
+                
+                if (engagementCount !== null) {
+                    document.getElementById('total-engagements').textContent = engagementCount;
+                }
+
+                // Load hot prospects
+                const { data: hotProspects } = await supabase
+                    .from('persons')
+                    .select('*')
+                    .gte('engagement_score', 5)
                     .eq('tenant_id', DEFAULT_TENANT_ID)
-                    .order('engaged_at', { ascending: false });
-                
-                if (error) throw error;
-                return engagements || [];
-            },
-            
-            computeSignals(engagements) {
-                const companies = {};
-                const titles = {};
-                const reactionTypes = {};
-                
-                engagements.forEach(e => {
-                    const person = e.person;
-                    
-                    // Count companies
-                    const company = person.current_company || 'Unknown';
-                    companies[company] = (companies[company] || 0) + 1;
-                    
-                    // Count titles
-                    const title = person.current_title || person.headline || 'Unknown';
-                    titles[title] = (titles[title] || 0) + 1;
-                    
-                    // Count reaction types
-                    const reaction = e.reaction_type || e.engagement_type || 'reaction';
-                    reactionTypes[reaction] = (reactionTypes[reaction] || 0) + 1;
-                });
-                
-                return {
-                    topCompanies: Object.entries(companies)
-                        .sort(([,a], [,b]) => b - a)
-                        .slice(0, 5),
-                    topTitles: Object.entries(titles)
-                        .sort(([,a], [,b]) => b - a)
-                        .slice(0, 5),
-                    reactionBreakdown: Object.entries(reactionTypes)
-                        .sort(([,a], [,b]) => b - a),
-                    followerCount: engagements.filter(e => e.person.is_follower).length,
-                    totalEngagements: engagements.length
-                };
-            },
-            
-            renderPostDetail(post, engagements, signals) {
-                return `
-                    <div class="space-y-6">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="text-xl font-semibold">${post.post_title || 'Untitled Post'}</h3>
-                                <span class="px-3 py-1 text-sm rounded-full ${post.is_organic ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">
-                                    ${post.is_organic ? 'Organic' : 'Sponsored'}
-                                </span>
-                            </div>
-                            <button onclick="app.expandPost(${post.id})" class="text-blue-600 hover:text-blue-800 text-sm">
-                                <i class="fas fa-expand-alt mr-1"></i>Full View
-                            </button>
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <h4 class="font-semibold mb-3">📊 Top Signals</h4>
-                            <div class="grid grid-cols-2 gap-4 mb-4">
-                                <div>
-                                    <div class="text-sm text-gray-600 mb-2">Top Companies</div>
-                                    ${signals.topCompanies.slice(0, 3).map(([company, count]) => `
-                                        <div class="text-sm mb-1">
-                                            <span class="font-medium">${company}</span>
-                                            <span class="text-gray-500">(${count})</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                                <div>
-                                    <div class="text-sm text-gray-600 mb-2">Reaction Breakdown</div>
-                                    ${signals.reactionBreakdown.map(([type, count]) => `
-                                        <div class="text-sm mb-1">
-                                            <span class="font-medium">${type}</span>
-                                            <span class="text-gray-500">(${count})</span>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="border-t pt-4">
-                            <h4 class="font-semibold mb-3">👥 Engagements (${signals.totalEngagements})</h4>
-                            <div class="space-y-2 max-h-64 overflow-y-auto">
-                                ${engagements.slice(0, 10).map(e => `
-                                    <div class="flex items-center justify-between p-2 bg-gray-50 rounded hover:bg-gray-100">
-                                        <div class="flex items-center gap-3">
-                                            ${e.person.profile_picture ? 
-                                                `<img src="${e.person.profile_picture}" alt="${e.person.name}" class="w-8 h-8 rounded-full">` :
-                                                '<div class="w-8 h-8 bg-gray-300 rounded-full"></div>'
-                                            }
-                                            <div>
-                                                <div class="font-medium text-sm">${e.person.name}</div>
-                                                <div class="text-xs text-gray-600">${e.person.current_company || 'Unknown'}</div>
-                                            </div>
-                                        </div>
-                                        <div class="text-xs text-gray-500">${e.reaction_type || 'reaction'}</div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
+                    .order('engagement_score', { ascending: false })
+                    .limit(10);
+
+                if (hotProspects && hotProspects.length > 0) {
+                    document.getElementById('hot-prospects').textContent = hotProspects.length;
+                    renderHotProspects(hotProspects);
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Render hot prospects
+        function renderHotProspects(prospects) {
+            const container = document.getElementById('hot-prospects-list');
+            const html = prospects.map(person => `
+                <div class="prospect-item">
+                    <div>
+                        <div class="font-medium">${person.name}</div>
+                        <div class="text-xs text-muted">${person.current_company || 'Unknown'}</div>
                     </div>
-                `;
-            },
+                    <div>${person.engagement_score} engagements</div>
+                </div>
+            `).join('');
             
-            expandPost(postId) {
-                window.location.href = `post-analysis.html?id=${postId}`;
-            },
-            
-            hideModal(modalId) {
-                document.getElementById(modalId).classList.add('hidden');
-            },
-            
-            closeModalOnBackdrop(event, modalId) {
-                if (event.target === event.currentTarget) {
-                    this.hideModal(modalId);
-                }
-            },
-            
-            copyPersonDetails(person) {
-                const details = `${person.name}
-${person.headline || 'No headline'}
-${person.current_company || 'Unknown company'}
-LinkedIn: ${person.linkedin_url}
-Engagement Score: ${person.engagement_score || 0}`;
-                
-                navigator.clipboard.writeText(details);
-                this.showMessage('Person details copied to clipboard');
-            },
-            
-            exportPerson(person) {
-                const csv = `Name,Headline,Company,LinkedIn URL,Engagement Score
-"${person.name}","${person.headline || ''}","${person.current_company || ''}","${person.linkedin_url}","${person.engagement_score || 0}"`;
-                
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${person.name.replace(/\s+/g, '_')}_engagement.csv`;
-                a.click();
-                URL.revokeObjectURL(url);
-            },
-            
-            showMessage(message, type = 'success') {
-                const colors = {
-                    success: 'bg-green-100 text-green-800',
-                    error: 'bg-red-100 text-red-800',
-                    warning: 'bg-yellow-100 text-yellow-800'
-                };
-                
-                const div = document.createElement('div');
-                div.className = `fixed top-4 right-4 px-6 py-3 rounded-lg ${colors[type]} fade-in`;
-                div.textContent = message;
-                document.body.appendChild(div);
-                
-                setTimeout(() => {
-                    div.style.opacity = '0';
-                    setTimeout(() => div.remove(), 300);
-                }, 3000);
-            }
-        };
-        
-        // Toggle sidebar for mobile
-        window.toggleSidebar = function() {
-            const sidebar = document.querySelector('.sidebar-nav');
-            if (sidebar) {
-                sidebar.classList.toggle('sidebar-open');
-            }
+            container.innerHTML = html;
         }
-        
-        // Handle URL fragment navigation
-        function handleFragmentNavigation() {
-            const hash = window.location.hash.substring(1); // Remove the #
-            if (hash && ['dashboard', 'posts', 'people', 'companies', 'campaigns'].includes(hash)) {
-                app.showView(hash);
+
+        // Quick import
+        async function quickImport() {
+            const runId = document.getElementById('quick-run-id').value;
+            const postUrl = document.getElementById('quick-post-url').value;
+            
+            if (!runId) {
+                alert('Please enter an Apify Run ID');
+                return;
             }
+
+            // TODO: Implement import functionality
+            alert('Import functionality will be implemented soon!');
         }
-        
-        // Load sidebar component
-        async function loadSidebar() {
-            try {
-                console.log('Loading sidebar from components/sidebar.html');
-                const response = await fetch('components/sidebar.html');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const sidebarHTML = await response.text();
-                console.log('Sidebar HTML loaded, length:', sidebarHTML.length);
-                
-                const container = document.getElementById('sidebar-container');
-                if (!container) {
-                    throw new Error('Sidebar container not found!');
-                }
-                
-                container.innerHTML = sidebarHTML;
-                console.log('Sidebar HTML inserted into container');
-            } catch (error) {
-                console.error('Failed to load sidebar:', error);
-                // Add a fallback sidebar
-                const container = document.getElementById('sidebar-container');
-                if (container) {
-                    container.innerHTML = `
-                        <nav class="sidebar-nav" style="position: fixed; left: 0; top: 0; bottom: 0; width: 240px; background: #f8f9fa; border-right: 1px solid #e5e7eb; padding: 1.5rem;">
-                            <h1 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Signals & Actions</h1>
-                            <p style="color: red;">Sidebar failed to load from file</p>
-                            <div style="margin-top: 2rem;">
-                                <a href="#dashboard" onclick="app.showView('dashboard')" style="display: block; padding: 0.5rem; color: #374151;">Dashboard</a>
-                                <a href="#people" onclick="app.showView('people')" style="display: block; padding: 0.5rem; color: #374151;">People</a>
-                                <a href="#companies" onclick="app.showView('companies')" style="display: block; padding: 0.5rem; color: #374151;">Companies</a>
-                                <a href="#posts" onclick="app.showView('posts')" style="display: block; padding: 0.5rem; color: #374151;">Posts</a>
-                            </div>
-                        </nav>
-                    `;
-                }
-            }
+
+        // Sync campaigns
+        function syncCampaigns() {
+            alert('Campaign sync will be implemented soon!');
         }
-        
-        // Initialize app when page loads
-        document.addEventListener('DOMContentLoaded', async () => {
-            console.log('DOMContentLoaded fired');
-            try {
-                // Load sidebar first
-                await loadSidebar();
-                console.log('Sidebar loaded');
-                
-                // Check if required dependencies are loaded
-                if (typeof window.supabase === 'undefined') {
-                    console.error('Supabase not loaded!');
-                    alert('Supabase library failed to load. Please check your internet connection.');
-                    return;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            let attempts = 0;
+            const checkSupabase = setInterval(() => {
+                attempts++;
+                if (initSupabase()) {
+                    clearInterval(checkSupabase);
+                    loadDashboardData();
+                } else if (attempts > 20) {
+                    clearInterval(checkSupabase);
                 }
-                
-                if (typeof SUPABASE_CONFIG === 'undefined') {
-                    console.error('Config not loaded!');
-                    alert('Configuration file failed to load.');
-                    return;
-                }
-                
-                // Initialize Supabase client
-                supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
-                console.log('Supabase client created');
-                
-                // Handle URL fragments for navigation from detail pages
-                handleFragmentNavigation();
-                
-                // Listen for hash changes
-                window.addEventListener('hashchange', handleFragmentNavigation);
-                
-                // Initialize app
-                await app.init();
-                console.log('App initialized');
-            } catch (error) {
-                console.error('Failed to initialize app:', error);
-                alert('Failed to initialize app: ' + error.message);
-            }
+            }, 100);
         });
     </script>
 </body>

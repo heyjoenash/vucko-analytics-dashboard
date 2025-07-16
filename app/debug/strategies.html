@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategies - Signals & Actions</title>
+    
+    <!-- External Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- Swiss Design System -->
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    
+    <!-- Components -->
+    <script src="components/breadcrumb.js"></script>
+    
+    <style>
+        /* Page-specific styles */
+        .strategy-card {
+            background: white;
+            border: 1px solid var(--color-slate-200);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-lg);
+            transition: all 0.2s ease;
+        }
+        .strategy-card:hover {
+            border-color: var(--color-blue-500);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .bet-card {
+            background: white;
+            border: 1px solid var(--color-slate-200);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+        .bet-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+        }
+        .bet-status.completed { background: var(--color-green-100); color: var(--color-green-800); }
+        .bet-status.in-progress { background: var(--color-amber-100); color: var(--color-amber-800); }
+        .bet-status.planning { background: var(--color-blue-100); color: var(--color-blue-800); }
+        
+        .story-matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+        }
+        .story-cell {
+            background: var(--color-slate-50);
+            padding: var(--spacing-md);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-slate-200);
+        }
+        .story-header {
+            font-weight: var(--font-weight-semibold);
+            color: var(--color-slate-700);
+            font-size: var(--font-size-sm);
+            margin-bottom: var(--spacing-sm);
+        }
+    </style>
+</head>
+<body class="has-sidebar page-with-sidebar">
+    <div id="app" class="min-h-screen">
+        <!-- Sidebar Navigation -->
+        <div id="sidebar-container"></div>
+        
+        <!-- Mobile Sidebar Toggle -->
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="mb-6">
+                <div id="breadcrumb-container"></div>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-xl font-semibold text-gray-900">Strategies</h1>
+                        <div class="text-sm text-muted">Strategic planning and campaign alignment</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="app.exportStrategy()" class="btn btn-secondary">
+                            <i class="fas fa-file-export mr-2"></i>Export Strategy
+                        </button>
+                        <button onclick="app.showCreateModal()" class="btn btn-primary">
+                            <i class="fas fa-plus mr-2"></i>New Strategy
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Current Strategy Overview -->
+            <div id="currentStrategy" class="strategy-card mb-6">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h2 class="text-lg font-semibold text-slate-900">Quarterly Overview: Q3 2025</h2>
+                        <p class="text-sm text-muted mt-1">Establish market leadership in enterprise-grade automation</p>
+                    </div>
+                    <button onclick="app.editStrategy('current')" class="btn btn-secondary text-sm">
+                        <i class="fas fa-edit mr-1"></i>Edit
+                    </button>
+                </div>
+                
+                <div class="bg-slate-50 p-4 rounded border">
+                    <p class="text-sm text-slate-700">
+                        Establish market leadership in enterprise-grade automation by simplifying the value proposition and 
+                        demonstrating rapid ROI. Focus on premium eCommerce experiences, in-car digital interfaces, and 
+                        blockbuster game launch moments.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Strategic Bets -->
+            <div class="metric-card mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-strong text-base">Strategic Bets</h3>
+                    <button onclick="app.addBet()" class="btn btn-secondary text-sm">
+                        <i class="fas fa-plus mr-1"></i>Add Bet
+                    </button>
+                </div>
+                
+                <div id="strategicBets">
+                    <div class="bet-card">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-semibold text-slate-900">Premium eCommerce Experiences</h4>
+                                <p class="text-sm text-muted">Big Bet</p>
+                            </div>
+                            <span class="bet-status completed">Completed</span>
+                        </div>
+                        <div class="text-sm text-slate-700 mb-3">
+                            <strong>Objective:</strong> Become the leading provider of immersive digital experiences for premium e-commerce brands.
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-muted">Target: E-commerce Marketing Director</div>
+                            <button onclick="app.viewBetDetails('ecommerce')" class="text-xs text-blue-600 hover:text-blue-800">
+                                View Details →
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bet-card">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-semibold text-slate-900">Elevating In-Car Experiences</h4>
+                                <p class="text-sm text-muted">Small Bet</p>
+                            </div>
+                            <span class="bet-status in-progress">In Progress</span>
+                        </div>
+                        <div class="text-sm text-slate-700 mb-3">
+                            <strong>Objective:</strong> Explore the viability of providing creative services for in-car digital interfaces.
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-muted">Target: Automotive UX Director</div>
+                            <button onclick="app.viewBetDetails('automotive')" class="text-xs text-blue-600 hover:text-blue-800">
+                                View Details →
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="bet-card">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-semibold text-slate-900">Blockbuster Launch Moments</h4>
+                                <p class="text-sm text-muted">Big Bet</p>
+                            </div>
+                            <span class="bet-status in-progress">In Progress</span>
+                        </div>
+                        <div class="text-sm text-slate-700 mb-3">
+                            <strong>Objective:</strong> Become the go-to creative partner for AAA game launches.
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div class="text-xs text-muted">Target: Director of Global Marketing @ AAA Studio</div>
+                            <button onclick="app.viewBetDetails('gaming')" class="text-xs text-blue-600 hover:text-blue-800">
+                                View Details →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Target Personas -->
+            <div class="metric-card mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-strong text-base">Target Personas</h3>
+                    <button onclick="window.location.href='personas.html'" class="text-sm text-blue-600 hover:text-blue-800">
+                        Manage Personas →
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="targetPersonas">
+                    <div class="bg-slate-50 p-4 rounded border border-slate-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-semibold text-slate-900">E-commerce Marketing Director</h4>
+                            <button onclick="window.location.href='personas.html?persona=ecommerce'" class="text-xs text-blue-600">
+                                View Details →
+                            </button>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-3">
+                            Series B-C companies, $10-100M revenue. Dealing with tax compliance complexity from rapid growth.
+                            Influences/approves tax automation purchases. Active on LinkedIn, engages with ROI-focused content.
+                        </p>
+                        <div class="text-xs text-muted">Campaign: Premium eCommerce Experiences</div>
+                    </div>
+                    
+                    <div class="bg-slate-50 p-4 rounded border border-slate-200">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-semibold text-slate-900">Director of Global Marketing @ AAA Studio</h4>
+                            <button onclick="window.location.href='personas.html?persona=gaming'" class="text-xs text-blue-600">
+                                View Details →
+                            </button>
+                        </div>
+                        <p class="text-sm text-slate-600 mb-3">
+                            Mid-to-large publisher (e.g. Blizzard, Riot, CDPR, Epic) focused on blockbuster game launches.
+                            Needs immersive launch campaigns that drive preorders and day-1 engagement.
+                        </p>
+                        <div class="text-xs text-muted">Campaign: Blockbuster Launch Moments</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Story Matrix -->
+            <div class="metric-card">
+                <h3 class="text-strong text-base mb-4">Story Matrix</h3>
+                <p class="text-sm text-muted mb-4">Narrative alignment for addressing persona pain points</p>
+                
+                <div class="story-matrix">
+                    <div class="story-cell">
+                        <div class="story-header">Pain Point</div>
+                        <div class="text-sm text-slate-700">Launch fatigue from generic trailers or muted press</div>
+                    </div>
+                    <div class="story-cell">
+                        <div class="story-header">Their Opportunity</div>
+                        <div class="text-sm text-slate-700">Build an unforgettable cultural moment</div>
+                    </div>
+                    <div class="story-cell">
+                        <div class="story-header">Our Solution</div>
+                        <div class="text-sm text-slate-700">End-to-end content stack: brand films, social BTS, influencer kits, UGC experiences</div>
+                    </div>
+                    <div class="story-cell">
+                        <div class="story-header">The Story</div>
+                        <div class="text-sm text-slate-700">Diablo IV paired Megan Fox ads, a Milan Fashion Week show, and "Goremet" chocolate PR boxes → biggest Blizzard launch ever ($666 M in 5 days)</div>
+                    </div>
+                </div>
+                
+                <div class="story-matrix">
+                    <div class="story-cell">
+                        <div class="story-header">Pain Point</div>
+                        <div class="text-sm text-slate-700">Limited reach beyond core gamers</div>
+                    </div>
+                    <div class="story-cell">
+                        <div class="story-header">Their Opportunity</div>
+                        <div class="text-sm text-slate-700">Tap new fandoms via cross-media collabs (music, anime, fashion)</div>
+                    </div>
+                    <div class="story-cell">
+                        <div class="story-header">Our Solution</div>
+                        <div class="text-sm text-slate-700">Partnership ideation + production for IP crossovers & live events</div>
+                    </div>
+                    <div class="story-cell">
+                        <div class="story-header">The Story</div>
+                        <div class="text-sm text-slate-700">Cyberpunk 2077 x Netflix Edgerunners anime drove 1 M daily players and shot the game back to Steam top-10</div>
+                    </div>
+                </div>
+                
+                <div class="story-matrix">
+                    <div class="story-cell">
+                        <div class="story-header">Pain Point</div>
+                        <div class="text-sm text-slate-700">Need measurable offline lift from digital buzz</div>
+                    </div>
+                    <div class="story-cell">
+                        <div class="story-header">Their Opportunity</div>
+                        <div class="text-sm text-slate-700">Close the digital-to-physical loop with redeemable rewards</div>
+                    </div>
+                    <div class="story-cell">
+                        <div class="story-header">Our Solution</div>
+                        <div class="text-sm text-slate-700">Design virtual quests + code logistics + retail POS</div>
+                    </div>
+                    <div class="story-cell">
+                        <div class="story-header">The Story</div>
+                        <div class="text-sm text-slate-700">Free Fire x Burger King sold 500 k Booyah Burgers; in-game BK jet + store takeover looped players to purchase</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create/Edit Strategy Modal -->
+            <div id="strategyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold mb-4" id="modalTitle">Create Strategy</h3>
+                    
+                    <form id="strategyForm" class="space-y-4">
+                        <div>
+                            <label class="text-sm font-medium text-slate-700 block mb-1">Strategy Name</label>
+                            <input type="text" id="strategyName" required
+                                   class="w-full px-3 py-2 border border-slate-200 rounded focus:outline-none focus:border-blue-500"
+                                   placeholder="e.g. Q3 2025 Market Leadership">
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700 block mb-1">Quarterly Overview</label>
+                            <textarea id="quarterlyOverview" rows="3"
+                                      class="w-full px-3 py-2 border border-slate-200 rounded text-sm"
+                                      placeholder="High-level strategic goals and focus areas"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="text-sm font-medium text-slate-700 block mb-1">Strategic Bets</label>
+                            <div id="betsContainer">
+                                <div class="bet-input mb-3 p-3 border border-slate-200 rounded">
+                                    <input type="text" placeholder="Bet name" class="w-full mb-2 px-3 py-2 border border-slate-200 rounded text-sm">
+                                    <textarea placeholder="Objective" rows="2" class="w-full mb-2 px-3 py-2 border border-slate-200 rounded text-sm"></textarea>
+                                    <div class="flex gap-2">
+                                        <select class="flex-1 px-3 py-2 border border-slate-200 rounded text-sm">
+                                            <option value="big">Big Bet</option>
+                                            <option value="small">Small Bet</option>
+                                        </select>
+                                        <select class="flex-1 px-3 py-2 border border-slate-200 rounded text-sm">
+                                            <option value="planning">Planning</option>
+                                            <option value="in-progress">In Progress</option>
+                                            <option value="completed">Completed</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" onclick="app.addBetInput()" class="text-sm text-blue-600 hover:text-blue-800">
+                                + Add Strategic Bet
+                            </button>
+                        </div>
+                        
+                        <div class="flex justify-end gap-3 pt-4 border-t">
+                            <button type="button" onclick="app.closeModal()" class="btn btn-secondary">
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                Save Strategy
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let supabaseClient;
+        let currentStrategy = null;
+        
+        // Main application object
+        const app = {
+            async init() {
+                // Initialize breadcrumb
+                BreadcrumbManager.inject(BreadcrumbManager.getPath('strategies'));
+                
+                // Set up form handler
+                document.getElementById('strategyForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveStrategy();
+                });
+                
+                // Load current strategy
+                await this.loadStrategy();
+            },
+            
+            async loadStrategy() {
+                try {
+                    // For now, use the demo data shown above
+                    // In production, this would load from the strategies table
+                    console.log('Strategy data loaded (demo mode)');
+                } catch (error) {
+                    console.error('Error loading strategy:', error);
+                }
+            },
+            
+            showCreateModal() {
+                currentStrategy = null;
+                document.getElementById('modalTitle').textContent = 'Create Strategy';
+                document.getElementById('strategyForm').reset();
+                this.resetBetsContainer();
+                document.getElementById('strategyModal').classList.remove('hidden');
+            },
+            
+            editStrategy(strategyId) {
+                // Load existing strategy data into form
+                currentStrategy = strategyId;
+                document.getElementById('modalTitle').textContent = 'Edit Strategy';
+                
+                // Pre-populate with current data
+                document.getElementById('strategyName').value = 'Q3 2025 Market Leadership';
+                document.getElementById('quarterlyOverview').value = 'Establish market leadership in enterprise-grade automation by simplifying the value proposition and demonstrating rapid ROI.';
+                
+                document.getElementById('strategyModal').classList.remove('hidden');
+            },
+            
+            addBet() {
+                this.showCreateModal();
+                // Focus on bets section
+                setTimeout(() => {
+                    document.querySelector('#betsContainer input').focus();
+                }, 100);
+            },
+            
+            addBetInput() {
+                const container = document.getElementById('betsContainer');
+                const betInput = document.createElement('div');
+                betInput.className = 'bet-input mb-3 p-3 border border-slate-200 rounded';
+                betInput.innerHTML = `
+                    <input type="text" placeholder="Bet name" class="w-full mb-2 px-3 py-2 border border-slate-200 rounded text-sm">
+                    <textarea placeholder="Objective" rows="2" class="w-full mb-2 px-3 py-2 border border-slate-200 rounded text-sm"></textarea>
+                    <div class="flex gap-2">
+                        <select class="flex-1 px-3 py-2 border border-slate-200 rounded text-sm">
+                            <option value="big">Big Bet</option>
+                            <option value="small">Small Bet</option>
+                        </select>
+                        <select class="flex-1 px-3 py-2 border border-slate-200 rounded text-sm">
+                            <option value="planning">Planning</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                        <button type="button" onclick="this.parentElement.parentElement.remove()" class="px-2 py-1 text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash text-xs"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(betInput);
+            },
+            
+            resetBetsContainer() {
+                const container = document.getElementById('betsContainer');
+                container.innerHTML = `
+                    <div class="bet-input mb-3 p-3 border border-slate-200 rounded">
+                        <input type="text" placeholder="Bet name" class="w-full mb-2 px-3 py-2 border border-slate-200 rounded text-sm">
+                        <textarea placeholder="Objective" rows="2" class="w-full mb-2 px-3 py-2 border border-slate-200 rounded text-sm"></textarea>
+                        <div class="flex gap-2">
+                            <select class="flex-1 px-3 py-2 border border-slate-200 rounded text-sm">
+                                <option value="big">Big Bet</option>
+                                <option value="small">Small Bet</option>
+                            </select>
+                            <select class="flex-1 px-3 py-2 border border-slate-200 rounded text-sm">
+                                <option value="planning">Planning</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+            },
+            
+            async saveStrategy() {
+                const formData = {
+                    name: document.getElementById('strategyName').value,
+                    quarterly_overview: document.getElementById('quarterlyOverview').value,
+                    strategic_bets: this.getBetsFromForm()
+                };
+                
+                try {
+                    // In production, save to strategies table
+                    console.log('Saving strategy:', formData);
+                    
+                    this.closeModal();
+                    alert('Strategy saved successfully!');
+                    
+                } catch (error) {
+                    console.error('Error saving strategy:', error);
+                    alert('Failed to save strategy');
+                }
+            },
+            
+            getBetsFromForm() {
+                const bets = [];
+                const betInputs = document.querySelectorAll('.bet-input');
+                
+                betInputs.forEach(input => {
+                    const name = input.querySelector('input[type="text"]').value;
+                    const objective = input.querySelector('textarea').value;
+                    const size = input.querySelector('select:first-of-type').value;
+                    const status = input.querySelector('select:last-of-type').value;
+                    
+                    if (name && objective) {
+                        bets.push({ name, objective, size, status });
+                    }
+                });
+                
+                return bets;
+            },
+            
+            viewBetDetails(betId) {
+                // Navigate to bet detail page or show modal
+                alert(`Viewing details for ${betId} bet`);
+            },
+            
+            closeModal() {
+                document.getElementById('strategyModal').classList.add('hidden');
+            },
+            
+            async exportStrategy() {
+                const exportData = {
+                    exportDate: new Date().toISOString(),
+                    strategy: 'Q3 2025 Market Leadership',
+                    quarterlyOverview: 'Establish market leadership in enterprise-grade automation...',
+                    strategicBets: [
+                        {
+                            name: 'Premium eCommerce Experiences',
+                            type: 'Big Bet',
+                            status: 'Completed',
+                            targetPersona: 'E-commerce Marketing Director'
+                        }
+                        // ... other bets
+                    ]
+                };
+                
+                // Download JSON
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `strategy-export-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            }
+        };
+        
+        // Load sidebar component
+        async function loadSidebar() {
+            try {
+                const response = await fetch('components/sidebar.html');
+                const sidebarHTML = await response.text();
+                document.getElementById('sidebar-container').innerHTML = sidebarHTML;
+            } catch (error) {
+                console.error('Failed to load sidebar:', error);
+            }
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load sidebar first
+            await loadSidebar();
+            
+            // Initialize Supabase client
+            supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            
+            // Initialize app
+            window.app = app;
+            app.init();
+        });
+    </script>
+</body>
+</html>

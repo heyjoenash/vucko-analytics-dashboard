@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Database - Signals & Actions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/swiss-minimal.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Signals & Actions</h1>
+                <p class="sidebar-subtitle">Vucko</p>
+            </div>
+            
+                        <div class="nav-group">
+                <div class="nav-label">Overview</div>
+                <a href="/index.html" class="nav-link">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    Dashboard
+                </a>
+                <a href="/signals.html" class="nav-link">
+                    <i class="fas fa-signal nav-icon"></i>
+                    Signals
+                </a>
+                <a href="/actions.html" class="nav-link">
+                    <i class="fas fa-tasks nav-icon"></i>
+                    Actions
+                </a>
+                <a href="/weekly-report.html" class="nav-link">
+                    <i class="fas fa-calendar nav-icon"></i>
+                    Weekly Report
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Content</div>
+                <a href="/content-calendar.html" class="nav-link">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    Content Calendar
+                </a>
+                <a href="/content-database.html" class="nav-link active">
+                    <i class="fas fa-database nav-icon"></i>
+                    Content Database
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Campaigns</div>
+                <a href="/audiences.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Audiences
+                </a>
+                <a href="/campaigns.html" class="nav-link">
+                    <i class="fas fa-bullhorn nav-icon"></i>
+                    Campaigns
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Contacts</div>
+                <a href="/people.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    People
+                </a>
+                <a href="/companies.html" class="nav-link">
+                    <i class="fas fa-building nav-icon"></i>
+                    Companies
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Strategy</div>
+                <a href="/personas.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Personas
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Data Import</div>
+                <a href="/import-data.html" class="nav-link">
+                    <i class="fas fa-upload nav-icon"></i>
+                    Import Data
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">Content Database</h1>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="createNewContent()">
+                        <i class="fas fa-plus"></i>
+                        New Content
+                    </button>
+                </div>
+            </header>
+
+            <!-- Filters -->
+            <div class="filters-row">
+                <div class="filter-pills">
+                    <button class="filter-pill active" onclick="filterContent('all')">
+                        All <span class="count">0</span>
+                    </button>
+                    <button class="filter-pill" onclick="filterContent('draft')">
+                        Draft <span class="count">0</span>
+                    </button>
+                    <button class="filter-pill" onclick="filterContent('scheduled')">
+                        Scheduled <span class="count">0</span>
+                    </button>
+                    <button class="filter-pill" onclick="filterContent('published')">
+                        Published <span class="count">0</span>
+                    </button>
+                </div>
+                <input type="text" class="search-input" placeholder="Search content..." id="content-search" onkeyup="searchContent(this.value)">
+            </div>
+
+            <!-- Data Table -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%">Title</th>
+                        <th style="width: 15%">Type</th>
+                        <th style="width: 15%">Status</th>
+                        <th style="width: 15%">Date</th>
+                        <th style="width: 15%">Performance</th>
+                    </tr>
+                </thead>
+                <tbody id="content-tbody">
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <p>No content yet. Create your first piece of content to start tracking.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/config.js"></script>
+    <script>
+        let allContent = [];
+        let filteredContent = [];
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        // Initialize Supabase
+        let supabase;
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                return true;
+            }
+            return false;
+        }
+
+        // Load content
+        async function loadContent() {
+            if (!supabase) {
+                console.error('Supabase not initialized');
+                allContent = [];
+                updateCounts();
+                applyFilters();
+                return;
+            }
+
+            try {
+                const { data: posts, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('tenant_id', DEFAULT_TENANT_ID)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allContent = posts || [];
+                updateCounts();
+                applyFilters();
+            } catch (error) {
+                console.error('Error loading content:', error);
+                allContent = [];
+                updateCounts();
+                applyFilters();
+            }
+        }
+
+
+        // Update filter counts
+        function updateCounts() {
+            const counts = {
+                all: allContent.length,
+                draft: allContent.filter(c => c.status === 'draft').length,
+                scheduled: allContent.filter(c => c.status === 'scheduled').length,
+                published: allContent.filter(c => c.status === 'published').length
+            };
+
+            // Update filter pill counts
+            document.querySelectorAll('.filter-pill').forEach(pill => {
+                const text = pill.textContent.trim().toLowerCase();
+                const filterType = text.split(' ')[0]; // Get first word
+                const countSpan = pill.querySelector('.count');
+                if (countSpan && counts[filterType] !== undefined) {
+                    countSpan.textContent = counts[filterType];
+                }
+            });
+        }
+
+        // Filter content
+        function filterContent(filter) {
+            currentFilter = filter;
+            
+            // Update active state
+            document.querySelectorAll('.filter-pill').forEach(pill => {
+                pill.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            applyFilters();
+        }
+
+        // Search content
+        function searchContent(search) {
+            currentSearch = search.toLowerCase();
+            applyFilters();
+        }
+
+        // Apply all filters
+        function applyFilters() {
+            filteredContent = allContent.filter(content => {
+                // Status filter
+                const matchesStatus = currentFilter === 'all' || content.status === currentFilter;
+                
+                // Search filter
+                const matchesSearch = !currentSearch || 
+                    (content.post_title || '').toLowerCase().includes(currentSearch) ||
+                    (content.content_type || '').toLowerCase().includes(currentSearch);
+
+                return matchesStatus && matchesSearch;
+            });
+
+            renderContent();
+        }
+
+        // Render content table
+        function renderContent() {
+            const tbody = document.getElementById('content-tbody');
+            
+            if (filteredContent.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <p>No content found. Try adjusting your filters or search terms.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredContent.map(content => {
+                const date = content.posted_date || content.scheduled_date || '—';
+                const formattedDate = date !== '—' ? new Date(date).toLocaleDateString() : date;
+                
+                return `
+                    <tr onclick="viewContentDetail(${content.id})">
+                        <td>
+                            <div>${content.post_title || 'Untitled'}</div>
+                            <div class="text-xs text-muted">${content.content || ''}</div>
+                        </td>
+                        <td>${content.content_type || 'Post'}</td>
+                        <td>
+                            <span class="badge ${content.status === 'published' ? 'high' : content.status === 'scheduled' ? 'medium' : 'low'}">
+                                ${content.status || 'draft'}
+                            </span>
+                        </td>
+                        <td>${formattedDate}</td>
+                        <td>
+                            ${content.engagement_count > 0 
+                                ? `<div>${content.engagement_count} engagements</div>
+                                   <div class="text-xs text-muted">${content.engagement_rate || 0}% rate</div>`
+                                : '—'
+                            }
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // View content detail
+        function viewContentDetail(contentId) {
+            window.location.href = `/post-detail.html?id=${contentId}`;
+        }
+
+        // Create new content
+        function createNewContent() {
+            alert('Content creation will be implemented soon!');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for Supabase to load
+            let attempts = 0;
+            const checkSupabase = setInterval(() => {
+                attempts++;
+                if (initSupabase()) {
+                    clearInterval(checkSupabase);
+                    loadContent();
+                } else if (attempts > 20) {
+                    clearInterval(checkSupabase);
+                    console.error('Failed to initialize Supabase after 20 attempts');
+                    allContent = [];
+                    updateCounts();
+                    applyFilters();
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

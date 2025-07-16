@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Report - Signals & Actions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/swiss-minimal.css">
+    <style>
+        .report-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3xl);
+            margin-top: var(--space-3xl);
+        }
+
+        .report-section {
+            background: var(--white);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-2xl);
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-xl);
+            margin-bottom: var(--space-3xl);
+        }
+
+        .week-stats {
+            display: flex;
+            gap: var(--space-2xl);
+            margin-bottom: var(--space-xl);
+        }
+
+        .trend {
+            font-size: var(--font-size-sm);
+            margin-top: var(--space-xs);
+        }
+
+        .trend.up {
+            color: var(--gray-600);
+        }
+
+        .trend.down {
+            color: var(--gray-600);
+        }
+
+        .activity-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+        }
+
+        .activity-item {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: var(--space-md);
+            border-bottom: var(--border-width) solid var(--gray-100);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Signals & Actions</h1>
+                <p class="sidebar-subtitle">Vucko</p>
+            </div>
+            
+                        <div class="nav-group">
+                <div class="nav-label">Overview</div>
+                <a href="/index.html" class="nav-link">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    Dashboard
+                </a>
+                <a href="/signals.html" class="nav-link">
+                    <i class="fas fa-signal nav-icon"></i>
+                    Signals
+                </a>
+                <a href="/actions.html" class="nav-link">
+                    <i class="fas fa-tasks nav-icon"></i>
+                    Actions
+                </a>
+                <a href="/weekly-report.html" class="nav-link">
+                    <i class="fas fa-calendar nav-icon"></i>
+                    Weekly Report
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Content</div>
+                <a href="/content-calendar.html" class="nav-link">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    Content Calendar
+                </a>
+                <a href="/content-database.html" class="nav-link">
+                    <i class="fas fa-database nav-icon"></i>
+                    Content Database
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Campaigns</div>
+                <a href="/audiences.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Audiences
+                </a>
+                <a href="/campaigns.html" class="nav-link">
+                    <i class="fas fa-bullhorn nav-icon"></i>
+                    Campaigns
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Contacts</div>
+                <a href="/people.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    People
+                </a>
+                <a href="/companies.html" class="nav-link">
+                    <i class="fas fa-building nav-icon"></i>
+                    Companies
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Strategy</div>
+                <a href="/personas.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Personas
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Data Import</div>
+                <a href="/import-data.html" class="nav-link">
+                    <i class="fas fa-upload nav-icon"></i>
+                    Import Data
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">Weekly Report</h1>
+                <div class="page-actions">
+                    <button class="btn" onclick="exportReport()">
+                        <i class="fas fa-download"></i>
+                        Export PDF
+                    </button>
+                </div>
+            </header>
+
+            <!-- Week Overview -->
+            <div class="metric-grid">
+                <div class="metric-card">
+                    <div class="stat-value" id="weekly-posts">12</div>
+                    <div class="stat-label">Posts Published</div>
+                    <div class="trend up">+20% from last week</div>
+                </div>
+                <div class="metric-card">
+                    <div class="stat-value" id="weekly-engagements">3,429</div>
+                    <div class="stat-label">Total Engagements</div>
+                    <div class="trend up">+15% from last week</div>
+                </div>
+                <div class="metric-card">
+                    <div class="stat-value" id="weekly-reach">45.2K</div>
+                    <div class="stat-label">Total Reach</div>
+                    <div class="trend down">-5% from last week</div>
+                </div>
+                <div class="metric-card">
+                    <div class="stat-value" id="weekly-ctr">2.8%</div>
+                    <div class="stat-label">Average CTR</div>
+                    <div class="trend up">+0.3% from last week</div>
+                </div>
+            </div>
+
+            <!-- Report Sections -->
+            <div class="report-grid">
+                <!-- Top Performing Content -->
+                <div class="report-section">
+                    <h3 class="section-title">Top Performing Content</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div>
+                                <div class="font-medium">The Future of Enterprise AI</div>
+                                <div class="text-xs text-muted">Published Mon</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium">892</div>
+                                <div class="text-xs text-muted">engagements</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div>
+                                <div class="font-medium">Building Scalable Design Systems</div>
+                                <div class="text-xs text-muted">Published Wed</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium">654</div>
+                                <div class="text-xs text-muted">engagements</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div>
+                                <div class="font-medium">Remote Work Best Practices</div>
+                                <div class="text-xs text-muted">Published Fri</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium">521</div>
+                                <div class="text-xs text-muted">engagements</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campaign Performance -->
+                <div class="report-section">
+                    <h3 class="section-title">Campaign Performance</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div>
+                                <div class="font-medium">Q1 Enterprise Push</div>
+                                <div class="text-xs text-muted">3 posts this week</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium">$450</div>
+                                <div class="text-xs text-muted">spent</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div>
+                                <div class="font-medium">Thought Leadership Series</div>
+                                <div class="text-xs text-muted">2 posts this week</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="font-medium">Organic</div>
+                                <div class="text-xs text-muted">no spend</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audience Growth -->
+                <div class="report-section full-width">
+                    <h3 class="section-title">Audience Insights</h3>
+                    <div class="week-stats">
+                        <div>
+                            <div class="stat-value">156</div>
+                            <div class="stat-label">New Followers</div>
+                        </div>
+                        <div>
+                            <div class="stat-value">89</div>
+                            <div class="stat-label">New Companies</div>
+                        </div>
+                        <div>
+                            <div class="stat-value">23</div>
+                            <div class="stat-label">Hot Prospects</div>
+                        </div>
+                    </div>
+                    <div class="simple-list">
+                        <div class="metric-row">
+                            <span class="metric-label">Top Industry</span>
+                            <span class="metric-value">Technology</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Top Company Size</span>
+                            <span class="metric-value">1000-5000 employees</span>
+                        </div>
+                        <div class="metric-row">
+                            <span class="metric-label">Top Job Function</span>
+                            <span class="metric-value">Engineering</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/config.js"></script>
+    <script>
+        // Initialize Supabase
+        let supabase;
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                return true;
+            }
+            return false;
+        }
+
+        // Load weekly data
+        async function loadWeeklyData() {
+            if (!supabase) {
+                // Use sample data
+                return;
+            }
+
+            try {
+                // Calculate date range for current week
+                const now = new Date();
+                const startOfWeek = new Date(now.setDate(now.getDate() - now.getDay()));
+                const endOfWeek = new Date(now.setDate(now.getDate() - now.getDay() + 6));
+
+                // Load posts from this week
+                const { data: posts } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .gte('posted_date', startOfWeek.toISOString())
+                    .lte('posted_date', endOfWeek.toISOString())
+                    .eq('tenant_id', DEFAULT_TENANT_ID);
+
+                if (posts) {
+                    document.getElementById('weekly-posts').textContent = posts.length;
+                }
+
+                // Load engagement data
+                const { data: engagements } = await supabase
+                    .from('engagements')
+                    .select('*')
+                    .gte('engaged_at', startOfWeek.toISOString())
+                    .lte('engaged_at', endOfWeek.toISOString())
+                    .eq('tenant_id', DEFAULT_TENANT_ID);
+
+                if (engagements) {
+                    document.getElementById('weekly-engagements').textContent = engagements.length.toLocaleString();
+                }
+
+            } catch (error) {
+                console.error('Error loading weekly data:', error);
+            }
+        }
+
+        // Export report
+        function exportReport() {
+            alert('PDF export will be implemented soon!');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            let attempts = 0;
+            const checkSupabase = setInterval(() => {
+                attempts++;
+                if (initSupabase()) {
+                    clearInterval(checkSupabase);
+                    loadWeeklyData();
+                } else if (attempts > 20) {
+                    clearInterval(checkSupabase);
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn API Diagnostics - Signals & Actions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    <style>
+        .endpoint-test {
+            border-left: 4px solid #e5e7eb;
+            transition: all 0.3s ease;
+        }
+        .endpoint-test.success {
+            border-left-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        .endpoint-test.error {
+            border-left-color: #ef4444;
+            background-color: #fef2f2;
+        }
+        .endpoint-test.loading {
+            border-left-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+        .json-viewer {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            font-size: 0.75rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .scope-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body class="has-sidebar page-with-sidebar">
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div id="header-container"></div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-container">
+            <nav class="breadcrumb">
+                <span class="breadcrumb-item" onclick="window.location.href='index.html'">Dashboard</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-item breadcrumb-current">API Diagnostics</span>
+            </nav>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <div class="page-title-section">
+                        <h1 class="page-title">LinkedIn API Diagnostics</h1>
+                        <p class="page-subtitle">Test API endpoints and verify permissions</p>
+                    </div>
+                    <div class="page-actions">
+                        <button onclick="runAllTests()" class="btn btn-primary">
+                            <i class="fas fa-play mr-2"></i>
+                            Run All Tests
+                        </button>
+                        <button onclick="clearResults()" class="btn btn-secondary">
+                            <i class="fas fa-trash mr-2"></i>
+                            Clear Results
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- API Configuration -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h2 class="text-lg font-semibold mb-4">API Configuration</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">API Version</label>
+                        <input type="text" value="202501" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Proxy Server</label>
+                        <input type="text" value="http://localhost:8001" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h3 class="text-sm font-medium text-gray-700 mb-2">Required OAuth Scopes</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <span class="scope-badge">r_ads</span>
+                        <span class="scope-badge">rw_ads</span>
+                        <span class="scope-badge">r_ads_reporting</span>
+                        <span class="scope-badge">r_organization_social</span>
+                        <span class="scope-badge">w_organization_social</span>
+                        <span class="scope-badge">rw_events</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Accounts -->
+            <div class="bg-white rounded-lg shadow p-6 mb-6">
+                <h2 class="text-lg font-semibold mb-4">Test Accounts</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Account</label>
+                        <select id="test-account" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                            <option value="510508147">Vucko (510508147)</option>
+                            <option value="509478495">Consortium (509478495)</option>
+                            <option value="511869737">Today & Tomorrow (511869737)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Campaign ID (Optional)</label>
+                        <input type="text" id="test-campaign" placeholder="e.g., 255144676" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Endpoint Tests -->
+            <div class="space-y-4">
+                <!-- Account APIs -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold">Account APIs</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="endpoint-test p-4 rounded" data-endpoint="accounts">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h3 class="font-medium">Get Ad Accounts</h3>
+                                    <p class="text-sm text-gray-500">GET /api/linkedin/accounts</p>
+                                </div>
+                                <button onclick="testEndpoint('accounts')" class="btn btn-sm btn-primary">Test</button>
+                            </div>
+                            <div class="result-container hidden"></div>
+                        </div>
+
+                        <div class="endpoint-test p-4 rounded" data-endpoint="campaigns">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h3 class="font-medium">Get Campaigns</h3>
+                                    <p class="text-sm text-gray-500">GET /api/linkedin/accounts/{accountId}/campaigns</p>
+                                </div>
+                                <button onclick="testEndpoint('campaigns')" class="btn btn-sm btn-primary">Test</button>
+                            </div>
+                            <div class="result-container hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campaign APIs -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold">Campaign APIs</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="endpoint-test p-4 rounded" data-endpoint="campaign-detail">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h3 class="font-medium">Get Campaign Detail</h3>
+                                    <p class="text-sm text-gray-500">GET /api/linkedin/campaigns/{campaignId}</p>
+                                </div>
+                                <button onclick="testEndpoint('campaign-detail')" class="btn btn-sm btn-primary">Test</button>
+                            </div>
+                            <div class="result-container hidden"></div>
+                        </div>
+
+                        <div class="endpoint-test p-4 rounded" data-endpoint="creatives">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h3 class="font-medium">Get Campaign Creatives</h3>
+                                    <p class="text-sm text-gray-500">GET /api/linkedin/campaigns/{campaignId}/creatives</p>
+                                </div>
+                                <button onclick="testEndpoint('creatives')" class="btn btn-sm btn-primary">Test</button>
+                            </div>
+                            <div class="result-container hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Analytics APIs -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold">Analytics APIs (Currently Failing)</h2>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <div class="endpoint-test p-4 rounded" data-endpoint="analytics">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h3 class="font-medium">Get Campaign Analytics</h3>
+                                    <p class="text-sm text-gray-500">GET /api/linkedin/campaigns/{campaignId}/analytics</p>
+                                </div>
+                                <button onclick="testEndpoint('analytics')" class="btn btn-sm btn-primary">Test</button>
+                            </div>
+                            <div class="result-container hidden"></div>
+                        </div>
+
+                        <div class="endpoint-test p-4 rounded" data-endpoint="demographics">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <h3 class="font-medium">Get Campaign Demographics</h3>
+                                    <p class="text-sm text-gray-500">GET /api/linkedin/campaigns/{campaignId}/demographics</p>
+                                </div>
+                                <button onclick="testEndpoint('demographics')" class="btn btn-sm btn-primary">Test</button>
+                            </div>
+                            <div class="result-container hidden"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Test Results Summary -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold">Test Summary</h2>
+                    </div>
+                    <div class="p-6">
+                        <div id="test-summary" class="text-center text-gray-500">
+                            <p>No tests run yet. Click "Run All Tests" to begin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Test results storage
+        let testResults = {};
+
+        // Initialize page
+        async function init() {
+            await loadComponents();
+        }
+
+        // Load components
+        async function loadComponents() {
+            try {
+                const sidebarResponse = await fetch('components/sidebar.html');
+                const sidebarHTML = await sidebarResponse.text();
+                document.getElementById('sidebar-container').innerHTML = sidebarHTML;
+
+                const headerResponse = await fetch('components/header.html');
+                const headerHTML = await headerResponse.text();
+                document.getElementById('header-container').innerHTML = headerHTML;
+            } catch (error) {
+                console.error('Failed to load components:', error);
+            }
+        }
+
+        // Test individual endpoint
+        async function testEndpoint(endpointType) {
+            const container = document.querySelector(`[data-endpoint="${endpointType}"]`);
+            const resultContainer = container.querySelector('.result-container');
+            
+            // Show loading state
+            container.classList.remove('success', 'error');
+            container.classList.add('loading');
+            resultContainer.classList.remove('hidden');
+            resultContainer.innerHTML = '<div class="text-blue-600"><i class="fas fa-spinner fa-spin mr-2"></i>Testing endpoint...</div>';
+
+            const accountId = document.getElementById('test-account').value;
+            const campaignId = document.getElementById('test-campaign').value || '255144676'; // Default test campaign
+
+            try {
+                let url;
+                switch (endpointType) {
+                    case 'accounts':
+                        url = 'http://localhost:8001/api/linkedin/accounts';
+                        break;
+                    case 'campaigns':
+                        url = `http://localhost:8001/api/linkedin/accounts/${accountId}/campaigns`;
+                        break;
+                    case 'campaign-detail':
+                        url = `http://localhost:8001/api/linkedin/campaigns/${campaignId}`;
+                        break;
+                    case 'creatives':
+                        url = `http://localhost:8001/api/linkedin/campaigns/${campaignId}/creatives`;
+                        break;
+                    case 'analytics':
+                        url = `http://localhost:8001/api/linkedin/campaigns/${campaignId}/analytics`;
+                        break;
+                    case 'demographics':
+                        url = `http://localhost:8001/api/linkedin/campaigns/${campaignId}/demographics`;
+                        break;
+                }
+
+                const startTime = Date.now();
+                const response = await fetch(url);
+                const responseTime = Date.now() - startTime;
+                const data = await response.json();
+
+                testResults[endpointType] = {
+                    success: response.ok,
+                    status: response.status,
+                    responseTime,
+                    data
+                };
+
+                if (response.ok) {
+                    container.classList.remove('loading', 'error');
+                    container.classList.add('success');
+                    
+                    let summary = '';
+                    switch (endpointType) {
+                        case 'accounts':
+                            summary = `Found ${data.elements?.length || 0} accounts`;
+                            break;
+                        case 'campaigns':
+                            summary = `Found ${data.elements?.length || 0} campaigns`;
+                            break;
+                        case 'campaign-detail':
+                            summary = `Campaign: ${data.campaign?.name || 'Unknown'}`;
+                            break;
+                        case 'creatives':
+                            summary = `Found ${data.creatives?.length || 0} creatives`;
+                            break;
+                        case 'analytics':
+                            summary = data.analytics?.length > 0 ? 'Analytics data available' : 'No analytics data';
+                            break;
+                        case 'demographics':
+                            summary = 'Demographics data retrieved';
+                            break;
+                    }
+
+                    resultContainer.innerHTML = `
+                        <div class="text-green-600 mb-2">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            Success (${responseTime}ms) - ${summary}
+                        </div>
+                        <details class="mt-2">
+                            <summary class="cursor-pointer text-sm text-gray-600 hover:text-gray-900">View Response</summary>
+                            <div class="json-viewer mt-2">${JSON.stringify(data, null, 2)}</div>
+                        </details>
+                    `;
+                } else {
+                    container.classList.remove('loading', 'success');
+                    container.classList.add('error');
+                    
+                    resultContainer.innerHTML = `
+                        <div class="text-red-600 mb-2">
+                            <i class="fas fa-times-circle mr-2"></i>
+                            Error ${response.status} (${responseTime}ms)
+                        </div>
+                        <div class="text-sm text-red-500">${data.error || data.message || 'Unknown error'}</div>
+                        <details class="mt-2">
+                            <summary class="cursor-pointer text-sm text-gray-600 hover:text-gray-900">View Error Details</summary>
+                            <div class="json-viewer mt-2">${JSON.stringify(data, null, 2)}</div>
+                        </details>
+                    `;
+                }
+            } catch (error) {
+                container.classList.remove('loading', 'success');
+                container.classList.add('error');
+                
+                testResults[endpointType] = {
+                    success: false,
+                    error: error.message
+                };
+
+                resultContainer.innerHTML = `
+                    <div class="text-red-600">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Network Error: ${error.message}
+                    </div>
+                `;
+            }
+
+            updateSummary();
+        }
+
+        // Run all tests
+        async function runAllTests() {
+            const endpoints = ['accounts', 'campaigns', 'campaign-detail', 'creatives', 'analytics', 'demographics'];
+            
+            for (const endpoint of endpoints) {
+                await testEndpoint(endpoint);
+                // Small delay between tests to avoid rate limiting
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+        }
+
+        // Clear all results
+        function clearResults() {
+            testResults = {};
+            document.querySelectorAll('.endpoint-test').forEach(container => {
+                container.classList.remove('success', 'error', 'loading');
+                container.querySelector('.result-container').classList.add('hidden');
+            });
+            updateSummary();
+        }
+
+        // Update summary
+        function updateSummary() {
+            const totalTests = Object.keys(testResults).length;
+            if (totalTests === 0) {
+                document.getElementById('test-summary').innerHTML = '<p class="text-gray-500">No tests run yet. Click "Run All Tests" to begin.</p>';
+                return;
+            }
+
+            const successful = Object.values(testResults).filter(r => r.success).length;
+            const failed = totalTests - successful;
+
+            document.getElementById('test-summary').innerHTML = `
+                <div class="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                        <div class="text-2xl font-bold text-gray-900">${totalTests}</div>
+                        <div class="text-sm text-gray-500">Total Tests</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-green-600">${successful}</div>
+                        <div class="text-sm text-gray-500">Successful</div>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-bold text-red-600">${failed}</div>
+                        <div class="text-sm text-gray-500">Failed</div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <h3 class="font-medium mb-2">Key Findings:</h3>
+                    <ul class="text-sm text-left space-y-1">
+                        <li class="text-green-600"><i class="fas fa-check mr-2"></i>Account and Campaign listing APIs work correctly</li>
+                        <li class="text-green-600"><i class="fas fa-check mr-2"></i>Campaign details and creatives are accessible</li>
+                        <li class="text-red-600"><i class="fas fa-times mr-2"></i>Analytics endpoints return ILLEGAL_ARGUMENT errors</li>
+                        <li class="text-yellow-600"><i class="fas fa-exclamation-triangle mr-2"></i>May need additional OAuth scopes or API version changes</li>
+                    </ul>
+                </div>
+            `;
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>60-Day Signals & Actions Report</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    <style>
+        /* Report Styling */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .report-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .report-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d30 100%);
+            color: white;
+            padding: 3rem;
+            margin: -2rem -2rem 2rem -2rem;
+            text-align: center;
+        }
+        
+        .report-title {
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-subtitle {
+            opacity: 0.8;
+            font-size: 1.2rem;
+        }
+        
+        .report-date-range {
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            opacity: 0.7;
+        }
+        
+        /* Summary Cards */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .summary-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .summary-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335);
+        }
+        
+        .summary-value {
+            font-size: 3rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+        
+        .summary-label {
+            color: #666;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Section Styling */
+        .report-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+        
+        .section-subtitle {
+            color: #666;
+            font-size: 0.875rem;
+        }
+        
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .data-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .data-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Charts */
+        .chart-container {
+            margin: 2rem 0;
+        }
+        
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .bar-label {
+            width: 200px;
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .bar-container {
+            flex: 1;
+            height: 24px;
+            background: #f0f0f0;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #1976d2, #1565c0);
+            border-radius: 12px;
+            transition: width 0.5s ease;
+        }
+        
+        .bar-value {
+            width: 60px;
+            text-align: right;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+        
+        /* Tags */
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #e3f2fd;
+            color: #1976d2;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+        
+        .tag.green {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .tag.orange {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        
+        /* Loading */
+        .loading-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+            font-size: 2rem;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .report-container {
+                padding: 1rem;
+            }
+            
+            .report-header {
+                padding: 2rem 1rem;
+            }
+            
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .bar-label {
+                width: 120px;
+                font-size: 0.75rem;
+            }
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .report-section {
+                box-shadow: none;
+                border: 1px solid #e0e0e0;
+                page-break-inside: avoid;
+            }
+        }
+        
+        /* Engagement Timeline */
+        .timeline-container {
+            margin: 2rem 0;
+            position: relative;
+            padding: 1rem 0;
+        }
+        
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e0e0e0;
+        }
+        
+        .timeline-item {
+            position: relative;
+            padding-left: 60px;
+            margin-bottom: 2rem;
+        }
+        
+        .timeline-marker {
+            position: absolute;
+            left: 10px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: #1976d2;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-content {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+        
+        .timeline-date {
+            font-size: 0.875rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        .timeline-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        /* Export Button */
+        .export-button {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #1976d2;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 24px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
+            transition: all 0.2s;
+        }
+        
+        .export-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(25, 118, 210, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="report-header">
+            <h1 class="report-title">60-Day Signals & Actions Report</h1>
+            <p class="report-subtitle">Comprehensive LinkedIn Campaign Intelligence Analysis</p>
+            <p class="report-date-range" id="date-range">Loading date range...</p>
+        </div>
+        
+        <!-- Summary Cards -->
+        <div class="summary-grid">
+            <div class="summary-card">
+                <div class="summary-value" id="total-companies">0</div>
+                <div class="summary-label">Companies Engaged</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value" id="total-people">0</div>
+                <div class="summary-label">People Reached</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value" id="total-engagements">0</div>
+                <div class="summary-label">Total Engagements</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-value" id="total-campaigns">0</div>
+                <div class="summary-label">Active Campaigns</div>
+            </div>
+        </div>
+        
+        <!-- Top Companies Section -->
+        <div class="report-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Top Companies by Engagement</h2>
+                    <p class="section-subtitle">Companies showing highest engagement with your content</p>
+                </div>
+            </div>
+            <div id="companies-chart" class="chart-container">
+                <div class="loading-container">
+                    <i class="fas fa-spinner loading-spinner"></i>
+                    <span>Loading company data...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Job Titles Section -->
+        <div class="report-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Top Job Titles</h2>
+                    <p class="section-subtitle">Most common roles among engaged audience</p>
+                </div>
+            </div>
+            <div id="titles-chart" class="chart-container">
+                <div class="loading-container">
+                    <i class="fas fa-spinner loading-spinner"></i>
+                    <span>Loading title data...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top People Section -->
+        <div class="report-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Most Engaged People</h2>
+                    <p class="section-subtitle">Individuals with highest engagement frequency</p>
+                </div>
+            </div>
+            <table class="data-table" id="people-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Title</th>
+                        <th>Company</th>
+                        <th>Engagements</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="people-tbody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-spinner loading-spinner"></i> Loading people data...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Campaign Performance Section -->
+        <div class="report-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Campaign Performance Summary</h2>
+                    <p class="section-subtitle">Key metrics across all campaigns</p>
+                </div>
+            </div>
+            <div class="summary-grid">
+                <div class="summary-card">
+                    <div class="summary-value" id="total-impressions">0</div>
+                    <div class="summary-label">Total Impressions</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="total-clicks">0</div>
+                    <div class="summary-label">Total Clicks</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="avg-ctr">0%</div>
+                    <div class="summary-label">Average CTR</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value" id="total-spend">$0</div>
+                    <div class="summary-label">Total Spend</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Industry Distribution -->
+        <div class="report-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Industry Distribution</h2>
+                    <p class="section-subtitle">Engagement by industry vertical</p>
+                </div>
+            </div>
+            <div id="industries-chart" class="chart-container">
+                <div class="loading-container">
+                    <i class="fas fa-spinner loading-spinner"></i>
+                    <span>Loading industry data...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seniority Levels -->
+        <div class="report-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Seniority Level Distribution</h2>
+                    <p class="section-subtitle">Engagement by professional seniority</p>
+                </div>
+            </div>
+            <div id="seniority-chart" class="chart-container">
+                <div class="loading-container">
+                    <i class="fas fa-spinner loading-spinner"></i>
+                    <span>Loading seniority data...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Items -->
+        <div class="report-section">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Recommended Actions</h2>
+                    <p class="section-subtitle">Data-driven recommendations based on engagement patterns</p>
+                </div>
+            </div>
+            <div id="recommendations">
+                <div class="loading-container">
+                    <i class="fas fa-spinner loading-spinner"></i>
+                    <span>Generating recommendations...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Export Button -->
+    <a href="#" onclick="exportReport()" class="export-button">
+        <i class="fas fa-download"></i>
+        <span>Export Report</span>
+    </a>
+
+    <script src="config.js"></script>
+    <script>
+        // State management
+        const reportData = {
+            companies: {},
+            titles: {},
+            people: {},
+            industries: {},
+            seniority: {},
+            campaigns: [],
+            posts: [],
+            engagements: [],
+            loading: true
+        };
+        
+        // Date range
+        const endDate = new Date();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 60);
+        
+        // Initialize report
+        async function initReport() {
+            console.log('Initializing 60-day report...');
+            
+            // Update date range display
+            document.getElementById('date-range').textContent = 
+                `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+            
+            try {
+                // Load all data sources
+                await Promise.all([
+                    loadCampaignData(),
+                    loadApifyData(),
+                    loadSupabaseData()
+                ]);
+                
+                // Process and render data
+                processData();
+                renderReport();
+                generateRecommendations();
+                
+            } catch (error) {
+                console.error('Error initializing report:', error);
+                showError('Failed to load report data');
+            }
+        }
+        
+        // Load campaign data from LinkedIn API
+        async function loadCampaignData() {
+            console.log('Loading campaign data...');
+            
+            try {
+                const response = await fetch('http://localhost:8001/api/linkedin/accounts/510508147/campaigns');
+                const data = await response.json();
+                
+                if (data.success && data.campaigns) {
+                    // Filter campaigns from last 60 days
+                    const cutoffTime = startDate.getTime();
+                    reportData.campaigns = data.campaigns.filter(c => {
+                        const lastModified = c.changeAuditStamps?.lastModified?.time || c.created || 0;
+                        return lastModified > cutoffTime;
+                    });
+                    
+                    console.log(`Loaded ${reportData.campaigns.length} campaigns from last 60 days`);
+                    
+                    // Load analytics for each campaign
+                    await loadCampaignAnalytics();
+                }
+            } catch (error) {
+                console.error('Error loading campaigns:', error);
+            }
+        }
+        
+        // Load analytics for campaigns
+        async function loadCampaignAnalytics() {
+            const promises = reportData.campaigns.slice(0, 20).map(async (campaign) => {
+                try {
+                    // Get analytics
+                    const analyticsResponse = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaign.id}/analytics`);
+                    const analyticsData = await analyticsResponse.json();
+                    
+                    if (analyticsData.success && analyticsData.analytics?.length > 0) {
+                        campaign.analytics = analyticsData.analytics[0];
+                    }
+                    
+                    // Get demographics
+                    const demoResponse = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaign.id}/demographics`);
+                    const demoData = await demoResponse.json();
+                    
+                    if (demoData.success && demoData.demographics) {
+                        campaign.demographics = demoData.demographics;
+                        
+                        // Aggregate demographics data
+                        aggregateDemographics(demoData.demographics);
+                    }
+                } catch (error) {
+                    console.error(`Error loading data for campaign ${campaign.id}:`, error);
+                }
+            });
+            
+            await Promise.all(promises);
+        }
+        
+        // Aggregate demographics from campaigns
+        function aggregateDemographics(demographics) {
+            // Companies
+            if (demographics.MEMBER_COMPANY) {
+                demographics.MEMBER_COMPANY.forEach(item => {
+                    if (item.name && item.impressions) {
+                        reportData.companies[item.name] = (reportData.companies[item.name] || 0) + item.impressions;
+                    }
+                });
+            }
+            
+            // Job Titles
+            if (demographics.MEMBER_JOB_TITLE) {
+                demographics.MEMBER_JOB_TITLE.forEach(item => {
+                    if (item.name && item.impressions) {
+                        reportData.titles[item.name] = (reportData.titles[item.name] || 0) + item.impressions;
+                    }
+                });
+            }
+            
+            // Industries
+            if (demographics.MEMBER_INDUSTRY) {
+                demographics.MEMBER_INDUSTRY.forEach(item => {
+                    if (item.name && item.impressions) {
+                        reportData.industries[item.name] = (reportData.industries[item.name] || 0) + item.impressions;
+                    }
+                });
+            }
+            
+            // Seniority
+            if (demographics.MEMBER_SENIORITY) {
+                demographics.MEMBER_SENIORITY.forEach(item => {
+                    if (item.name && item.impressions) {
+                        reportData.seniority[item.name] = (reportData.seniority[item.name] || 0) + item.impressions;
+                    }
+                });
+            }
+        }
+        
+        // Load Apify engagement data
+        async function loadApifyData() {
+            console.log('Loading Apify data...');
+            
+            const APIFY_RUN_MAPPINGS = [
+                'butuMDGrIRxOxee09', 'JqrdZuVDQz9AgQIIU', '3nlSqHwyJiQPsoqAC',
+                'PvNvNkbqvWNpaXiD8', 'hhHrpS4sCKvBjIsta', 'uBCxynShX9JejO2P2',
+                'oxzLwXzLwyICuw85w', 'dLF3uRnLs6nWStFGk', 'TWcaUmKsvJNO6Qf6Y',
+                'j56hR3kcejjgjhWcE'
+            ];
+            
+            for (const runId of APIFY_RUN_MAPPINGS) {
+                try {
+                    const runResponse = await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_CONFIG.token}`);
+                    const runData = await runResponse.json();
+                    
+                    if (runData.data?.defaultDatasetId) {
+                        const datasetResponse = await fetch(`https://api.apify.com/v2/datasets/${runData.data.defaultDatasetId}/items?token=${APIFY_CONFIG.token}`);
+                        const items = await datasetResponse.json();
+                        
+                        // Process engagements
+                        items.forEach(item => {
+                            if (item.name && item.headline) {
+                                // Track person
+                                const personKey = `${item.name}|${item.profileUrl}`;
+                                if (!reportData.people[personKey]) {
+                                    reportData.people[personKey] = {
+                                        name: item.name,
+                                        headline: item.headline,
+                                        profileUrl: item.profileUrl,
+                                        engagements: 0,
+                                        company: extractCompany(item.headline),
+                                        title: extractTitle(item.headline)
+                                    };
+                                }
+                                reportData.people[personKey].engagements++;
+                                
+                                // Track company from headline
+                                const company = extractCompany(item.headline);
+                                if (company) {
+                                    reportData.companies[company] = (reportData.companies[company] || 0) + 1;
+                                }
+                                
+                                // Track title
+                                const title = extractTitle(item.headline);
+                                if (title) {
+                                    reportData.titles[title] = (reportData.titles[title] || 0) + 1;
+                                }
+                            }
+                        });
+                        
+                        reportData.engagements.push(...items);
+                    }
+                } catch (error) {
+                    console.error(`Error loading Apify run ${runId}:`, error);
+                }
+            }
+        }
+        
+        // Load data from Supabase
+        async function loadSupabaseData() {
+            console.log('Loading Supabase data...');
+            
+            try {
+                const { createClient } = window.supabase;
+                const supabase = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                
+                // Get engagement data from last 60 days
+                const cutoffDate = startDate.toISOString();
+                
+                const { data: engagements, error } = await supabase
+                    .from('engagements')
+                    .select(`
+                        *,
+                        persons (
+                            name,
+                            headline,
+                            linkedin_url,
+                            company,
+                            title
+                        )
+                    `)
+                    .gte('created_at', cutoffDate)
+                    .order('created_at', { ascending: false });
+                
+                if (!error && engagements) {
+                    // Process Supabase engagements
+                    engagements.forEach(eng => {
+                        if (eng.persons) {
+                            const person = eng.persons;
+                            const personKey = `${person.name}|${person.linkedin_url}`;
+                            
+                            if (!reportData.people[personKey]) {
+                                reportData.people[personKey] = {
+                                    name: person.name,
+                                    headline: person.headline,
+                                    profileUrl: person.linkedin_url,
+                                    engagements: 0,
+                                    company: person.company,
+                                    title: person.title
+                                };
+                            }
+                            reportData.people[personKey].engagements++;
+                            
+                            // Track company
+                            if (person.company) {
+                                reportData.companies[person.company] = (reportData.companies[person.company] || 0) + 1;
+                            }
+                            
+                            // Track title
+                            if (person.title) {
+                                reportData.titles[person.title] = (reportData.titles[person.title] || 0) + 1;
+                            }
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading Supabase data:', error);
+            }
+        }
+        
+        // Extract company from headline
+        function extractCompany(headline) {
+            if (!headline) return null;
+            
+            const patterns = [
+                / at (.+?)(?:\s*\||$)/i,
+                / @ (.+?)(?:\s*\||$)/i,
+                /\| (.+?)$/i
+            ];
+            
+            for (const pattern of patterns) {
+                const match = headline.match(pattern);
+                if (match && match[1]) {
+                    return match[1].trim();
+                }
+            }
+            
+            return null;
+        }
+        
+        // Extract title from headline
+        function extractTitle(headline) {
+            if (!headline) return null;
+            
+            const parts = headline.split(/\s+(?:at|@|\|)\s+/i);
+            return parts[0] ? parts[0].trim() : null;
+        }
+        
+        // Process collected data
+        function processData() {
+            console.log('Processing report data...');
+            
+            // Calculate summary statistics
+            const totalCompanies = Object.keys(reportData.companies).length;
+            const totalPeople = Object.keys(reportData.people).length;
+            const totalEngagements = reportData.engagements.length;
+            const totalCampaigns = reportData.campaigns.length;
+            
+            // Update summary cards
+            document.getElementById('total-companies').textContent = totalCompanies.toLocaleString();
+            document.getElementById('total-people').textContent = totalPeople.toLocaleString();
+            document.getElementById('total-engagements').textContent = totalEngagements.toLocaleString();
+            document.getElementById('total-campaigns').textContent = totalCampaigns.toLocaleString();
+            
+            // Calculate campaign metrics
+            const totalImpressions = reportData.campaigns.reduce((sum, c) => sum + (c.analytics?.impressions || 0), 0);
+            const totalClicks = reportData.campaigns.reduce((sum, c) => sum + (c.analytics?.clicks || 0), 0);
+            const totalSpend = reportData.campaigns.reduce((sum, c) => sum + (c.analytics?.spend || 0), 0);
+            const avgCTR = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) : 0;
+            
+            document.getElementById('total-impressions').textContent = totalImpressions.toLocaleString();
+            document.getElementById('total-clicks').textContent = totalClicks.toLocaleString();
+            document.getElementById('avg-ctr').textContent = `${avgCTR}%`;
+            document.getElementById('total-spend').textContent = `$${totalSpend.toFixed(2)}`;
+        }
+        
+        // Render report visualizations
+        function renderReport() {
+            console.log('Rendering report...');
+            
+            // Render top companies
+            renderBarChart('companies-chart', reportData.companies, 'Company', 20);
+            
+            // Render top job titles
+            renderBarChart('titles-chart', reportData.titles, 'Job Title', 15);
+            
+            // Render top people
+            renderPeopleTable();
+            
+            // Render industries
+            renderBarChart('industries-chart', reportData.industries, 'Industry', 15);
+            
+            // Render seniority levels
+            renderBarChart('seniority-chart', reportData.seniority, 'Seniority Level', 10);
+        }
+        
+        // Render bar chart
+        function renderBarChart(containerId, data, label, limit = 10) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            // Sort and limit data
+            const sortedData = Object.entries(data)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, limit);
+            
+            if (sortedData.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #666;">No data available</p>';
+                return;
+            }
+            
+            const maxValue = sortedData[0][1];
+            
+            container.innerHTML = `
+                <div class="bar-chart">
+                    ${sortedData.map(([name, value]) => `
+                        <div class="bar-item">
+                            <div class="bar-label" title="${name}">${name}</div>
+                            <div class="bar-container">
+                                <div class="bar-fill" style="width: ${(value / maxValue) * 100}%"></div>
+                            </div>
+                            <div class="bar-value">${value.toLocaleString()}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // Render people table
+        function renderPeopleTable() {
+            const tbody = document.getElementById('people-tbody');
+            
+            // Sort people by engagement count
+            const sortedPeople = Object.values(reportData.people)
+                .sort((a, b) => b.engagements - a.engagements)
+                .slice(0, 50);
+            
+            if (sortedPeople.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No people data available</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = sortedPeople.map(person => `
+                <tr>
+                    <td>
+                        ${person.profileUrl ? 
+                            `<a href="${person.profileUrl}" target="_blank">${person.name}</a>` : 
+                            person.name
+                        }
+                    </td>
+                    <td>${person.title || '-'}</td>
+                    <td>${person.company || '-'}</td>
+                    <td>
+                        <span class="tag">${person.engagements} engagement${person.engagements > 1 ? 's' : ''}</span>
+                    </td>
+                    <td>
+                        <a href="#" onclick="addToTargets('${person.name}')" class="tag green">
+                            <i class="fas fa-plus"></i> Add to Targets
+                        </a>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // Generate recommendations
+        function generateRecommendations() {
+            const container = document.getElementById('recommendations');
+            
+            // Analyze data for insights
+            const topCompanies = Object.entries(reportData.companies)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(([name]) => name);
+            
+            const topTitles = Object.entries(reportData.titles)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5)
+                .map(([name]) => name);
+            
+            const recommendations = [];
+            
+            // Company-based recommendations
+            if (topCompanies.length > 0) {
+                recommendations.push({
+                    title: 'Target High-Engagement Companies',
+                    description: `Focus outreach on ${topCompanies.slice(0, 3).join(', ')} which show highest engagement rates`,
+                    priority: 'high'
+                });
+            }
+            
+            // Title-based recommendations
+            if (topTitles.length > 0) {
+                recommendations.push({
+                    title: 'Optimize Content for Key Roles',
+                    description: `Create content specifically for ${topTitles[0]} and ${topTitles[1]} roles`,
+                    priority: 'medium'
+                });
+            }
+            
+            // Engagement pattern recommendations
+            const avgEngagementPerPerson = reportData.engagements.length / Object.keys(reportData.people).length;
+            if (avgEngagementPerPerson > 2) {
+                recommendations.push({
+                    title: 'Leverage Repeat Engagers',
+                    description: `${Math.round(avgEngagementPerPerson)} average engagements per person indicates strong content resonance`,
+                    priority: 'high'
+                });
+            }
+            
+            container.innerHTML = `
+                <div class="timeline-container">
+                    <div class="timeline-line"></div>
+                    ${recommendations.map(rec => `
+                        <div class="timeline-item">
+                            <div class="timeline-marker" style="background: ${
+                                rec.priority === 'high' ? '#ea4335' : 
+                                rec.priority === 'medium' ? '#fbbc05' : '#34a853'
+                            }"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">${rec.title}</div>
+                                <p>${rec.description}</p>
+                                <span class="tag ${
+                                    rec.priority === 'high' ? 'orange' : 
+                                    rec.priority === 'medium' ? '' : 'green'
+                                }">${rec.priority} priority</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // Export report functionality
+        function exportReport() {
+            const reportContent = document.querySelector('.report-container').innerHTML;
+            const printWindow = window.open('', '_blank');
+            
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>60-Day Signals & Actions Report - ${new Date().toLocaleDateString()}</title>
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+                    <style>
+                        ${Array.from(document.styleSheets[2].cssRules)
+                            .map(rule => rule.cssText)
+                            .join('\n')}
+                    </style>
+                </head>
+                <body>
+                    <div class="report-container">
+                        ${reportContent}
+                    </div>
+                </body>
+                </html>
+            `);
+            
+            printWindow.document.close();
+            printWindow.print();
+        }
+        
+        // Add to targets functionality
+        function addToTargets(personName) {
+            alert(`${personName} would be added to your target list`);
+            // In a real implementation, this would add the person to a targets list
+        }
+        
+        // Handle errors
+        function showError(message) {
+            console.error(message);
+            // Could add user-visible error display
+        }
+        
+        // Initialize Supabase if not already loaded
+        if (!window.supabase) {
+            const script = document.createElement('script');
+            script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+            script.onload = () => {
+                console.log('Supabase loaded');
+                initReport();
+            };
+            document.head.appendChild(script);
+        } else {
+            // Initialize report on page load
+            document.addEventListener('DOMContentLoaded', initReport);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vucko Campaign Report - Last 60 Days</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    <style>
+        /* Report Styling */
+        .report-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d30 100%);
+            color: white;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 8px;
+        }
+        
+        .report-title {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-subtitle {
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .summary-label {
+            color: #666;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .campaign-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        
+        .campaign-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .campaign-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .campaign-name {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #1a1a1a;
+        }
+        
+        .campaign-status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: #e6f4ea;
+            color: #1e8e3e;
+        }
+        
+        .status-paused {
+            background: #fef7e0;
+            color: #f9ab00;
+        }
+        
+        .status-completed {
+            background: #e0e0e0;
+            color: #666;
+        }
+        
+        .campaign-body {
+            padding: 1.5rem;
+        }
+        
+        .metrics-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .metric-box {
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .metric-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        .demographics-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .demographics-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+        
+        .demographics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .demographic-box {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 4px;
+        }
+        
+        .demographic-label {
+            font-weight: 500;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        
+        .demographic-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.25rem 0;
+            font-size: 0.875rem;
+        }
+        
+        .demographic-bar {
+            width: 100px;
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-left: 0.5rem;
+        }
+        
+        .demographic-fill {
+            height: 100%;
+            background: #1976d2;
+        }
+        
+        .loading-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .export-button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .export-button:hover {
+            background: #1565c0;
+        }
+        
+        .filter-section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            font-size: 0.875rem;
+        }
+        
+        .error-message {
+            background: #fef7f7;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+        
+        .timeline-chart {
+            height: 300px;
+            margin-bottom: 2rem;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body class="has-sidebar page-with-sidebar">
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Report Header -->
+        <div class="report-header">
+            <h1 class="report-title">Vucko Campaign Performance Report</h1>
+            <p class="report-subtitle">Last 60 Days - Comprehensive Analytics & Demographics</p>
+            <div style="margin-top: 1rem; opacity: 0.8; font-size: 0.875rem;">
+                <span id="report-date-range">Loading...</span> • 
+                <span id="total-campaigns">0 campaigns</span> • 
+                <span id="total-spend">$0 spent</span> • 
+                <span id="total-impressions">0 impressions</span>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <!-- Export Button -->
+            <div style="margin-bottom: 2rem; text-align: right;">
+                <button onclick="exportFullReport()" class="export-button">
+                    <i class="fas fa-download"></i>
+                    Export Full Report
+                </button>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-grid" id="summary-cards">
+                <div class="summary-card">
+                    <div class="summary-value">-</div>
+                    <div class="summary-label">Active Campaigns</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">-</div>
+                    <div class="summary-label">Total Impressions</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">-</div>
+                    <div class="summary-label">Total Clicks</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">-</div>
+                    <div class="summary-label">Average CTR</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">-</div>
+                    <div class="summary-label">Total Spend</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">-</div>
+                    <div class="summary-label">Avg CPC</div>
+                </div>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-row">
+                    <label>Status:</label>
+                    <select id="status-filter" class="filter-select" onchange="filterCampaigns()">
+                        <option value="all">All Statuses</option>
+                        <option value="ACTIVE">Active</option>
+                        <option value="PAUSED">Paused</option>
+                        <option value="COMPLETED">Completed</option>
+                    </select>
+                    
+                    <label>Objective:</label>
+                    <select id="objective-filter" class="filter-select" onchange="filterCampaigns()">
+                        <option value="all">All Objectives</option>
+                        <option value="BRAND_AWARENESS">Brand Awareness</option>
+                        <option value="WEBSITE_VISIT">Website Visit</option>
+                        <option value="ENGAGEMENT">Engagement</option>
+                        <option value="LEAD_GENERATION">Lead Generation</option>
+                    </select>
+                    
+                    <label>Sort by:</label>
+                    <select id="sort-filter" class="filter-select" onchange="sortCampaigns()">
+                        <option value="date">Date (Newest)</option>
+                        <option value="impressions">Impressions</option>
+                        <option value="clicks">Clicks</option>
+                        <option value="ctr">CTR</option>
+                        <option value="spend">Spend</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Timeline Chart -->
+            <div class="timeline-chart" id="timeline-chart">
+                <canvas id="performance-timeline"></canvas>
+            </div>
+
+            <!-- Campaigns Container -->
+            <div id="campaigns-container">
+                <div class="loading-container">
+                    <i class="fas fa-spinner loading-spinner"></i>
+                    Loading Vucko campaigns from the last 60 days...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="services/urn-decoder.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        // Configuration
+        const VUCKO_ACCOUNT_ID = '510508147';
+        const DAYS_BACK = 60;
+        
+        // State management
+        const state = {
+            campaigns: [],
+            filteredCampaigns: [],
+            analytics: {},
+            demographics: {},
+            loading: true,
+            error: null,
+            summary: {
+                activeCampaigns: 0,
+                totalImpressions: 0,
+                totalClicks: 0,
+                totalSpend: 0,
+                avgCtr: 0,
+                avgCpc: 0
+            }
+        };
+
+        // Initialize
+        async function init() {
+            await loadComponents();
+            await loadCampaignData();
+        }
+
+        async function loadComponents() {
+            try {
+                const sidebarRes = await fetch('components/sidebar.html');
+                document.getElementById('sidebar-container').innerHTML = await sidebarRes.text();
+            } catch (error) {
+                console.error('Error loading components:', error);
+            }
+        }
+
+        async function loadCampaignData() {
+            try {
+                // Calculate date range
+                const endDate = new Date();
+                const startDate = new Date();
+                startDate.setDate(startDate.getDate() - DAYS_BACK);
+                
+                document.getElementById('report-date-range').textContent = 
+                    `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+
+                // Fetch all campaigns for Vucko
+                console.log('Fetching Vucko campaigns...');
+                const campaignsResponse = await fetch(`http://localhost:8001/api/linkedin/accounts/${VUCKO_ACCOUNT_ID}/campaigns`);
+                const campaignsData = await campaignsResponse.json();
+                
+                if (!campaignsData.success) {
+                    throw new Error('Failed to fetch campaigns');
+                }
+
+                // Filter campaigns from last 60 days
+                const recentCampaigns = campaignsData.campaigns.filter(campaign => {
+                    const campaignDate = new Date(campaign.changeAuditStamps?.lastModified?.time || 
+                                                  campaign.changeAuditStamps?.created?.time || 0);
+                    return campaignDate >= startDate;
+                });
+
+                console.log(`Found ${recentCampaigns.length} campaigns from the last ${DAYS_BACK} days`);
+                state.campaigns = recentCampaigns;
+                state.filteredCampaigns = recentCampaigns;
+
+                // Update count
+                document.getElementById('total-campaigns').textContent = `${recentCampaigns.length} campaigns`;
+
+                // Load analytics and demographics for each campaign
+                await loadCampaignAnalytics(recentCampaigns, startDate, endDate);
+                await loadCampaignDemographics(recentCampaigns);
+
+                // Calculate summary metrics
+                calculateSummaryMetrics();
+
+                // Render campaigns
+                renderCampaigns();
+
+                // Create timeline chart
+                createTimelineChart();
+
+                state.loading = false;
+
+            } catch (error) {
+                console.error('Error loading campaign data:', error);
+                showError('Failed to load campaign data. Please check the console for details.');
+                state.loading = false;
+            }
+        }
+
+        async function loadCampaignAnalytics(campaigns, startDate, endDate) {
+            console.log('Loading analytics for campaigns...');
+            
+            const dateParams = `startDate=${startDate.toISOString().split('T')[0]}&endDate=${endDate.toISOString().split('T')[0]}`;
+            
+            // Batch load analytics
+            const analyticsPromises = campaigns.map(async (campaign) => {
+                try {
+                    const response = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaign.id}/analytics?${dateParams}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.analytics && data.analytics.length > 0) {
+                        state.analytics[campaign.id] = data.analytics[0];
+                    } else {
+                        state.analytics[campaign.id] = {
+                            impressions: 0,
+                            clicks: 0,
+                            spend: 0,
+                            views: 0,
+                            conversions: 0,
+                            leads: 0
+                        };
+                    }
+                } catch (error) {
+                    console.error(`Error loading analytics for campaign ${campaign.id}:`, error);
+                    state.analytics[campaign.id] = null;
+                }
+            });
+
+            await Promise.all(analyticsPromises);
+            console.log('Analytics loaded for all campaigns');
+        }
+
+        async function loadCampaignDemographics(campaigns) {
+            console.log('Loading demographics for campaigns...');
+            
+            // Batch load demographics
+            const demographicsPromises = campaigns.map(async (campaign) => {
+                try {
+                    const response = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaign.id}/demographics`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.demographics) {
+                        state.demographics[campaign.id] = data.demographics;
+                    } else {
+                        state.demographics[campaign.id] = null;
+                    }
+                } catch (error) {
+                    console.error(`Error loading demographics for campaign ${campaign.id}:`, error);
+                    state.demographics[campaign.id] = null;
+                }
+            });
+
+            await Promise.all(demographicsPromises);
+            console.log('Demographics loaded for all campaigns');
+        }
+
+        function calculateSummaryMetrics() {
+            let totalImpressions = 0;
+            let totalClicks = 0;
+            let totalSpend = 0;
+            let activeCampaigns = 0;
+
+            state.campaigns.forEach(campaign => {
+                const analytics = state.analytics[campaign.id];
+                if (analytics) {
+                    totalImpressions += analytics.impressions || 0;
+                    totalClicks += analytics.clicks || 0;
+                    totalSpend += analytics.spend || 0;
+                }
+                
+                if (campaign.status === 'ACTIVE') {
+                    activeCampaigns++;
+                }
+            });
+
+            state.summary = {
+                activeCampaigns,
+                totalImpressions,
+                totalClicks,
+                totalSpend,
+                avgCtr: totalImpressions > 0 ? (totalClicks / totalImpressions * 100) : 0,
+                avgCpc: totalClicks > 0 ? (totalSpend / totalClicks) : 0
+            };
+
+            // Update summary cards
+            document.getElementById('summary-cards').innerHTML = `
+                <div class="summary-card">
+                    <div class="summary-value">${activeCampaigns}</div>
+                    <div class="summary-label">Active Campaigns</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${totalImpressions.toLocaleString()}</div>
+                    <div class="summary-label">Total Impressions</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${totalClicks.toLocaleString()}</div>
+                    <div class="summary-label">Total Clicks</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">${state.summary.avgCtr.toFixed(2)}%</div>
+                    <div class="summary-label">Average CTR</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">$${totalSpend.toLocaleString()}</div>
+                    <div class="summary-label">Total Spend</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-value">$${state.summary.avgCpc.toFixed(2)}</div>
+                    <div class="summary-label">Avg CPC</div>
+                </div>
+            `;
+
+            // Update header stats
+            document.getElementById('total-spend').textContent = `$${totalSpend.toLocaleString()} spent`;
+            document.getElementById('total-impressions').textContent = `${totalImpressions.toLocaleString()} impressions`;
+        }
+
+        function renderCampaigns() {
+            const container = document.getElementById('campaigns-container');
+            
+            if (state.filteredCampaigns.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 3rem; color: #666;">No campaigns found matching the filters.</div>';
+                return;
+            }
+
+            container.innerHTML = state.filteredCampaigns.map(campaign => {
+                const analytics = state.analytics[campaign.id] || {};
+                const demographics = state.demographics[campaign.id] || {};
+                const ctr = analytics.impressions > 0 ? (analytics.clicks / analytics.impressions * 100) : 0;
+                const cpc = analytics.clicks > 0 ? (analytics.spend / analytics.clicks) : 0;
+
+                return `
+                    <div class="campaign-card">
+                        <div class="campaign-header">
+                            <div>
+                                <div class="campaign-name">${campaign.name}</div>
+                                <div style="font-size: 0.75rem; color: #666; margin-top: 0.25rem;">
+                                    ID: ${campaign.id} • ${campaign.objectiveType || 'N/A'} • 
+                                    Created: ${new Date(campaign.changeAuditStamps?.created?.time || 0).toLocaleDateString()}
+                                </div>
+                            </div>
+                            <div>
+                                <span class="campaign-status status-${campaign.status.toLowerCase()}">
+                                    ${campaign.status}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="campaign-body">
+                            <!-- Performance Metrics -->
+                            <div class="metrics-row">
+                                <div class="metric-box">
+                                    <div class="metric-value">${(analytics.impressions || 0).toLocaleString()}</div>
+                                    <div class="metric-label">Impressions</div>
+                                </div>
+                                <div class="metric-box">
+                                    <div class="metric-value">${(analytics.clicks || 0).toLocaleString()}</div>
+                                    <div class="metric-label">Clicks</div>
+                                </div>
+                                <div class="metric-box">
+                                    <div class="metric-value">${ctr.toFixed(2)}%</div>
+                                    <div class="metric-label">CTR</div>
+                                </div>
+                                <div class="metric-box">
+                                    <div class="metric-value">$${(analytics.spend || 0).toFixed(2)}</div>
+                                    <div class="metric-label">Spend</div>
+                                </div>
+                                <div class="metric-box">
+                                    <div class="metric-value">$${cpc.toFixed(2)}</div>
+                                    <div class="metric-label">CPC</div>
+                                </div>
+                                <div class="metric-box">
+                                    <div class="metric-value">${analytics.conversions || 0}</div>
+                                    <div class="metric-label">Conversions</div>
+                                </div>
+                            </div>
+
+                            <!-- Demographics Section -->
+                            ${renderDemographics(demographics)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderDemographics(demographics) {
+            if (!demographics || Object.keys(demographics).length === 0) {
+                return '<div style="color: #666; font-style: italic;">No demographic data available</div>';
+            }
+
+            return `
+                <div class="demographics-section">
+                    <div class="demographics-title">Audience Demographics</div>
+                    <div class="demographics-grid">
+                        ${renderDemographicSection('Companies', demographics.MEMBER_COMPANY)}
+                        ${renderDemographicSection('Job Titles', demographics.MEMBER_JOB_TITLE)}
+                        ${renderDemographicSection('Seniority', demographics.MEMBER_SENIORITY)}
+                        ${renderDemographicSection('Industries', demographics.MEMBER_INDUSTRY)}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderDemographicSection(title, items) {
+            if (!items || items.length === 0) return '';
+
+            const top5 = items.slice(0, 5);
+            const maxValue = Math.max(...top5.map(item => item.impressions || 0));
+
+            return `
+                <div class="demographic-box">
+                    <div class="demographic-label">${title}</div>
+                    ${top5.map(item => `
+                        <div class="demographic-item">
+                            <span style="flex: 1;">${item.name}</span>
+                            <span style="margin-left: 0.5rem; color: #666;">${(item.percentage || 0).toFixed(1)}%</span>
+                            <div class="demographic-bar">
+                                <div class="demographic-fill" style="width: ${(item.impressions / maxValue * 100)}%"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function filterCampaigns() {
+            const statusFilter = document.getElementById('status-filter').value;
+            const objectiveFilter = document.getElementById('objective-filter').value;
+
+            state.filteredCampaigns = state.campaigns.filter(campaign => {
+                const statusMatch = statusFilter === 'all' || campaign.status === statusFilter;
+                const objectiveMatch = objectiveFilter === 'all' || campaign.objectiveType === objectiveFilter;
+                return statusMatch && objectiveMatch;
+            });
+
+            renderCampaigns();
+        }
+
+        function sortCampaigns() {
+            const sortBy = document.getElementById('sort-filter').value;
+
+            state.filteredCampaigns.sort((a, b) => {
+                const analyticsA = state.analytics[a.id] || {};
+                const analyticsB = state.analytics[b.id] || {};
+
+                switch (sortBy) {
+                    case 'date':
+                        return (b.changeAuditStamps?.created?.time || 0) - (a.changeAuditStamps?.created?.time || 0);
+                    case 'impressions':
+                        return (analyticsB.impressions || 0) - (analyticsA.impressions || 0);
+                    case 'clicks':
+                        return (analyticsB.clicks || 0) - (analyticsA.clicks || 0);
+                    case 'ctr':
+                        const ctrA = analyticsA.impressions > 0 ? (analyticsA.clicks / analyticsA.impressions) : 0;
+                        const ctrB = analyticsB.impressions > 0 ? (analyticsB.clicks / analyticsB.impressions) : 0;
+                        return ctrB - ctrA;
+                    case 'spend':
+                        return (analyticsB.spend || 0) - (analyticsA.spend || 0);
+                    default:
+                        return 0;
+                }
+            });
+
+            renderCampaigns();
+        }
+
+        function createTimelineChart() {
+            const ctx = document.getElementById('performance-timeline');
+            if (!ctx) return;
+
+            // Aggregate data by date
+            const dailyData = {};
+            
+            state.campaigns.forEach(campaign => {
+                const startDate = new Date(campaign.runSchedule?.start || campaign.changeAuditStamps?.created?.time || 0);
+                const dateKey = startDate.toISOString().split('T')[0];
+                
+                if (!dailyData[dateKey]) {
+                    dailyData[dateKey] = { impressions: 0, clicks: 0, spend: 0 };
+                }
+                
+                const analytics = state.analytics[campaign.id];
+                if (analytics) {
+                    dailyData[dateKey].impressions += analytics.impressions || 0;
+                    dailyData[dateKey].clicks += analytics.clicks || 0;
+                    dailyData[dateKey].spend += analytics.spend || 0;
+                }
+            });
+
+            const sortedDates = Object.keys(dailyData).sort();
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: sortedDates.map(date => new Date(date).toLocaleDateString()),
+                    datasets: [{
+                        label: 'Impressions',
+                        data: sortedDates.map(date => dailyData[date].impressions),
+                        borderColor: '#1976d2',
+                        backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                        yAxisID: 'y-impressions'
+                    }, {
+                        label: 'Clicks',
+                        data: sortedDates.map(date => dailyData[date].clicks),
+                        borderColor: '#f57c00',
+                        backgroundColor: 'rgba(245, 124, 0, 0.1)',
+                        yAxisID: 'y-clicks'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Campaign Performance Timeline'
+                        }
+                    },
+                    scales: {
+                        'y-impressions': {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Impressions'
+                            }
+                        },
+                        'y-clicks': {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Clicks'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function exportFullReport() {
+            const reportData = {
+                metadata: {
+                    accountId: VUCKO_ACCOUNT_ID,
+                    accountName: 'Vucko',
+                    dateRange: {
+                        start: new Date(Date.now() - DAYS_BACK * 24 * 60 * 60 * 1000).toISOString(),
+                        end: new Date().toISOString()
+                    },
+                    exportedAt: new Date().toISOString()
+                },
+                summary: state.summary,
+                campaigns: state.campaigns.map(campaign => ({
+                    ...campaign,
+                    analytics: state.analytics[campaign.id],
+                    demographics: state.demographics[campaign.id]
+                }))
+            };
+
+            const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `vucko-campaign-report-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function showError(message) {
+            const container = document.getElementById('campaigns-container');
+            container.innerHTML = `<div class="error-message"><i class="fas fa-exclamation-triangle mr-2"></i>${message}</div>`;
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Post Mappings</title>
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        
+        .instructions {
+            background: #e3f2fd;
+            border: 1px solid #1976d2;
+            color: #0d47a1;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+        }
+        
+        .mapping-form {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 2rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+        }
+        
+        .run-id {
+            font-family: monospace;
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .url-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .button-row {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+        
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+        
+        .output {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Update Post URL Mappings</h1>
+        
+        <div class="instructions">
+            <strong>Instructions:</strong> Enter the LinkedIn post URLs for each Apify run below. After entering all URLs, click "Generate Code" to get the updated mappings for your reports.
+        </div>
+        
+        <div class="mapping-form">
+            <h3>Post URL Mappings</h3>
+            
+            <div class="form-row">
+                <div class="run-id">Run 1:</div>
+                <input type="text" class="url-input" id="url-0" placeholder="https://www.linkedin.com/feed/update/...">
+            </div>
+            
+            <div class="form-row">
+                <div class="run-id">Run 2:</div>
+                <input type="text" class="url-input" id="url-1" placeholder="https://www.linkedin.com/feed/update/...">
+            </div>
+            
+            <div class="form-row">
+                <div class="run-id">Run 3:</div>
+                <input type="text" class="url-input" id="url-2" placeholder="https://www.linkedin.com/feed/update/...">
+            </div>
+            
+            <div class="form-row">
+                <div class="run-id">Run 4:</div>
+                <input type="text" class="url-input" id="url-3" placeholder="https://www.linkedin.com/feed/update/...">
+            </div>
+            
+            <div class="form-row">
+                <div class="run-id">Run 5:</div>
+                <input type="text" class="url-input" id="url-4" placeholder="https://www.linkedin.com/feed/update/...">
+            </div>
+            
+            <div class="form-row">
+                <div class="run-id">Run 6:</div>
+                <input type="text" class="url-input" id="url-5" placeholder="https://www.linkedin.com/feed/update/...">
+            </div>
+            
+            <div class="form-row">
+                <div class="run-id">Run 7:</div>
+                <input type="text" class="url-input" id="url-6" placeholder="https://www.linkedin.com/feed/update/...">
+            </div>
+            
+            <div class="form-row">
+                <div class="run-id">Run 8:</div>
+                <input type="text" class="url-input" id="url-7" placeholder="https://www.linkedin.com/feed/update/...">
+            </div>
+            
+            <div class="form-row">
+                <div class="run-id">Run 9:</div>
+                <input type="text" class="url-input" id="url-8" placeholder="https://www.linkedin.com/feed/update/...">
+            </div>
+            
+            <div class="form-row">
+                <div class="run-id">Run 10:</div>
+                <input type="text" class="url-input" id="url-9" placeholder="https://www.linkedin.com/feed/update/...">
+            </div>
+            
+            <div class="button-row">
+                <button class="btn btn-primary" onclick="generateCode()">Generate Code</button>
+                <button class="btn btn-secondary" onclick="copyToClipboard()">Copy to Clipboard</button>
+            </div>
+        </div>
+        
+        <div id="output" class="output"></div>
+    </div>
+    
+    <script>
+        const runIds = [
+            'butuMDGrIRxOxee09',
+            'JqrdZuVDQz9AgQIIU',
+            '3nlSqHwyJiQPsoqAC',
+            'PvNvNkbqvWNpaXiD8',
+            'hhHrpS4sCKvBjIsta',
+            'uBCxynShX9JejO2P2',
+            'oxzLwXzLwyICuw85w',
+            'dLF3uRnLs6nWStFGk',
+            'TWcaUmKsvJNO6Qf6Y',
+            'j56hR3kcejjgjhWcE'
+        ];
+        
+        function generateCode() {
+            const mappings = [];
+            
+            for (let i = 0; i < 10; i++) {
+                const url = document.getElementById(`url-${i}`).value.trim();
+                mappings.push({
+                    runId: runIds[i],
+                    postUrl: url || null,
+                    description: `Post ${i + 1}`
+                });
+            }
+            
+            const code = `const APIFY_RUN_MAPPINGS = [
+${mappings.map(m => `    { runId: '${m.runId}', postUrl: ${m.postUrl ? `'${m.postUrl}'` : 'null'}, description: '${m.description}' }`).join(',\n')}
+];`;
+            
+            const output = document.getElementById('output');
+            output.textContent = code;
+            output.style.display = 'block';
+            
+            // Also generate update instructions
+            const instructions = `
+
+// To update your reports:
+// 1. Replace the APIFY_RUN_MAPPINGS constant in:
+//    - master-signals-actions-report.html
+//    - integrated-campaign-insights.html
+// 2. Refresh the pages to see embedded posts
+// 3. Click "Link to Campaigns" to connect posts with campaign data`;
+            
+            output.textContent += instructions;
+        }
+        
+        function copyToClipboard() {
+            const output = document.getElementById('output');
+            if (output.textContent) {
+                navigator.clipboard.writeText(output.textContent).then(() => {
+                    alert('Code copied to clipboard!');
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                });
+            } else {
+                alert('Please generate the code first');
+            }
+        }
+    </script>
+</body>
+</html>

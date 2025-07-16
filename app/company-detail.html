@@ -4,122 +4,187 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Company Detail - Signals & Actions</title>
-    
-    <!-- External Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Configuration -->
-    <script src="config.js"></script>
-    
-    <!-- Swiss Design System -->
-    <link rel="stylesheet" href="styles/swiss-design.css">
-    
-    <style>
-        /* Page-specific overrides only - main styles in swiss-design.css */
-    </style>
+    <link rel="stylesheet" href="/styles/swiss-minimal.css">
 </head>
-<body class="has-sidebar page-with-sidebar">
-    <div id="app" class="min-h-screen">
-        <!-- Sidebar Navigation -->
-        <div id="sidebar-container"></div>
-        
-        <!-- Mobile Sidebar Toggle -->
-        <button class="sidebar-toggle" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
-        
-        <!-- Page Header with Actions -->
-        <div class="main-content">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-xl font-semibold text-gray-900">Company Detail</h1>
-                    <div class="text-sm text-muted">Team & Engagement Analysis</div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <button onclick="app.exportCompany()" class="btn btn-secondary">
-                        Export
-                    </button>
-                    <button onclick="window.location.href='index.html#companies'" class="btn btn-secondary">
-                        Back to Companies
-                    </button>
-                </div>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Signals & Actions</h1>
+                <p class="sidebar-subtitle">Vucko</p>
             </div>
+            
+                        <div class="nav-group">
+                <div class="nav-label">Overview</div>
+                <a href="/index.html" class="nav-link">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    Dashboard
+                </a>
+                <a href="/signals.html" class="nav-link">
+                    <i class="fas fa-signal nav-icon"></i>
+                    Signals
+                </a>
+                <a href="/actions.html" class="nav-link">
+                    <i class="fas fa-tasks nav-icon"></i>
+                    Actions
+                </a>
+                <a href="/weekly-report.html" class="nav-link">
+                    <i class="fas fa-calendar nav-icon"></i>
+                    Weekly Report
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Content</div>
+                <a href="/content-calendar.html" class="nav-link">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    Content Calendar
+                </a>
+                <a href="/content-database.html" class="nav-link">
+                    <i class="fas fa-database nav-icon"></i>
+                    Content Database
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Campaigns</div>
+                <a href="/audiences.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Audiences
+                </a>
+                <a href="/campaigns.html" class="nav-link">
+                    <i class="fas fa-bullhorn nav-icon"></i>
+                    Campaigns
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Contacts</div>
+                <a href="/people.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    People
+                </a>
+                <a href="/companies.html" class="nav-link">
+                    <i class="fas fa-building nav-icon"></i>
+                    Companies
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Strategy</div>
+                <a href="/personas.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Personas
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Data Import</div>
+                <a href="/import-data.html" class="nav-link">
+                    <i class="fas fa-upload nav-icon"></i>
+                    Import Data
+                </a>
+            </div>
+        </nav>
 
         <!-- Main Content -->
-        <main>
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Left Column: Company Details -->
-                <div class="lg:col-span-1">
-                    <!-- Company Info -->
-                    <div class="metric-card mb-6">
-                        <div id="companyInfo">
-                            <div class="skeleton h-64 rounded"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Engagement Patterns -->
-                    <div class="metric-card mb-6">
-                        <h3 class="text-strong text-base mb-4">Engagement Patterns</h3>
-                        <div id="companyPatterns">
-                            <div class="skeleton h-32 rounded"></div>
-                        </div>
-                    </div>
-                    
-                    <!-- Top Signals -->
-                    <div class="metric-card">
-                        <h3 class="text-strong text-base mb-4">Top Signals</h3>
-                        <div id="topSignals">
-                            <div class="skeleton h-32 rounded"></div>
-                        </div>
+        <main class="main-content">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">Company Detail</h1>
+            </header>
+
+            <div class="detail-container">
+                <!-- Company Header -->
+                <div class="detail-header">
+                    <div>
+                        <h2 class="font-semibold" style="font-size: var(--font-size-xl);" id="company-name">Loading...</h2>
+                        <p class="text-muted text-small" id="company-industry">--</p>
+                        <p class="text-muted text-small" id="company-size">--</p>
                     </div>
                 </div>
-                
-                <!-- Right Column: People from Company -->
-                <div class="lg:col-span-2">
-                    <!-- Stats Overview -->
-                    <div class="metric-card mb-6">
-                        <div id="companyStats" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <!-- Stats will be populated here -->
-                        </div>
-                    </div>
-                    
-                    <!-- People Table -->
-                    <div class="metric-card">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-strong text-base">People from this Company</h3>
-                            <div class="relative">
-                                <svg class="icon icon-sm absolute left-3 top-2.5 text-muted" viewBox="0 0 24 24">
-                                    <circle cx="11" cy="11" r="8"></circle>
-                                    <path d="m21 21-4.35-4.35"></path>
-                                </svg>
-                                <input type="text" 
-                                       id="searchInput"
-                                       placeholder="Search people..." 
-                                       class="pl-10 pr-4 py-2 border border-slate-200 rounded focus:outline-none focus:border-blue-500 text-sm">
+
+                <!-- Detail Grid -->
+                <div class="detail-grid">
+                    <!-- Left Column -->
+                    <div>
+                        <!-- Overview Section -->
+                        <div class="detail-section">
+                            <h3 class="section-title">Overview</h3>
+                            <div class="metric-row">
+                                <span class="metric-label">Total People</span>
+                                <span class="metric-value" id="total-people">0</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Total Engagements</span>
+                                <span class="metric-value" id="total-engagements">0</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Average Score</span>
+                                <span class="metric-value" id="avg-score">0</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Campaign Spend</span>
+                                <span class="metric-value" id="campaign-spend">$0</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Followers</span>
+                                <span class="metric-value" id="followers-count">0</span>
                             </div>
                         </div>
-                        
-                        <div class="data-table">
-                            <table class="w-full" style="table-layout: fixed;">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 30%;">Name</th>
-                                        <th style="width: 25%;">Title</th>
-                                        <th style="width: 15%;">Score</th>
-                                        <th style="width: 15%;">Status</th>
-                                        <th style="width: 15%;">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="peopleTable">
-                                    <tr>
-                                        <td colspan="5" class="text-center py-8 text-muted">
-                                            Loading people...
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+
+                        <!-- People Section -->
+                        <div class="detail-section" style="margin-top: var(--space-2xl);">
+                            <h3 class="section-title">Key People</h3>
+                            <ul class="simple-list" id="people-list">
+                                <li class="text-muted">No people from this company</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div>
+                        <!-- Engagement Insights -->
+                        <div class="detail-section">
+                            <h3 class="section-title">Engagement Insights</h3>
+                            <div class="metric-row">
+                                <span class="metric-label">Hot Prospects</span>
+                                <span class="metric-value" id="hot-prospects">0</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Warm Prospects</span>
+                                <span class="metric-value" id="warm-prospects">0</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Last Engagement</span>
+                                <span class="metric-value" id="last-engagement">Never</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Most Engaged Title</span>
+                                <span class="metric-value" id="top-title">--</span>
+                            </div>
+                        </div>
+
+                        <!-- Actions Section -->
+                        <div class="detail-section" style="margin-top: var(--space-2xl);">
+                            <h3 class="section-title">Actions</h3>
+                            <div style="display: flex; flex-direction: column; gap: var(--space-md);">
+                                <button class="btn" onclick="viewOnLinkedIn()">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    View on LinkedIn
+                                </button>
+                                <button class="btn" onclick="createAudience()">
+                                    <i class="fas fa-users"></i>
+                                    Create Audience
+                                </button>
+                                <button class="btn" onclick="exportPeople()">
+                                    <i class="fas fa-download"></i>
+                                    Export People
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -127,335 +192,153 @@
         </main>
     </div>
 
+    <script src="/config.js"></script>
     <script>
+        let currentCompany = null;
+        let companyPeople = [];
+        let supabase;
+
         // Initialize Supabase
-        let supabaseClient;
-        
-        // Application state
-        const app = {
-            companyName: null,
-            people: [],
-            filteredPeople: [],
-            
-            async init() {
-                // Get company name from URL
-                const urlParams = new URLSearchParams(window.location.search);
-                this.companyName = decodeURIComponent(urlParams.get('name'));
-                
-                if (!this.companyName) {
-                    alert('No company name provided');
-                    window.location.href = 'index.html';
-                    return;
-                }
-                
-                // Initialize Supabase
-                supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
-                
-                // Load data
-                await this.loadPeople();
-                this.renderCompanyInfo();
-                this.renderStats();
-                this.renderPatterns();
-                this.renderPeopleTable();
-                
-                // Setup search
-                document.getElementById('searchInput').addEventListener('input', (e) => {
-                    this.filterPeople(e.target.value);
-                });
-            },
-            
-            async loadPeople() {
-                const { data, error } = await supabaseClient
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                return true;
+            }
+            return false;
+        }
+
+        // Get company name from URL
+        function getCompanyName() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('name');
+        }
+
+        // Load company details
+        async function loadCompanyDetails() {
+            const companyName = getCompanyName();
+            if (!companyName) {
+                showError('No company name provided');
+                return;
+            }
+
+            document.getElementById('company-name').textContent = decodeURIComponent(companyName);
+
+            if (!supabase) {
+                console.error('Supabase not initialized');
+                showError('Unable to load company data');
+                return;
+            }
+
+            try {
+                // Load people from this company
+                const { data: people, error } = await supabase
                     .from('persons')
                     .select('*')
-                    .or(`current_company.eq.${this.companyName},company_override.eq.${this.companyName}`)
+                    .eq('current_company', decodeURIComponent(companyName))
                     .eq('tenant_id', DEFAULT_TENANT_ID)
                     .order('engagement_score', { ascending: false });
-                
-                if (error) {
-                    console.error('Error loading people:', error);
-                    return;
-                }
-                
-                this.people = data || [];
-                this.filteredPeople = [...this.people];
-            },
-            
-            renderCompanyInfo() {
-                const container = document.getElementById('companyInfo');
-                
-                const totalPeople = this.people.length;
-                const totalEngagements = this.people.reduce((sum, p) => sum + (p.engagement_score || 0), 0);
-                const avgScore = totalPeople > 0 ? Math.round(totalEngagements / totalPeople) : 0;
-                
-                container.innerHTML = `
-                    <div class="text-center">
-                        <div class="w-24 h-24 rounded-lg mx-auto mb-4 border-2 border-slate-200 bg-slate-100 flex items-center justify-center">
-                            <i class="fas fa-building text-3xl text-slate-400"></i>
-                        </div>
-                        <h2 class="text-xl font-semibold text-slate-900 mb-4">${this.companyName}</h2>
-                    </div>
-                    
-                    <div class="space-y-3 text-sm">
-                        <div class="flex justify-between">
-                            <span class="text-muted">Total People</span>
-                            <span class="text-strong text-mono">${totalPeople}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-muted">Total Engagements</span>
-                            <span class="text-strong text-mono">${totalEngagements}</span>
-                        </div>
-                        <div class="flex justify-between">
-                            <span class="text-muted">Avg Score</span>
-                            <span class="text-strong text-mono">${avgScore}</span>
-                        </div>
-                    </div>
-                `;
-            },
-            
-            renderStats() {
-                const container = document.getElementById('companyStats');
-                
-                const followers = this.people.filter(p => p.is_follower).length;
-                const notable = this.people.filter(p => p.is_notable).length;
-                const highValue = this.people.filter(p => p.engagement_score >= 5).length;
-                const withStatus = this.people.filter(p => p.lead_status).length;
-                
-                container.innerHTML = `
-                    <div class="text-center p-4 bg-slate-50 rounded border border-slate-200">
-                        <div class="text-2xl font-semibold text-slate-900 text-mono">${followers}</div>
-                        <div class="text-xs text-muted mt-1">Followers</div>
-                    </div>
-                    <div class="text-center p-4 bg-amber-50 rounded border border-amber-200">
-                        <div class="text-2xl font-semibold text-amber-900 text-mono">${notable}</div>
-                        <div class="text-xs text-muted mt-1">Notable</div>
-                    </div>
-                    <div class="text-center p-4 bg-green-50 rounded border border-green-200">
-                        <div class="text-2xl font-semibold text-green-900 text-mono">${highValue}</div>
-                        <div class="text-xs text-muted mt-1">High Value</div>
-                    </div>
-                    <div class="text-center p-4 bg-blue-50 rounded border border-blue-200">
-                        <div class="text-2xl font-semibold text-blue-900 text-mono">${withStatus}</div>
-                        <div class="text-xs text-muted mt-1">In Pipeline</div>
-                    </div>
-                `;
-            },
-            
-            renderPatterns() {
-                const patternsContainer = document.getElementById('companyPatterns');
-                const signalsContainer = document.getElementById('topSignals');
-                
-                // Title patterns
-                const titleCounts = {};
-                this.people.forEach(p => {
-                    const title = p.title_override || p.current_title || 'Unknown';
-                    if (title !== 'Unknown') {
-                        titleCounts[title] = (titleCounts[title] || 0) + 1;
-                    }
-                });
-                
-                const topTitles = Object.entries(titleCounts)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 5);
-                
-                patternsContainer.innerHTML = `
-                    <div class="space-y-2">
-                        ${topTitles.map(([title, count]) => `
-                            <div class="flex items-center justify-between py-1">
-                                <span class="text-sm text-truncate" style="max-width: 150px">${title}</span>
-                                <span class="text-sm font-medium text-mono">${count}</span>
-                            </div>
-                        `).join('') || '<p class="text-sm text-muted">No patterns found</p>'}
-                    </div>
-                `;
-                
-                // Top signals
-                const topPeople = this.people
-                    .filter(p => p.engagement_score > 0)
-                    .sort((a, b) => b.engagement_score - a.engagement_score)
-                    .slice(0, 3);
-                
-                signalsContainer.innerHTML = `
-                    <div class="space-y-2">
-                        ${topPeople.map(person => `
-                            <div class="flex items-center justify-between py-1 hover:bg-slate-50 rounded px-2 -mx-2 cursor-pointer"
-                                 onclick="window.location.href='person-detail.html?id=${person.id}'">
-                                <span class="text-sm">${person.name}</span>
-                                <span class="data-pill high">${person.engagement_score}</span>
-                            </div>
-                        `).join('') || '<p class="text-sm text-muted">No high-value people found</p>'}
-                    </div>
-                `;
-            },
-            
-            filterPeople(searchTerm) {
-                const term = searchTerm.toLowerCase();
-                
-                if (!term) {
-                    this.filteredPeople = [...this.people];
-                } else {
-                    this.filteredPeople = this.people.filter(person => {
-                        const searchableText = [
-                            person.name,
-                            person.title_override || person.current_title,
-                            person.headline
-                        ].join(' ').toLowerCase();
-                        
-                        return searchableText.includes(term);
-                    });
-                }
-                
-                this.renderPeopleTable();
-            },
-            
-            renderPeopleTable() {
-                const tbody = document.getElementById('peopleTable');
-                
-                if (this.filteredPeople.length === 0) {
-                    tbody.innerHTML = `
-                        <tr>
-                            <td colspan="5" class="text-center py-8 text-muted">
-                                ${this.people.length === 0 ? 'No people found from this company' : 'No people match your search'}
-                            </td>
-                        </tr>
-                    `;
-                    return;
-                }
-                
-                tbody.innerHTML = this.filteredPeople.map(person => {
-                    const title = person.title_override || person.current_title || person.headline || '—';
-                    const leadStatus = person.lead_status || '';
-                    
-                    return `
-                        <tr class="hover-row" onclick="window.location.href='person-detail.html?id=${person.id}'">
-                            <td>
-                                <div class="flex items-center gap-3">
-                                    ${person.profile_picture ? 
-                                        `<img src="${person.profile_picture}" 
-                                             alt="${person.name}" 
-                                             class="profile-photo"
-                                             onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'profile-placeholder\\'><svg class=\\'icon icon-sm\\' viewBox=\\'0 0 24 24\\'><path d=\\'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2\\'></path><circle cx=\\'12\\' cy=\\'7\\' r=\\'4\\'></circle></svg></div>'">` :
-                                        '<div class="profile-placeholder"><svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg></div>'
-                                    }
-                                    <div class="min-w-0 flex-1">
-                                        <div class="font-medium text-sm text-truncate text-strong">${person.name}</div>
-                                        ${person.is_follower ? '<div class="text-xs text-blue-600 mt-1">Follower</div>' : ''}
-                                    </div>
-                                </div>
-                            </td>
-                            <td class="text-sm text-truncate">${title}</td>
-                            <td>
-                                ${this.renderEngagementScore(person.engagement_score || 0)}
-                            </td>
-                            <td>
-                                ${leadStatus ? `<span class="data-pill">${this.formatLeadStatus(leadStatus)}</span>` : '—'}
-                            </td>
-                            <td>
-                                <button onclick="event.stopPropagation(); window.open('${person.linkedin_url}', '_blank')" 
-                                        class="action-button"
-                                        title="View on LinkedIn">
-                                    <svg class="icon icon-sm" viewBox="0 0 24 24">
-                                        <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-                                        <rect x="2" y="9" width="4" height="12"></rect>
-                                        <circle cx="4" cy="4" r="2"></circle>
-                                    </svg>
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-            },
-            
-            renderEngagementScore(score) {
-                if (score >= 10) {
-                    return '<span class="data-pill high">High</span>';
-                } else if (score >= 5) {
-                    return '<span class="data-pill medium">Medium</span>';
-                } else if (score > 0) {
-                    return '<span class="data-pill low">Low</span>';
-                } else {
-                    return '<span class="data-pill">New</span>';
-                }
-            },
-            
-            formatLeadStatus(status) {
-                const statusMap = {
-                    'nurturing': 'Nurturing',
-                    'to_follow_up': 'Follow Up',
-                    'add_on_linkedin': 'Add on LI'
-                };
-                return statusMap[status] || status;
-            },
-            
-            async exportCompany() {
-                const data = {
-                    company: this.companyName,
-                    stats: {
-                        totalPeople: this.people.length,
-                        followers: this.people.filter(p => p.is_follower).length,
-                        notable: this.people.filter(p => p.is_notable).length,
-                        highValue: this.people.filter(p => p.engagement_score >= 5).length
-                    },
-                    people: this.people.map(p => ({
-                        name: p.name,
-                        title: p.title_override || p.current_title,
-                        engagement_score: p.engagement_score,
-                        is_follower: p.is_follower,
-                        lead_status: p.lead_status,
-                        linkedin_url: p.linkedin_url
-                    }))
-                };
-                
-                // Convert to CSV
-                const headers = ['Name', 'Title', 'Score', 'Follower', 'Lead Status', 'LinkedIn URL'];
-                const csv = [
-                    headers.join(','),
-                    ...data.people.map(p => [
-                        `"${p.name}"`,
-                        `"${p.title || ''}"`,
-                        p.engagement_score,
-                        p.is_follower ? 'Yes' : 'No',
-                        `"${p.lead_status || ''}"`,
-                        `"${p.linkedin_url || ''}"`
-                    ].join(','))
-                ].join('\n');
-                
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `company-${this.companyName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-            }
-        };
-        
-        // Navigation functions
-        function navigateTo(page) {
-            if (page === 'companies') return; // Already on company detail
-            window.location.href = `index.html#${page}`;
-        }
-        
-        // Load sidebar component
-        async function loadSidebar() {
-            try {
-                const response = await fetch('components/sidebar.html');
-                const sidebarHTML = await response.text();
-                document.getElementById('sidebar-container').innerHTML = sidebarHTML;
+
+                if (error) throw error;
+
+                companyPeople = people || [];
+                displayCompanyData();
             } catch (error) {
-                console.error('Failed to load sidebar:', error);
+                console.error('Error loading company:', error);
+                showError('Failed to load company data');
+                companyPeople = [];
+                displayCompanyData();
             }
         }
-        
-        // Initialize when DOM is ready
-        document.addEventListener('DOMContentLoaded', async () => {
-            // Load sidebar first
-            await loadSidebar();
+
+
+        // Display company data
+        function displayCompanyData() {
+            // Calculate metrics
+            const totalPeople = companyPeople.length;
+            const totalEngagements = companyPeople.reduce((sum, p) => sum + (p.engagement_score || 0), 0);
+            const avgScore = totalPeople > 0 ? (totalEngagements / totalPeople).toFixed(1) : 0;
+            const campaignSpend = companyPeople.reduce((sum, p) => sum + (p.acquisition_cost || 0), 0);
+            const followers = companyPeople.filter(p => p.is_follower).length;
+            const hot = companyPeople.filter(p => p.engagement_score >= 7).length;
+            const warm = companyPeople.filter(p => p.engagement_score >= 4 && p.engagement_score < 7).length;
+
+            // Update metrics
+            document.getElementById('total-people').textContent = totalPeople;
+            document.getElementById('total-engagements').textContent = totalEngagements;
+            document.getElementById('avg-score').textContent = avgScore;
+            document.getElementById('campaign-spend').textContent = `$${campaignSpend.toFixed(2)}`;
+            document.getElementById('followers-count').textContent = followers;
+            document.getElementById('hot-prospects').textContent = hot;
+            document.getElementById('warm-prospects').textContent = warm;
+
+            // Display people list (top 10)
+            const peopleList = document.getElementById('people-list');
+            if (companyPeople.length > 0) {
+                peopleList.innerHTML = companyPeople.slice(0, 10).map(person => `
+                    <li>
+                        <a href="/person-detail.html?id=${person.id}" class="link">
+                            ${person.name}
+                        </a>
+                        <span class="text-muted"> - ${person.headline || 'No title'}</span>
+                        <span class="badge ${person.engagement_score >= 7 ? 'high' : person.engagement_score >= 4 ? 'medium' : 'low'}">
+                            ${person.engagement_score || 0}
+                        </span>
+                    </li>
+                `).join('');
+            }
+
+            // Find most engaged title
+            const titleCounts = {};
+            companyPeople.forEach(person => {
+                if (person.headline) {
+                    titleCounts[person.headline] = (titleCounts[person.headline] || 0) + 1;
+                }
+            });
             
-            window.app = app;
-            app.init();
+            const topTitle = Object.entries(titleCounts)
+                .sort(([,a], [,b]) => b - a)[0];
+            
+            if (topTitle) {
+                document.getElementById('top-title').textContent = topTitle[0];
+            }
+        }
+
+        // Show error
+        function showError(message) {
+            document.getElementById('company-name').textContent = 'Error';
+            document.getElementById('company-industry').textContent = message;
+        }
+
+        // Actions
+        function viewOnLinkedIn() {
+            const companyName = getCompanyName();
+            if (companyName) {
+                window.open(`https://www.linkedin.com/company/${encodeURIComponent(companyName)}`, '_blank');
+            }
+        }
+
+        function createAudience() {
+            alert('Audience creation will be implemented soon!');
+        }
+
+        function exportPeople() {
+            alert('Export functionality will be implemented soon!');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            let attempts = 0;
+            const checkSupabase = setInterval(() => {
+                attempts++;
+                if (initSupabase()) {
+                    clearInterval(checkSupabase);
+                    loadCompanyDetails();
+                } else if (attempts > 20) {
+                    clearInterval(checkSupabase);
+                    console.error('Failed to initialize Supabase after 20 attempts');
+                    showError('Unable to initialize database connection');
+                }
+            }, 100);
         });
     </script>
 </body>

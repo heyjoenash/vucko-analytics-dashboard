@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master Signals & Actions Report - LinkedIn Campaign Intelligence</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    <style>
+        /* Master Report Styling */
+        .report-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d30 100%);
+            color: white;
+            padding: 2rem;
+            margin: -2rem -2rem 2rem -2rem;
+            border-radius: 0 0 8px 8px;
+        }
+        
+        .report-title {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+        
+        .report-subtitle {
+            opacity: 0.8;
+            font-size: 1rem;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .metric-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4285f4, #34a853, #fbbc05, #ea4335);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 0.25rem;
+        }
+        
+        .metric-label {
+            color: #666;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .metric-change {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+        }
+        
+        .metric-change.positive {
+            color: #34a853;
+        }
+        
+        .metric-change.negative {
+            color: #ea4335;
+        }
+        
+        .section-container {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+        
+        .section-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-content {
+            padding: 1.5rem;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background: #f8f9fa;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #555;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .data-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.875rem;
+            vertical-align: middle;
+        }
+        
+        .data-table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .company-logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            object-fit: cover;
+            margin-right: 0.75rem;
+        }
+        
+        .company-placeholder {
+            width: 32px;
+            height: 32px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-size: 0.75rem;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .profile-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 0.75rem;
+        }
+        
+        .profile-placeholder {
+            width: 40px;
+            height: 40px;
+            background: #e0e0e0;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            font-size: 0.75rem;
+            color: #666;
+            font-weight: 600;
+        }
+        
+        .engagement-score {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        
+        .score-bar {
+            width: 40px;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #34a853, #fbbc05, #ea4335);
+            transition: width 0.3s ease;
+        }
+        
+        .tag {
+            display: inline-block;
+            background: #f0f0f0;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #333;
+            margin-right: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .tag.campaign-source {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .tag.organic-source {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .tag.high-value {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+            border-radius: 4px;
+            border: 1px solid #d0d0d0;
+            background: white;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-sm:hover {
+            background: #f5f5f5;
+            border-color: #999;
+        }
+        
+        .btn-primary {
+            background: #1976d2;
+            color: white;
+            border-color: #1976d2;
+        }
+        
+        .btn-primary:hover {
+            background: #1565c0;
+        }
+        
+        .loading-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            margin-right: 1rem;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .error-container {
+            background: #fef7f7;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+        
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-container {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        
+        .chart-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1a1a1a;
+        }
+        
+        .tabs-container {
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            gap: 0;
+        }
+        
+        .tab-button {
+            padding: 0.75rem 1rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-weight: 500;
+            color: #666;
+            transition: all 0.2s;
+        }
+        
+        .tab-button.active {
+            color: #1976d2;
+            border-bottom-color: #1976d2;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .export-options {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .performance-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.75rem;
+        }
+        
+        .indicator-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        
+        .indicator-hot {
+            background: #ea4335;
+        }
+        
+        .indicator-warm {
+            background: #fbbc05;
+        }
+        
+        .indicator-cold {
+            background: #34a853;
+        }
+    </style>
+</head>
+<body class="has-sidebar page-with-sidebar">
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Report Header -->
+        <div class="report-header">
+            <h1 class="report-title">Master Signals & Actions Report</h1>
+            <p class="report-subtitle">Comprehensive LinkedIn campaign intelligence across 10 campaign runs</p>
+            <div style="margin-top: 1rem; opacity: 0.8; font-size: 0.875rem;">
+                <span id="report-date-range">Loading...</span> • 
+                <span id="report-campaigns-count">0 campaigns</span> • 
+                <span id="report-posts-count">0 posts</span> • 
+                <span id="report-engagements-count">0 engagements</span>
+            </div>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <!-- Executive Summary Metrics -->
+            <div class="metrics-grid" id="executive-metrics">
+                <div class="metric-card">
+                    <div class="metric-value" id="metric-total-reach">-</div>
+                    <div class="metric-label">Total Reach</div>
+                    <div class="metric-change" id="reach-change">Loading...</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="metric-engagement-rate">-</div>
+                    <div class="metric-label">Engagement Rate</div>
+                    <div class="metric-change" id="engagement-change">Loading...</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="metric-cost-per-engagement">-</div>
+                    <div class="metric-label">Cost per Engagement</div>
+                    <div class="metric-change" id="cpe-change">Loading...</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="metric-hot-prospects">-</div>
+                    <div class="metric-label">Hot Prospects</div>
+                    <div class="metric-change" id="prospects-change">Loading...</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="metric-companies-reached">-</div>
+                    <div class="metric-label">Companies Reached</div>
+                    <div class="metric-change" id="companies-change">Loading...</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value" id="metric-campaign-roi">-</div>
+                    <div class="metric-label">Campaign ROI</div>
+                    <div class="metric-change" id="roi-change">Loading...</div>
+                </div>
+            </div>
+
+            <!-- Tabbed Content -->
+            <div class="tabs-container">
+                <div class="tab-buttons">
+                    <button class="tab-button active" onclick="switchTab('companies')">
+                        <i class="fas fa-building mr-1"></i> Top Companies
+                    </button>
+                    <button class="tab-button" onclick="switchTab('prospects')">
+                        <i class="fas fa-users mr-1"></i> High-Value Prospects
+                    </button>
+                    <button class="tab-button" onclick="switchTab('campaigns')">
+                        <i class="fas fa-bullhorn mr-1"></i> Campaign Performance
+                    </button>
+                    <button class="tab-button" onclick="switchTab('insights')">
+                        <i class="fas fa-chart-line mr-1"></i> Engagement Insights
+                    </button>
+                    <button class="tab-button" onclick="switchTab('posts')">
+                        <i class="fas fa-file-alt mr-1"></i> Post Performance
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab: Top Companies -->
+            <div id="tab-companies" class="tab-content active">
+                <div class="section-container">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-building"></i>
+                            Top Companies by Engagement
+                        </div>
+                        <div class="export-options">
+                            <button onclick="exportCompaniesData()" class="btn-sm">
+                                <i class="fas fa-download mr-1"></i> Export
+                            </button>
+                            <button onclick="refreshCompaniesData()" class="btn-sm">
+                                <i class="fas fa-sync mr-1"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <table class="data-table" id="companies-table">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>People Engaged</th>
+                                    <th>Total Engagements</th>
+                                    <th>Campaign Spend</th>
+                                    <th>Avg Cost per Engagement</th>
+                                    <th>Engagement Score</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="companies-tbody">
+                                <tr>
+                                    <td colspan="7" class="loading-container">
+                                        <i class="fas fa-spinner loading-spinner"></i>
+                                        Loading company data from multiple campaigns...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: High-Value Prospects -->
+            <div id="tab-prospects" class="tab-content">
+                <div class="section-container">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-users"></i>
+                            High-Value Prospects Ready for Outreach
+                        </div>
+                        <div class="export-options">
+                            <button onclick="exportProspectsData()" class="btn-sm btn-primary">
+                                <i class="fas fa-download mr-1"></i> Export Lead List
+                            </button>
+                            <button onclick="refreshProspectsData()" class="btn-sm">
+                                <i class="fas fa-sync mr-1"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <table class="data-table" id="prospects-table">
+                            <thead>
+                                <tr>
+                                    <th>Profile</th>
+                                    <th>Company</th>
+                                    <th>Title</th>
+                                    <th>Engagement Score</th>
+                                    <th>Campaign Source</th>
+                                    <th>Last Activity</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="prospects-tbody">
+                                <tr>
+                                    <td colspan="7" class="loading-container">
+                                        <i class="fas fa-spinner loading-spinner"></i>
+                                        Loading high-value prospects...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Campaign Performance -->
+            <div id="tab-campaigns" class="tab-content">
+                <div class="section-container">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-bullhorn"></i>
+                            LinkedIn Campaign Performance
+                        </div>
+                        <div class="export-options">
+                            <button onclick="exportCampaignsData()" class="btn-sm">
+                                <i class="fas fa-download mr-1"></i> Export
+                            </button>
+                            <button onclick="refreshCampaignsData()" class="btn-sm">
+                                <i class="fas fa-sync mr-1"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <table class="data-table" id="campaigns-table">
+                            <thead>
+                                <tr>
+                                    <th>Campaign</th>
+                                    <th>Status</th>
+                                    <th>Impressions</th>
+                                    <th>Clicks</th>
+                                    <th>CTR</th>
+                                    <th>Engagements</th>
+                                    <th>Cost per Engagement</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="campaigns-tbody">
+                                <tr>
+                                    <td colspan="8" class="loading-container">
+                                        <i class="fas fa-spinner loading-spinner"></i>
+                                        Loading LinkedIn campaign data...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Engagement Insights -->
+            <div id="tab-insights" class="tab-content">
+                <div class="charts-row">
+                    <div class="chart-container">
+                        <div class="chart-title">Engagement by Company Size</div>
+                        <canvas id="company-size-chart" width="400" height="300"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-title">Job Title Distribution</div>
+                        <canvas id="job-title-chart" width="400" height="300"></canvas>
+                    </div>
+                </div>
+                
+                <div class="section-container">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-chart-line"></i>
+                            Engagement Patterns & Insights
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div id="insights-content">
+                            <div class="loading-container">
+                                <i class="fas fa-spinner loading-spinner"></i>
+                                Analyzing engagement patterns...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab: Post Performance -->
+            <div id="tab-posts" class="tab-content">
+                <div class="section-container">
+                    <div class="section-header">
+                        <div class="section-title">
+                            <i class="fas fa-file-alt"></i>
+                            Post Performance & Campaign Attribution
+                        </div>
+                        <div class="export-options">
+                            <button onclick="exportPostsData()" class="btn-sm">
+                                <i class="fas fa-download mr-1"></i> Export
+                            </button>
+                            <button onclick="attemptCampaignLinking()" class="btn-sm btn-primary">
+                                <i class="fas fa-link mr-1"></i> Link to Campaigns
+                            </button>
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="alert-info" style="background: #e3f2fd; border: 1px solid #1976d2; color: #0d47a1; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                            <i class="fas fa-info-circle mr-2"></i>
+                            <strong>Post URL Mapping Required:</strong> To properly attribute engagements to campaigns, please provide the LinkedIn post URLs for each Apify run. 
+                            Click "Link to Campaigns" to attempt automatic extraction from campaign creatives.
+                        </div>
+                        <table class="data-table" id="posts-table">
+                            <thead>
+                                <tr>
+                                    <th>Post</th>
+                                    <th>Post URL</th>
+                                    <th>Total Engagements</th>
+                                    <th>Unique People</th>
+                                    <th>Campaign</th>
+                                    <th>Cost per Engagement</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="posts-tbody">
+                                <tr>
+                                    <td colspan="7" class="loading-container">
+                                        <i class="fas fa-spinner loading-spinner"></i>
+                                        Loading post performance data...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="services/urn-decoder.js"></script>
+    <script>
+        // Configuration
+        // Map Apify run IDs to their post URLs (you'll need to provide these mappings)
+        const APIFY_RUN_MAPPINGS = [
+            { runId: 'butuMDGrIRxOxee09', postUrl: null, description: 'Post 1' },
+            { runId: 'JqrdZuVDQz9AgQIIU', postUrl: null, description: 'Post 2' },
+            { runId: '3nlSqHwyJiQPsoqAC', postUrl: null, description: 'Post 3' },
+            { runId: 'PvNvNkbqvWNpaXiD8', postUrl: null, description: 'Post 4' },
+            { runId: 'hhHrpS4sCKvBjIsta', postUrl: null, description: 'Post 5' },
+            { runId: 'uBCxynShX9JejO2P2', postUrl: null, description: 'Post 6' },
+            { runId: 'oxzLwXzLwyICuw85w', postUrl: null, description: 'Post 7' },
+            { runId: 'dLF3uRnLs6nWStFGk', postUrl: null, description: 'Post 8' },
+            { runId: 'TWcaUmKsvJNO6Qf6Y', postUrl: null, description: 'Post 9' },
+            { runId: 'j56hR3kcejjgjhWcE', postUrl: null, description: 'Post 10' }
+        ];
+
+        const LINKEDIN_CAMPAIGN_IDS = ['417124566', '417161426', '417161666'];
+        const ACCOUNT_ID = '510508147';
+
+        // Global state
+        const state = {
+            apifyData: [],
+            linkedinCampaigns: [],
+            linkedinAnalytics: {},
+            companies: [],
+            prospects: [],
+            insights: {},
+            loading: true,
+            error: null
+        };
+
+        // Initialize application
+        async function init() {
+            await loadComponents();
+            await loadAllData();
+        }
+
+        async function loadComponents() {
+            try {
+                const sidebarRes = await fetch('components/sidebar.html');
+                document.getElementById('sidebar-container').innerHTML = await sidebarRes.text();
+            } catch (error) {
+                console.error('Error loading components:', error);
+            }
+        }
+
+        async function loadAllData() {
+            try {
+                // Load all data sources in parallel
+                console.log('Loading data from multiple sources...');
+                
+                const [apifyData, linkedinData] = await Promise.all([
+                    loadApifyData(),
+                    loadLinkedInData()
+                ]);
+
+                // Process and combine data
+                processApifyData(apifyData);
+                processLinkedInData(linkedinData);
+                await combineAndAnalyzeData();
+
+                // Update UI
+                updateExecutiveMetrics();
+                renderAllTables();
+                generateInsights();
+
+                state.loading = false;
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                showError('Failed to load campaign data');
+                state.loading = false;
+            }
+        }
+
+        async function loadApifyData() {
+            console.log('Loading Apify data from 10 runs...');
+            const allData = [];
+            const postEngagementMap = new Map(); // Track engagements per post
+            
+            for (const runMapping of APIFY_RUN_MAPPINGS) {
+                try {
+                    const { runId, postUrl, description } = runMapping;
+                    console.log(`Loading run ${runId} - ${description}...`);
+                    
+                    // Get run details
+                    const runResponse = await fetch(`https://api.apify.com/v2/actor-runs/${runId}?token=${APIFY_CONFIG.token}`);
+                    const runData = await runResponse.json();
+                    
+                    if (runData.data && runData.data.defaultDatasetId) {
+                        // Get dataset items
+                        const datasetResponse = await fetch(`https://api.apify.com/v2/datasets/${runData.data.defaultDatasetId}/items?token=${APIFY_CONFIG.token}`);
+                        const items = await datasetResponse.json();
+                        
+                        // Add run context and post URL to each item
+                        const itemsWithContext = items.map(item => ({
+                            ...item,
+                            runId: runId,
+                            postUrl: postUrl, // Associate with post URL if available
+                            postDescription: description,
+                            runStartedAt: runData.data.startedAt,
+                            runFinishedAt: runData.data.finishedAt
+                        }));
+                        
+                        allData.push(...itemsWithContext);
+                        
+                        // Track engagements per post
+                        if (!postEngagementMap.has(description)) {
+                            postEngagementMap.set(description, {
+                                postUrl: postUrl,
+                                description: description,
+                                engagements: 0,
+                                uniquePeople: new Set()
+                            });
+                        }
+                        
+                        const postData = postEngagementMap.get(description);
+                        postData.engagements += items.length;
+                        items.forEach(item => postData.uniquePeople.add(item.profileUrl));
+                        
+                        console.log(`Loaded ${items.length} items from run ${runId}`);
+                    }
+                } catch (error) {
+                    console.error(`Error loading run ${runId}:`, error);
+                }
+            }
+            
+            // Store post engagement summary for later use
+            state.postEngagementSummary = Array.from(postEngagementMap.values());
+            
+            console.log(`Total Apify data loaded: ${allData.length} engagements across ${postEngagementMap.size} posts`);
+            return allData;
+        }
+
+        async function loadLinkedInData() {
+            console.log('Loading LinkedIn campaign data...');
+            const campaigns = [];
+            const analytics = {};
+            
+            // Load campaigns
+            for (const campaignId of LINKEDIN_CAMPAIGN_IDS) {
+                try {
+                    const response = await fetch(`http://localhost:8001/api/linkedin/campaigns/direct/${campaignId}?accountId=${ACCOUNT_ID}`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.campaign) {
+                        campaigns.push(data.campaign);
+                    }
+                } catch (error) {
+                    console.error(`Error loading campaign ${campaignId}:`, error);
+                }
+            }
+            
+            // Load analytics
+            for (const campaignId of LINKEDIN_CAMPAIGN_IDS) {
+                try {
+                    const response = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaignId}/analytics`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.analytics) {
+                        analytics[campaignId] = data.analytics[0] || {};
+                    }
+                } catch (error) {
+                    console.error(`Error loading analytics for ${campaignId}:`, error);
+                    analytics[campaignId] = {};
+                }
+            }
+            
+            return { campaigns, analytics };
+        }
+
+        function processApifyData(data) {
+            state.apifyData = data;
+            
+            // Process companies
+            const companiesMap = new Map();
+            const peopleMap = new Map();
+            
+            data.forEach(item => {
+                const company = extractCompany(item.headline || '');
+                const title = extractTitle(item.headline || '');
+                
+                // Process company data
+                if (company) {
+                    if (!companiesMap.has(company)) {
+                        companiesMap.set(company, {
+                            name: company,
+                            people: new Set(),
+                            engagements: 0,
+                            totalSpend: 0,
+                            avgCostPerEngagement: 0
+                        });
+                    }
+                    
+                    const companyData = companiesMap.get(company);
+                    companyData.people.add(item.profileUrl);
+                    companyData.engagements++;
+                }
+                
+                // Process people data
+                if (!peopleMap.has(item.profileUrl)) {
+                    peopleMap.set(item.profileUrl, {
+                        name: item.name,
+                        profileUrl: item.profileUrl,
+                        photoUrl: item.photoUrl,
+                        headline: item.headline,
+                        company: company,
+                        title: title,
+                        connectionType: item.connectionType,
+                        engagements: 0,
+                        reactionTypes: new Set(),
+                        lastActivity: null,
+                        score: 0
+                    });
+                }
+                
+                const personData = peopleMap.get(item.profileUrl);
+                personData.engagements++;
+                personData.reactionTypes.add(item.reactionType);
+                personData.lastActivity = item.runStartedAt;
+                personData.score = calculateEngagementScore(personData);
+            });
+            
+            // Convert maps to arrays
+            state.companies = Array.from(companiesMap.values()).map(company => ({
+                ...company,
+                people: company.people.size,
+                avgCostPerEngagement: company.engagements > 0 ? company.totalSpend / company.engagements : 0
+            }));
+            
+            state.prospects = Array.from(peopleMap.values())
+                .filter(person => person.score >= 3) // High-value prospects
+                .sort((a, b) => b.score - a.score);
+        }
+
+        function processLinkedInData(data) {
+            state.linkedinCampaigns = data.campaigns;
+            state.linkedinAnalytics = data.analytics;
+            
+            // Add campaign spend to companies and prospects
+            const totalSpend = Object.values(data.analytics).reduce((sum, analytics) => 
+                sum + (analytics.spend || 0), 0);
+            const totalEngagements = state.apifyData.length;
+            const avgCostPerEngagement = totalEngagements > 0 ? totalSpend / totalEngagements : 0;
+            
+            // Update company costs
+            state.companies.forEach(company => {
+                company.totalSpend = (company.engagements / totalEngagements) * totalSpend;
+                company.avgCostPerEngagement = company.engagements > 0 ? company.totalSpend / company.engagements : 0;
+            });
+        }
+
+        async function combineAndAnalyzeData() {
+            // Generate cross-campaign insights
+            const totalImpressions = Object.values(state.linkedinAnalytics).reduce((sum, analytics) => 
+                sum + (analytics.impressions || 0), 0);
+            const totalClicks = Object.values(state.linkedinAnalytics).reduce((sum, analytics) => 
+                sum + (analytics.clicks || 0), 0);
+            const totalSpend = Object.values(state.linkedinAnalytics).reduce((sum, analytics) => 
+                sum + (analytics.spend || 0), 0);
+            
+            state.insights = {
+                totalReach: totalImpressions,
+                engagementRate: totalImpressions > 0 ? (state.apifyData.length / totalImpressions * 100) : 0,
+                costPerEngagement: state.apifyData.length > 0 ? totalSpend / state.apifyData.length : 0,
+                hotProspects: state.prospects.filter(p => p.score >= 5).length,
+                companiesReached: state.companies.length,
+                campaignROI: totalSpend > 0 ? ((state.prospects.length * 1000) / totalSpend) : 0
+            };
+        }
+
+        function updateExecutiveMetrics() {
+            document.getElementById('metric-total-reach').textContent = state.insights.totalReach.toLocaleString();
+            document.getElementById('metric-engagement-rate').textContent = `${state.insights.engagementRate.toFixed(2)}%`;
+            document.getElementById('metric-cost-per-engagement').textContent = `$${state.insights.costPerEngagement.toFixed(2)}`;
+            document.getElementById('metric-hot-prospects').textContent = state.insights.hotProspects.toLocaleString();
+            document.getElementById('metric-companies-reached').textContent = state.insights.companiesReached.toLocaleString();
+            document.getElementById('metric-campaign-roi').textContent = `${state.insights.campaignROI.toFixed(1)}x`;
+            
+            // Update header stats
+            document.getElementById('report-date-range').textContent = 'Last 30 days';
+            document.getElementById('report-campaigns-count').textContent = `${state.linkedinCampaigns.length} campaigns`;
+            document.getElementById('report-posts-count').textContent = `${APIFY_RUN_MAPPINGS.length} posts`;
+            document.getElementById('report-engagements-count').textContent = `${state.apifyData.length} engagements`;
+        }
+
+        function renderAllTables() {
+            renderCompaniesTable();
+            renderProspectsTable();
+            renderCampaignsTable();
+            renderPostsTable();
+        }
+
+        function renderCompaniesTable() {
+            const tbody = document.getElementById('companies-tbody');
+            
+            if (state.companies.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No company data available</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = state.companies
+                .sort((a, b) => b.engagements - a.engagements)
+                .slice(0, 50) // Top 50 companies
+                .map(company => `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center;">
+                                <div class="company-placeholder">${company.name.charAt(0)}</div>
+                                <div>
+                                    <div style="font-weight: 500;">${company.name}</div>
+                                    <div style="font-size: 0.75rem; color: #666;">Target Company</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${company.people}</td>
+                        <td>${company.engagements}</td>
+                        <td>$${company.totalSpend.toFixed(2)}</td>
+                        <td>$${company.avgCostPerEngagement.toFixed(2)}</td>
+                        <td>
+                            <div class="engagement-score">
+                                <span>${Math.min(company.engagements, 10)}</span>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: ${Math.min(company.engagements * 10, 100)}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button onclick="viewCompanyDetail('${company.name}')" class="btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button onclick="exportCompanyLeads('${company.name}')" class="btn-sm btn-primary">
+                                    <i class="fas fa-download"></i> Export
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+        }
+
+        function renderProspectsTable() {
+            const tbody = document.getElementById('prospects-tbody');
+            
+            if (state.prospects.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No prospects data available</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = state.prospects
+                .slice(0, 100) // Top 100 prospects
+                .map(prospect => `
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center;">
+                                ${prospect.photoUrl 
+                                    ? `<img src="${prospect.photoUrl}" class="profile-photo" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">`
+                                    : '<div class="profile-placeholder">?</div>'
+                                }
+                                <div class="profile-placeholder" style="display: none;">${prospect.name.charAt(0)}</div>
+                                <div>
+                                    <div style="font-weight: 500;">${prospect.name}</div>
+                                    <div style="font-size: 0.75rem; color: #666;">${prospect.connectionType} connection</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${prospect.company || 'Unknown'}</td>
+                        <td>${prospect.title || 'Unknown'}</td>
+                        <td>
+                            <div class="engagement-score">
+                                <span>${prospect.score}</span>
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: ${Math.min(prospect.score * 10, 100)}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="tag ${prospect.connectionType === '1st' ? 'campaign-source' : 'organic-source'}">
+                                ${prospect.connectionType === '1st' ? 'Campaign' : 'Organic'}
+                            </span>
+                            ${prospect.score >= 5 ? '<span class="tag high-value">High Value</span>' : ''}
+                        </td>
+                        <td>${prospect.lastActivity ? new Date(prospect.lastActivity).toLocaleDateString() : 'Unknown'}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button onclick="viewProspectDetail('${prospect.profileUrl}')" class="btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button onclick="contactProspect('${prospect.profileUrl}')" class="btn-sm btn-primary">
+                                    <i class="fas fa-envelope"></i> Contact
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+        }
+
+        function renderCampaignsTable() {
+            const tbody = document.getElementById('campaigns-tbody');
+            
+            if (state.linkedinCampaigns.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No campaign data available</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = state.linkedinCampaigns.map(campaign => {
+                const analytics = state.linkedinAnalytics[campaign.id] || {};
+                const ctr = analytics.impressions > 0 ? ((analytics.clicks / analytics.impressions) * 100).toFixed(2) : '0.00';
+                const engagements = state.apifyData.filter(item => 
+                    // This is a simplified association - in real implementation, you'd have better campaign-post mapping
+                    true // For now, showing all engagements
+                ).length;
+                const costPerEngagement = analytics.spend && engagements > 0 ? (analytics.spend / engagements).toFixed(2) : '0.00';
+                
+                return `
+                    <tr>
+                        <td>
+                            <div style="font-weight: 500;">${campaign.name}</div>
+                            <div style="font-size: 0.75rem; color: #666;">ID: ${campaign.id}</div>
+                        </td>
+                        <td>
+                            <span class="tag ${campaign.status === 'ACTIVE' ? 'campaign-source' : 'organic-source'}">
+                                ${campaign.status}
+                            </span>
+                        </td>
+                        <td>${(analytics.impressions || 0).toLocaleString()}</td>
+                        <td>${(analytics.clicks || 0).toLocaleString()}</td>
+                        <td>${ctr}%</td>
+                        <td>${engagements}</td>
+                        <td>$${costPerEngagement}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button onclick="viewCampaignDetail('${campaign.id}')" class="btn-sm">
+                                    <i class="fas fa-eye"></i> View
+                                </button>
+                                <button onclick="analyzeCampaign('${campaign.id}')" class="btn-sm">
+                                    <i class="fas fa-chart-line"></i> Analyze
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function generateInsights() {
+            const content = document.getElementById('insights-content');
+            
+            // Generate key insights from the data
+            const insights = [
+                `<strong>Top Performing Company:</strong> ${state.companies[0]?.name || 'N/A'} with ${state.companies[0]?.engagements || 0} engagements`,
+                `<strong>Engagement Pattern:</strong> ${state.prospects.filter(p => p.connectionType === '1st').length} first-degree connections engaged`,
+                `<strong>Cost Efficiency:</strong> Average cost per engagement: $${state.insights.costPerEngagement.toFixed(2)}`,
+                `<strong>Response Quality:</strong> ${state.insights.hotProspects} high-value prospects ready for outreach`,
+                `<strong>Campaign Reach:</strong> ${state.insights.totalReach.toLocaleString()} total impressions across all campaigns`
+            ];
+            
+            content.innerHTML = `
+                <div style="display: grid; gap: 1rem;">
+                    ${insights.map(insight => `
+                        <div style="padding: 1rem; background: #f8f9fa; border-radius: 4px; border-left: 3px solid #1976d2;">
+                            ${insight}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Export functions
+        function exportCompaniesData() {
+            const csv = generateCSV(state.companies, [
+                { key: 'name', label: 'Company' },
+                { key: 'people', label: 'People' },
+                { key: 'engagements', label: 'Engagements' },
+                { key: 'totalSpend', label: 'Total Spend' },
+                { key: 'avgCostPerEngagement', label: 'Avg Cost per Engagement' }
+            ]);
+            downloadCSV(csv, 'top-companies.csv');
+        }
+
+        function exportProspectsData() {
+            const csv = generateCSV(state.prospects, [
+                { key: 'name', label: 'Name' },
+                { key: 'company', label: 'Company' },
+                { key: 'title', label: 'Title' },
+                { key: 'score', label: 'Score' },
+                { key: 'connectionType', label: 'Connection Type' },
+                { key: 'profileUrl', label: 'LinkedIn URL' }
+            ]);
+            downloadCSV(csv, 'high-value-prospects.csv');
+        }
+
+        function exportCampaignsData() {
+            const campaignData = state.linkedinCampaigns.map(campaign => ({
+                ...campaign,
+                ...state.linkedinAnalytics[campaign.id]
+            }));
+            
+            const csv = generateCSV(campaignData, [
+                { key: 'name', label: 'Campaign' },
+                { key: 'status', label: 'Status' },
+                { key: 'impressions', label: 'Impressions' },
+                { key: 'clicks', label: 'Clicks' },
+                { key: 'spend', label: 'Spend' }
+            ]);
+            downloadCSV(csv, 'campaign-performance.csv');
+        }
+
+        // Utility functions
+        function extractCompany(headline) {
+            if (!headline) return null;
+            
+            const patterns = [
+                / at (.+?)(?:\s*\||$)/i,
+                / @ (.+?)(?:\s*\||$)/i,
+                /(?:^|\s)(.+?)(?:\s*-|\s*\||$)/i
+            ];
+            
+            for (const pattern of patterns) {
+                const match = headline.match(pattern);
+                if (match && match[1]) {
+                    return match[1].trim();
+                }
+            }
+            
+            return null;
+        }
+
+        function extractTitle(headline) {
+            if (!headline) return null;
+            
+            const parts = headline.split(/\s+(?:at|@)\s+/i);
+            return parts[0] ? parts[0].trim() : null;
+        }
+
+        function calculateEngagementScore(person) {
+            let score = 0;
+            score += person.engagements * 2;
+            score += person.reactionTypes.size;
+            if (person.connectionType === '1st') score += 2;
+            return Math.min(score, 10);
+        }
+
+        function generateCSV(data, columns) {
+            const headers = columns.map(col => col.label);
+            const rows = data.map(item => columns.map(col => item[col.key] || ''));
+            
+            return [headers, ...rows]
+                .map(row => row.map(field => `"${field}"`).join(','))
+                .join('\n');
+        }
+
+        function downloadCSV(csv, filename) {
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-container';
+            errorDiv.innerHTML = `<i class="fas fa-exclamation-triangle mr-2"></i>${message}`;
+            document.querySelector('.page-content').prepend(errorDiv);
+        }
+
+        // Placeholder functions for actions
+        function viewCompanyDetail(companyName) {
+            alert(`View detailed analysis for ${companyName}`);
+        }
+
+        function exportCompanyLeads(companyName) {
+            const companyProspects = state.prospects.filter(p => p.company === companyName);
+            const csv = generateCSV(companyProspects, [
+                { key: 'name', label: 'Name' },
+                { key: 'title', label: 'Title' },
+                { key: 'score', label: 'Score' },
+                { key: 'profileUrl', label: 'LinkedIn URL' }
+            ]);
+            downloadCSV(csv, `${companyName.toLowerCase().replace(/\s+/g, '-')}-leads.csv`);
+        }
+
+        function viewProspectDetail(profileUrl) {
+            window.open(profileUrl, '_blank');
+        }
+
+        function contactProspect(profileUrl) {
+            alert(`Ready to contact prospect: ${profileUrl}`);
+        }
+
+        function viewCampaignDetail(campaignId) {
+            window.location.href = `campaign-linkedin-detail.html?id=${campaignId}&accountId=${ACCOUNT_ID}`;
+        }
+
+        function analyzeCampaign(campaignId) {
+            alert(`Analyze campaign ${campaignId}`);
+        }
+
+        function refreshCompaniesData() {
+            renderCompaniesTable();
+        }
+
+        function refreshProspectsData() {
+            renderProspectsTable();
+        }
+
+        function refreshCampaignsData() {
+            renderCampaignsTable();
+        }
+
+        function renderPostsTable() {
+            const tbody = document.getElementById('posts-tbody');
+            
+            if (!state.postEngagementSummary || state.postEngagementSummary.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">No post data available</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = state.postEngagementSummary.map((post, index) => {
+                const campaignAttribution = state.postCampaignMap?.get(post.description) || null;
+                const costPerEngagement = campaignAttribution?.spend && post.engagements > 0 
+                    ? (campaignAttribution.spend / post.engagements).toFixed(2) 
+                    : 'N/A';
+                
+                return `
+                    <tr>
+                        <td>
+                            <div style="font-weight: 500;">${post.description}</div>
+                            <div style="font-size: 0.75rem; color: #666;">Run ID: ${APIFY_RUN_MAPPINGS[index].runId.substring(0, 8)}...</div>
+                        </td>
+                        <td>
+                            ${post.postUrl 
+                                ? `<a href="${post.postUrl}" target="_blank" style="color: #1976d2;">
+                                    <i class="fas fa-external-link-alt mr-1"></i>View Post
+                                   </a>` 
+                                : '<span style="color: #999;">Not mapped</span>'
+                            }
+                        </td>
+                        <td>${post.engagements.toLocaleString()}</td>
+                        <td>${post.uniquePeople.size}</td>
+                        <td>
+                            ${campaignAttribution 
+                                ? `<span class="tag campaign-source">${campaignAttribution.campaignName}</span>` 
+                                : '<span style="color: #999;">Not linked</span>'
+                            }
+                        </td>
+                        <td>${costPerEngagement !== 'N/A' ? `$${costPerEngagement}` : costPerEngagement}</td>
+                        <td>
+                            <div class="btn-group">
+                                <button onclick="mapPostUrl(${index})" class="btn-sm">
+                                    <i class="fas fa-edit"></i> Map URL
+                                </button>
+                                ${post.postUrl ? `
+                                    <button onclick="findCampaignForPost('${post.postUrl}')" class="btn-sm">
+                                        <i class="fas fa-search"></i> Find Campaign
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function attemptCampaignLinking() {
+            console.log('Attempting to link posts to campaigns...');
+            
+            // Show loading state
+            const button = event.target;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Linking...';
+            
+            try {
+                // Initialize post-campaign map
+                state.postCampaignMap = new Map();
+                
+                // For each campaign, try to extract post URLs
+                for (const campaignId of LINKEDIN_CAMPAIGN_IDS) {
+                    try {
+                        const response = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaignId}/post-url`);
+                        const data = await response.json();
+                        
+                        if (data.success && data.postUrls.length > 0) {
+                            console.log(`Found ${data.postUrls.length} post URLs for campaign ${campaignId}`);
+                            
+                            // Try to match with our post data
+                            data.postUrls.forEach(postUrl => {
+                                // Check if any of our posts match this URL
+                                state.postEngagementSummary.forEach(post => {
+                                    if (post.postUrl === postUrl || 
+                                        (post.postUrl && normalizeLinkedInUrl(post.postUrl) === normalizeLinkedInUrl(postUrl))) {
+                                        
+                                        const campaign = state.linkedinCampaigns.find(c => c.id === campaignId);
+                                        if (campaign) {
+                                            state.postCampaignMap.set(post.description, {
+                                                campaignId: campaignId,
+                                                campaignName: campaign.name,
+                                                spend: state.linkedinAnalytics[campaignId]?.spend || 0
+                                            });
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                    } catch (error) {
+                        console.error(`Error extracting posts for campaign ${campaignId}:`, error);
+                    }
+                }
+                
+                // Re-render the posts table with new attribution
+                renderPostsTable();
+                
+                const linkedCount = state.postCampaignMap.size;
+                alert(`Successfully linked ${linkedCount} posts to campaigns. ${state.postEngagementSummary.length - linkedCount} posts still need manual mapping.`);
+                
+            } catch (error) {
+                console.error('Error linking campaigns:', error);
+                alert('Error linking campaigns. Please check the console for details.');
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-link mr-1"></i> Link to Campaigns';
+            }
+        }
+
+        function normalizeLinkedInUrl(url) {
+            if (!url) return '';
+            
+            // Extract the core identifier from various LinkedIn URL formats
+            const patterns = [
+                /urn:li:share:(\d+)/,
+                /urn:li:ugcPost:(\d+)/,
+                /urn:li:activity:(\d+)/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) {
+                    return match[1];
+                }
+            }
+            
+            return url;
+        }
+
+        function mapPostUrl(index) {
+            const postUrl = prompt('Enter the LinkedIn post URL for this run:', APIFY_RUN_MAPPINGS[index].postUrl || '');
+            
+            if (postUrl !== null) {
+                // Update the mapping
+                APIFY_RUN_MAPPINGS[index].postUrl = postUrl;
+                
+                // Update the post engagement summary
+                if (state.postEngagementSummary[index]) {
+                    state.postEngagementSummary[index].postUrl = postUrl;
+                }
+                
+                // Re-render the table
+                renderPostsTable();
+                
+                console.log(`Updated post URL for ${APIFY_RUN_MAPPINGS[index].description}: ${postUrl}`);
+            }
+        }
+
+        async function findCampaignForPost(postUrl) {
+            console.log(`Searching for campaign associated with post: ${postUrl}`);
+            
+            try {
+                // Search through all campaigns
+                for (const campaignId of LINKEDIN_CAMPAIGN_IDS) {
+                    const response = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaignId}/post-url`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.postUrls.includes(postUrl)) {
+                        const campaign = state.linkedinCampaigns.find(c => c.id === campaignId);
+                        alert(`Found! This post is associated with campaign: ${campaign?.name || campaignId}`);
+                        return;
+                    }
+                }
+                
+                alert('No campaign found for this post URL. It may be an organic post or from a different campaign.');
+                
+            } catch (error) {
+                console.error('Error searching for campaign:', error);
+                alert('Error searching for campaign. Please check the console for details.');
+            }
+        }
+
+        function exportPostsData() {
+            const postData = state.postEngagementSummary.map(post => ({
+                description: post.description,
+                postUrl: post.postUrl || 'Not mapped',
+                engagements: post.engagements,
+                uniquePeople: post.uniquePeople.size,
+                campaign: state.postCampaignMap?.get(post.description)?.campaignName || 'Not linked'
+            }));
+            
+            const csv = generateCSV(postData, [
+                { key: 'description', label: 'Post' },
+                { key: 'postUrl', label: 'Post URL' },
+                { key: 'engagements', label: 'Engagements' },
+                { key: 'uniquePeople', label: 'Unique People' },
+                { key: 'campaign', label: 'Campaign' }
+            ]);
+            
+            downloadCSV(csv, 'post-performance.csv');
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

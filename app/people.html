@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>People - Signals & Actions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/swiss-minimal.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Signals & Actions</h1>
+                <p class="sidebar-subtitle">Vucko</p>
+            </div>
+            
+                        <div class="nav-group">
+                <div class="nav-label">Overview</div>
+                <a href="/index.html" class="nav-link">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    Dashboard
+                </a>
+                <a href="/signals.html" class="nav-link">
+                    <i class="fas fa-signal nav-icon"></i>
+                    Signals
+                </a>
+                <a href="/actions.html" class="nav-link">
+                    <i class="fas fa-tasks nav-icon"></i>
+                    Actions
+                </a>
+                <a href="/weekly-report.html" class="nav-link">
+                    <i class="fas fa-calendar nav-icon"></i>
+                    Weekly Report
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Content</div>
+                <a href="/content-calendar.html" class="nav-link">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    Calendar
+                </a>
+                <a href="/content-database.html" class="nav-link">
+                    <i class="fas fa-database nav-icon"></i>
+                    Database
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Campaigns</div>
+                <a href="/audiences.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Audiences
+                </a>
+                <a href="/campaigns.html" class="nav-link">
+                    <i class="fas fa-bullhorn nav-icon"></i>
+                    Campaigns
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Contacts</div>
+                <a href="/people.html" class="nav-link active">
+                    <i class="fas fa-user nav-icon"></i>
+                    People
+                </a>
+                <a href="/companies.html" class="nav-link">
+                    <i class="fas fa-building nav-icon"></i>
+                    Companies
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Strategy</div>
+                <a href="/personas.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Personas
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Data Import</div>
+                <a href="/import-data.html" class="nav-link">
+                    <i class="fas fa-upload nav-icon"></i>
+                    Import Data
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">People</h1>
+            </header>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <div class="filter-pills">
+                    <button class="filter-pill active" onclick="filterPeople('all')">
+                        All <span class="filter-count">162</span>
+                    </button>
+                    <button class="filter-pill" onclick="filterPeople('followers')">
+                        Followers <span class="filter-count">0</span>
+                    </button>
+                    <button class="filter-pill" onclick="filterPeople('target')">
+                        Target <span class="filter-count">0</span>
+                    </button>
+                    <button class="filter-pill" onclick="filterPeople('high-value')">
+                        High Value <span class="filter-count">0</span>
+                    </button>
+                    <button class="filter-pill" onclick="filterPeople('notable')">
+                        Notable <span class="filter-count">0</span>
+                    </button>
+                </div>
+                <div class="search-field">
+                    <input type="text" class="search-input" placeholder="Search people, titles, companies..." onkeyup="searchPeople(this.value)">
+                </div>
+            </div>
+
+            <!-- Data Table -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30%">Person</th>
+                        <th style="width: 25%">Title</th>
+                        <th style="width: 20%">Company</th>
+                        <th style="width: 10%">Signal</th>
+                        <th style="width: 10%">Status</th>
+                        <th style="width: 5%">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="people-tbody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <script src="/config.js"></script>
+    <script>
+        let allPeople = [];
+        let filteredPeople = [];
+        let currentFilter = 'all';
+        let supabase;
+
+        // Initialize Supabase
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                return true;
+            }
+            return false;
+        }
+
+        // Load people
+        async function loadPeople() {
+            if (!supabase) {
+                console.error('Supabase not initialized');
+                allPeople = [];
+                updateCounts();
+                renderPeople();
+                return;
+            }
+
+            try {
+                const { data: people, error } = await supabase
+                    .from('persons')
+                    .select('*')
+                    .eq('tenant_id', DEFAULT_TENANT_ID)
+                    .order('engagement_score', { ascending: false });
+
+                if (error) throw error;
+
+                allPeople = people || [];
+                updateCounts();
+                renderPeople();
+            } catch (error) {
+                console.error('Error loading people:', error);
+                allPeople = [];
+                updateCounts();
+                renderPeople();
+            }
+        }
+
+
+        // Update filter counts
+        function updateCounts() {
+            const counts = {
+                all: allPeople.length,
+                followers: allPeople.filter(p => p.is_follower).length,
+                target: allPeople.filter(p => p.is_target).length,
+                'high-value': allPeople.filter(p => p.engagement_score >= 5).length,
+                notable: allPeople.filter(p => p.is_notable).length
+            };
+
+            document.querySelectorAll('.filter-count').forEach((el, index) => {
+                const filters = ['all', 'followers', 'target', 'high-value', 'notable'];
+                el.textContent = counts[filters[index]] || 0;
+            });
+        }
+
+        // Filter people
+        function filterPeople(filter) {
+            currentFilter = filter;
+            
+            // Update active state
+            document.querySelectorAll('.filter-pill').forEach(pill => {
+                pill.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            renderPeople();
+        }
+
+        // Search people
+        function searchPeople(search) {
+            const searchTerm = search.toLowerCase();
+            
+            filteredPeople = allPeople.filter(person => {
+                const matchesFilter = currentFilter === 'all' || 
+                    (currentFilter === 'followers' && person.is_follower) ||
+                    (currentFilter === 'target' && person.is_target) ||
+                    (currentFilter === 'high-value' && person.engagement_score >= 5) ||
+                    (currentFilter === 'notable' && person.is_notable);
+                
+                const matchesSearch = !searchTerm || 
+                    person.name.toLowerCase().includes(searchTerm) ||
+                    (person.headline || '').toLowerCase().includes(searchTerm) ||
+                    (person.current_company || '').toLowerCase().includes(searchTerm);
+
+                return matchesFilter && matchesSearch;
+            });
+
+            renderPeople();
+        }
+
+        // Render people table
+        function renderPeople() {
+            const tbody = document.getElementById('people-tbody');
+            const people = filteredPeople.length > 0 || currentFilter !== 'all' ? filteredPeople : allPeople;
+            
+            if (people.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            <p>No people found</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = people.map(person => {
+                const signal = getSignal(person.engagement_score);
+                const initials = person.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+                
+                return `
+                    <tr onclick="viewPerson(${person.id})">
+                        <td>
+                            <div class="person-cell">
+                                <div class="avatar">
+                                    ${person.profile_picture 
+                                        ? `<img src="${person.profile_picture}" alt="${person.name}">`
+                                        : initials
+                                    }
+                                </div>
+                                <span>${person.name}</span>
+                            </div>
+                        </td>
+                        <td>${person.headline || ''}</td>
+                        <td>${person.current_company || 'Unknown'}</td>
+                        <td>
+                            <span class="badge ${signal}">${signal}</span>
+                        </td>
+                        <td>${person.is_follower ? '—' : '—'}</td>
+                        <td>
+                            <button class="btn-icon" onclick="event.stopPropagation(); showActions(${person.id})">
+                                <i class="fas fa-star text-muted"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Get signal strength
+        function getSignal(score) {
+            if (score >= 5) return 'high';
+            if (score >= 2) return 'medium';
+            return 'low';
+        }
+
+        // View person detail
+        function viewPerson(personId) {
+            window.location.href = `/person-detail.html?id=${personId}`;
+        }
+
+        // Show actions
+        function showActions(personId) {
+            console.log('Actions for person:', personId);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            let attempts = 0;
+            const checkSupabase = setInterval(() => {
+                attempts++;
+                if (initSupabase()) {
+                    clearInterval(checkSupabase);
+                    loadPeople();
+                } else if (attempts > 20) {
+                    clearInterval(checkSupabase);
+                    console.error('Failed to initialize Supabase after 20 attempts');
+                    allPeople = [];
+                    updateCounts();
+                    renderPeople();
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

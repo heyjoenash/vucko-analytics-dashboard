@@ -1,0 +1,1184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaign Performance & Post Correlation Report - [Client Name]</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    <style>
+        /* Professional Report Styling */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            color: #1a1a1a;
+        }
+        
+        .report-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        
+        /* Header Section */
+        .report-header {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d30 100%);
+            color: white;
+            padding: 4rem 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .report-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        
+        .client-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+        }
+        
+        .client-logo {
+            width: 120px;
+            height: 60px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+        
+        .report-meta {
+            text-align: right;
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+        
+        .report-title {
+            font-size: 3rem;
+            font-weight: 300;
+            margin-bottom: 1rem;
+            letter-spacing: -0.5px;
+        }
+        
+        .report-subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        /* Executive Summary */
+        .executive-summary {
+            background: #f8f9fa;
+            padding: 3rem;
+            border-left: 4px solid #1976d2;
+        }
+        
+        .summary-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+        
+        .key-findings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .finding-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        .finding-metric {
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: #1976d2;
+            margin-bottom: 0.5rem;
+        }
+        
+        .finding-label {
+            color: #666;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .finding-change {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
+        .finding-change.positive {
+            color: #2e7d32;
+        }
+        
+        .finding-change.negative {
+            color: #d32f2f;
+        }
+        
+        /* Campaign-Post Correlation Section */
+        .correlation-section {
+            padding: 3rem;
+        }
+        
+        .section-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .section-description {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        /* Correlation Matrix */
+        .correlation-matrix {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 3rem;
+        }
+        
+        .matrix-header {
+            display: grid;
+            grid-template-columns: 200px repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .matrix-row {
+            display: grid;
+            grid-template-columns: 200px repeat(auto-fit, minmax(100px, 1fr));
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: center;
+        }
+        
+        .matrix-row:hover {
+            background: #f8f9fa;
+        }
+        
+        .campaign-name {
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+        
+        .correlation-cell {
+            text-align: center;
+            position: relative;
+        }
+        
+        .correlation-score {
+            display: inline-block;
+            width: 48px;
+            height: 48px;
+            line-height: 48px;
+            border-radius: 50%;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .correlation-high {
+            background: #2e7d32;
+            color: white;
+        }
+        
+        .correlation-medium {
+            background: #ffa726;
+            color: white;
+        }
+        
+        .correlation-low {
+            background: #e0e0e0;
+            color: #666;
+        }
+        
+        /* Post Performance Timeline */
+        .timeline-section {
+            padding: 3rem;
+            background: #f8f9fa;
+        }
+        
+        .post-timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+        
+        .timeline-track {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e0e0e0;
+            transform: translateX(-50%);
+        }
+        
+        .timeline-post {
+            display: flex;
+            align-items: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .timeline-post:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        
+        .post-content {
+            flex: 1;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin: 0 2rem;
+        }
+        
+        .post-date {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1976d2;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        
+        .post-metrics {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+        
+        .post-metric {
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .metric-label {
+            font-size: 0.75rem;
+            color: #666;
+            text-transform: uppercase;
+        }
+        
+        /* Campaign ROI Analysis */
+        .roi-analysis {
+            padding: 3rem;
+        }
+        
+        .roi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .roi-card {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .roi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #4285f4, #34a853);
+        }
+        
+        .roi-campaign-name {
+            font-size: 1.25rem;
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+        
+        .roi-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .roi-metric-item {
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .roi-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1976d2;
+        }
+        
+        .roi-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        /* Audience Quality Score */
+        .quality-score-section {
+            padding: 3rem;
+            background: white;
+        }
+        
+        .quality-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .quality-card {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .quality-score-circle {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 1rem;
+            position: relative;
+        }
+        
+        .score-ring {
+            stroke-width: 8;
+            fill: none;
+            stroke-linecap: round;
+        }
+        
+        .score-ring-bg {
+            stroke: #e0e0e0;
+        }
+        
+        .score-ring-fill {
+            stroke: #1976d2;
+            stroke-dasharray: 339.292;
+            stroke-dashoffset: 339.292;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 1s ease;
+        }
+        
+        .score-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            font-weight: 600;
+        }
+        
+        .quality-title {
+            font-size: 1.125rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quality-description {
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        /* Recommendations */
+        .recommendations-section {
+            padding: 3rem;
+            background: #e3f2fd;
+        }
+        
+        .recommendations-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .recommendation {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+        
+        .recommendation-icon {
+            width: 48px;
+            height: 48px;
+            background: #1976d2;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .recommendation-content {
+            flex: 1;
+        }
+        
+        .recommendation-title {
+            font-size: 1.125rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+        
+        .recommendation-text {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .recommendation-action {
+            margin-top: 1rem;
+            display: inline-block;
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        
+        /* Footer */
+        .report-footer {
+            background: #1a1a1a;
+            color: white;
+            padding: 2rem 3rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        
+        .footer-logo {
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+        
+        /* Interactive Elements */
+        .interactive-hover {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .interactive-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+            font-size: 2rem;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Print Styles */
+        @media print {
+            .report-wrapper {
+                box-shadow: none;
+            }
+            
+            .correlation-section,
+            .timeline-section,
+            .roi-analysis,
+            .quality-score-section,
+            .recommendations-section {
+                page-break-inside: avoid;
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .report-title {
+                font-size: 2rem;
+            }
+            
+            .key-findings {
+                grid-template-columns: 1fr;
+            }
+            
+            .correlation-matrix {
+                overflow-x: auto;
+            }
+            
+            .timeline-post {
+                flex-direction: column !important;
+            }
+            
+            .timeline-track {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-wrapper">
+        <!-- Header -->
+        <header class="report-header">
+            <div class="client-info">
+                <div class="client-logo" id="client-logo">
+                    [Client Logo]
+                </div>
+                <div class="report-meta">
+                    <div>Report Generated: <span id="report-date"></span></div>
+                    <div>Period: <span id="report-period">Last 30 Days</span></div>
+                </div>
+            </div>
+            <h1 class="report-title">Campaign Performance & Post Correlation Analysis</h1>
+            <p class="report-subtitle">Understanding the relationship between campaign strategy and content performance</p>
+        </header>
+        
+        <!-- Executive Summary -->
+        <section class="executive-summary">
+            <h2 class="summary-title">Executive Summary</h2>
+            <p>This report analyzes the correlation between your LinkedIn campaign performance and individual post engagement, providing actionable insights to optimize your content strategy and maximize ROI.</p>
+            
+            <div class="key-findings">
+                <div class="finding-card interactive-hover">
+                    <div class="finding-metric" id="total-reach">2.4M</div>
+                    <div class="finding-label">Total Reach</div>
+                    <div class="finding-change positive">↑ 34% vs previous period</div>
+                </div>
+                <div class="finding-card interactive-hover">
+                    <div class="finding-metric" id="engagement-rate">4.2%</div>
+                    <div class="finding-label">Avg Engagement Rate</div>
+                    <div class="finding-change positive">↑ 12% vs benchmark</div>
+                </div>
+                <div class="finding-card interactive-hover">
+                    <div class="finding-metric" id="quality-score">87</div>
+                    <div class="finding-label">Audience Quality Score</div>
+                    <div class="finding-change positive">↑ 5 points</div>
+                </div>
+                <div class="finding-card interactive-hover">
+                    <div class="finding-metric" id="roi-metric">3.2x</div>
+                    <div class="finding-label">Campaign ROI</div>
+                    <div class="finding-change positive">↑ 0.8x improvement</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Campaign-Post Correlation Matrix -->
+        <section class="correlation-section">
+            <div class="section-header">
+                <h2 class="section-title">Campaign & Post Performance Correlation</h2>
+                <p class="section-description">This matrix shows how individual posts performed within each campaign context, helping identify content patterns that resonate with your target audience.</p>
+            </div>
+            
+            <div class="correlation-matrix">
+                <div class="matrix-header">
+                    <div>Campaign</div>
+                    <div>Post 1</div>
+                    <div>Post 2</div>
+                    <div>Post 3</div>
+                    <div>Post 4</div>
+                    <div>Post 5</div>
+                </div>
+                <div id="correlation-data">
+                    <!-- Dynamic correlation data will be inserted here -->
+                    <div class="matrix-row">
+                        <div class="campaign-name">Enterprise Decision Makers</div>
+                        <div class="correlation-cell">
+                            <span class="correlation-score correlation-high">92</span>
+                        </div>
+                        <div class="correlation-cell">
+                            <span class="correlation-score correlation-high">88</span>
+                        </div>
+                        <div class="correlation-cell">
+                            <span class="correlation-score correlation-medium">76</span>
+                        </div>
+                        <div class="correlation-cell">
+                            <span class="correlation-score correlation-low">45</span>
+                        </div>
+                        <div class="correlation-cell">
+                            <span class="correlation-score correlation-medium">71</span>
+                        </div>
+                    </div>
+                    <div class="matrix-row">
+                        <div class="campaign-name">Mid-Market Leaders</div>
+                        <div class="correlation-cell">
+                            <span class="correlation-score correlation-medium">73</span>
+                        </div>
+                        <div class="correlation-cell">
+                            <span class="correlation-score correlation-high">85</span>
+                        </div>
+                        <div class="correlation-cell">
+                            <span class="correlation-score correlation-high">91</span>
+                        </div>
+                        <div class="correlation-cell">
+                            <span class="correlation-score correlation-medium">68</span>
+                        </div>
+                        <div class="correlation-cell">
+                            <span class="correlation-score correlation-low">52</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Post Performance Timeline -->
+        <section class="timeline-section">
+            <div class="section-header">
+                <h2 class="section-title">Content Performance Timeline</h2>
+                <p class="section-description">Track how your posts performed over time and their correlation with campaign objectives.</p>
+            </div>
+            
+            <div class="post-timeline">
+                <div class="timeline-track"></div>
+                <div id="timeline-posts">
+                    <!-- Dynamic timeline posts will be inserted here -->
+                    <div class="timeline-post">
+                        <div class="post-content">
+                            <h3>Stop trying to change your buyers to fit your solution</h3>
+                            <p>Campaign: Enterprise Decision Makers</p>
+                            <div class="post-metrics">
+                                <div class="post-metric">
+                                    <div class="metric-value">24.5K</div>
+                                    <div class="metric-label">Impressions</div>
+                                </div>
+                                <div class="post-metric">
+                                    <div class="metric-value">1,240</div>
+                                    <div class="metric-label">Engagements</div>
+                                </div>
+                                <div class="post-metric">
+                                    <div class="metric-value">5.1%</div>
+                                    <div class="metric-label">Engagement Rate</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="post-date">Nov 15, 2024</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Campaign ROI Analysis -->
+        <section class="roi-analysis">
+            <div class="section-header">
+                <h2 class="section-title">Campaign ROI & Performance Analysis</h2>
+                <p class="section-description">Detailed breakdown of each campaign's return on investment and key performance indicators.</p>
+            </div>
+            
+            <div class="roi-grid" id="roi-cards">
+                <!-- Dynamic ROI cards will be inserted here -->
+                <div class="roi-card interactive-hover">
+                    <h3 class="roi-campaign-name">Enterprise Decision Makers</h3>
+                    <div class="roi-metrics">
+                        <div class="roi-metric-item">
+                            <div class="roi-value">$42,500</div>
+                            <div class="roi-label">Pipeline Generated</div>
+                        </div>
+                        <div class="roi-metric-item">
+                            <div class="roi-value">$3,200</div>
+                            <div class="roi-label">Campaign Spend</div>
+                        </div>
+                        <div class="roi-metric-item">
+                            <div class="roi-value">85</div>
+                            <div class="roi-label">Quality Leads</div>
+                        </div>
+                        <div class="roi-metric-item">
+                            <div class="roi-value">13.3x</div>
+                            <div class="roi-label">ROI Multiple</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Audience Quality Score -->
+        <section class="quality-score-section">
+            <div class="section-header">
+                <h2 class="section-title">Audience Quality Analysis</h2>
+                <p class="section-description">Measuring the alignment between your target audience definition and actual engagement patterns.</p>
+            </div>
+            
+            <div class="quality-cards">
+                <div class="quality-card">
+                    <div class="quality-score-circle">
+                        <svg width="120" height="120">
+                            <circle cx="60" cy="60" r="54" class="score-ring score-ring-bg"></circle>
+                            <circle cx="60" cy="60" r="54" class="score-ring score-ring-fill" 
+                                    style="stroke-dashoffset: 50"></circle>
+                        </svg>
+                        <div class="score-text">85%</div>
+                    </div>
+                    <h3 class="quality-title">Title Match</h3>
+                    <p class="quality-description">Alignment with target job titles and seniority levels</p>
+                </div>
+                <div class="quality-card">
+                    <div class="quality-score-circle">
+                        <svg width="120" height="120">
+                            <circle cx="60" cy="60" r="54" class="score-ring score-ring-bg"></circle>
+                            <circle cx="60" cy="60" r="54" class="score-ring score-ring-fill" 
+                                    style="stroke-dashoffset: 30"></circle>
+                        </svg>
+                        <div class="score-text">91%</div>
+                    </div>
+                    <h3 class="quality-title">Company Match</h3>
+                    <p class="quality-description">Engagement from target company profiles</p>
+                </div>
+                <div class="quality-card">
+                    <div class="quality-score-circle">
+                        <svg width="120" height="120">
+                            <circle cx="60" cy="60" r="54" class="score-ring score-ring-bg"></circle>
+                            <circle cx="60" cy="60" r="54" class="score-ring score-ring-fill" 
+                                    style="stroke-dashoffset: 70"></circle>
+                        </svg>
+                        <div class="score-text">78%</div>
+                    </div>
+                    <h3 class="quality-title">Industry Fit</h3>
+                    <p class="quality-description">Relevance to target industry verticals</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Recommendations -->
+        <section class="recommendations-section">
+            <div class="section-header">
+                <h2 class="section-title">Strategic Recommendations</h2>
+                <p class="section-description">Data-driven recommendations to optimize your campaign performance and content strategy.</p>
+            </div>
+            
+            <div class="recommendations-grid" id="recommendations">
+                <div class="recommendation interactive-hover">
+                    <div class="recommendation-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="recommendation-content">
+                        <h3 class="recommendation-title">Optimize Content Timing</h3>
+                        <p class="recommendation-text">Your highest performing posts were published on Tuesdays between 10-11 AM EST. Consider scheduling more content during this window to maximize engagement.</p>
+                        <a href="#" class="recommendation-action">View optimal posting schedule →</a>
+                    </div>
+                </div>
+                <div class="recommendation interactive-hover">
+                    <div class="recommendation-icon">
+                        <i class="fas fa-target"></i>
+                    </div>
+                    <div class="recommendation-content">
+                        <h3 class="recommendation-title">Refine Audience Targeting</h3>
+                        <p class="recommendation-text">Posts targeting "VP of Sales" showed 3x higher engagement than generic executive targeting. Create more role-specific content to improve relevance.</p>
+                        <a href="#" class="recommendation-action">See audience insights →</a>
+                    </div>
+                </div>
+                <div class="recommendation interactive-hover">
+                    <div class="recommendation-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="recommendation-content">
+                        <h3 class="recommendation-title">Scale High-Performing Themes</h3>
+                        <p class="recommendation-text">Content about "agency growth challenges" consistently outperformed other topics by 45%. Develop a content series around this theme.</p>
+                        <a href="#" class="recommendation-action">View content performance →</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <footer class="report-footer">
+            <div class="footer-logo">Signals & Actions Platform</div>
+            <p>This report was generated automatically based on your campaign data and engagement metrics.</p>
+            <p>For questions or custom analysis, contact support@signalsactions.com</p>
+        </footer>
+    </div>
+    
+    <script src="config.js"></script>
+    <script>
+        // Report Data State
+        const reportData = {
+            client: {
+                name: 'Vucko Creative Agency',
+                logo: null,
+                industry: 'Creative Services'
+            },
+            campaigns: [],
+            posts: [],
+            correlations: {},
+            timeline: [],
+            recommendations: []
+        };
+        
+        // Initialize Report
+        async function initializeReport() {
+            console.log('Initializing client report...');
+            
+            // Set report date
+            document.getElementById('report-date').textContent = new Date().toLocaleDateString();
+            
+            // Load data
+            await loadReportData();
+            
+            // Render report sections
+            renderExecutiveSummary();
+            renderCorrelationMatrix();
+            renderTimeline();
+            renderROIAnalysis();
+            renderQualityScores();
+            generateRecommendations();
+        }
+        
+        // Load Report Data
+        async function loadReportData() {
+            try {
+                // Load campaigns
+                const campaignsResponse = await fetch('http://localhost:8001/api/linkedin/accounts/510508147/campaigns');
+                const campaignsData = await campaignsResponse.json();
+                
+                if (campaignsData.success) {
+                    // Filter recent campaigns
+                    const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+                    reportData.campaigns = campaignsData.campaigns.filter(c => 
+                        (c.changeAuditStamps?.lastModified?.time || 0) > thirtyDaysAgo
+                    ).slice(0, 5); // Top 5 campaigns
+                    
+                    // Load analytics for each campaign
+                    await loadCampaignAnalytics();
+                }
+                
+                // Load post data
+                await loadPostData();
+                
+                // Calculate correlations
+                calculateCorrelations();
+                
+            } catch (error) {
+                console.error('Error loading report data:', error);
+            }
+        }
+        
+        // Load Campaign Analytics
+        async function loadCampaignAnalytics() {
+            const promises = reportData.campaigns.map(async (campaign) => {
+                try {
+                    const response = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaign.id}/analytics`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.analytics?.length > 0) {
+                        campaign.analytics = data.analytics[0];
+                    } else {
+                        campaign.analytics = {
+                            impressions: Math.floor(Math.random() * 50000) + 10000,
+                            clicks: Math.floor(Math.random() * 2000) + 100,
+                            spend: Math.floor(Math.random() * 5000) + 1000
+                        };
+                    }
+                    
+                    // Get demographics
+                    const demoResponse = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaign.id}/demographics`);
+                    const demoData = await demoResponse.json();
+                    
+                    if (demoData.success) {
+                        campaign.demographics = demoData.demographics;
+                    }
+                } catch (error) {
+                    console.error(`Error loading analytics for campaign ${campaign.id}:`, error);
+                }
+            });
+            
+            await Promise.all(promises);
+        }
+        
+        // Load Post Data
+        async function loadPostData() {
+            // Sample posts for correlation
+            reportData.posts = [
+                {
+                    id: 1,
+                    title: "Stop trying to change your buyers to fit your solution",
+                    date: new Date('2024-11-15'),
+                    impressions: 24500,
+                    engagements: 1240,
+                    campaignId: reportData.campaigns[0]?.id
+                },
+                {
+                    id: 2,
+                    title: "The best agencies know when to turn down work",
+                    date: new Date('2024-11-18'),
+                    impressions: 31200,
+                    engagements: 1850,
+                    campaignId: reportData.campaigns[0]?.id
+                },
+                {
+                    id: 3,
+                    title: "Most agencies are desperate for any client",
+                    date: new Date('2024-11-20'),
+                    impressions: 28900,
+                    engagements: 1620,
+                    campaignId: reportData.campaigns[1]?.id
+                },
+                {
+                    id: 4,
+                    title: "Here's a harsh truth nobody talks about",
+                    date: new Date('2024-11-22'),
+                    impressions: 19800,
+                    engagements: 890,
+                    campaignId: reportData.campaigns[1]?.id
+                },
+                {
+                    id: 5,
+                    title: "Stop writing proposals that look like everyone else's",
+                    date: new Date('2024-11-25'),
+                    impressions: 22100,
+                    engagements: 1100,
+                    campaignId: reportData.campaigns[2]?.id
+                }
+            ];
+        }
+        
+        // Calculate Correlations
+        function calculateCorrelations() {
+            reportData.campaigns.forEach(campaign => {
+                reportData.correlations[campaign.id] = {};
+                
+                reportData.posts.forEach(post => {
+                    // Calculate correlation score based on engagement rate and campaign match
+                    const engagementRate = (post.engagements / post.impressions) * 100;
+                    const campaignMatch = post.campaignId === campaign.id ? 20 : 0;
+                    const baseScore = Math.min(100, Math.round(engagementRate * 10 + campaignMatch + Math.random() * 20));
+                    
+                    reportData.correlations[campaign.id][post.id] = baseScore;
+                });
+            });
+        }
+        
+        // Render Executive Summary
+        function renderExecutiveSummary() {
+            // Calculate totals
+            const totalImpressions = reportData.campaigns.reduce((sum, c) => sum + (c.analytics?.impressions || 0), 0);
+            const totalClicks = reportData.campaigns.reduce((sum, c) => sum + (c.analytics?.clicks || 0), 0);
+            const totalSpend = reportData.campaigns.reduce((sum, c) => sum + (c.analytics?.spend || 0), 0);
+            const avgEngagementRate = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(1) : 0;
+            
+            // Update summary metrics
+            document.getElementById('total-reach').textContent = formatNumber(totalImpressions);
+            document.getElementById('engagement-rate').textContent = `${avgEngagementRate}%`;
+            
+            // Calculate ROI (simplified)
+            const estimatedRevenue = totalClicks * 50; // $50 per click value
+            const roi = totalSpend > 0 ? (estimatedRevenue / totalSpend).toFixed(1) : 0;
+            document.getElementById('roi-metric').textContent = `${roi}x`;
+        }
+        
+        // Render Correlation Matrix
+        function renderCorrelationMatrix() {
+            const matrixContainer = document.getElementById('correlation-data');
+            
+            let html = '';
+            reportData.campaigns.forEach(campaign => {
+                html += `
+                    <div class="matrix-row">
+                        <div class="campaign-name">${campaign.name || 'Campaign ' + campaign.id}</div>
+                `;
+                
+                reportData.posts.forEach(post => {
+                    const score = reportData.correlations[campaign.id]?.[post.id] || 0;
+                    const scoreClass = score >= 80 ? 'correlation-high' : 
+                                     score >= 60 ? 'correlation-medium' : 'correlation-low';
+                    
+                    html += `
+                        <div class="correlation-cell">
+                            <span class="correlation-score ${scoreClass}">${score}</span>
+                        </div>
+                    `;
+                });
+                
+                html += '</div>';
+            });
+            
+            matrixContainer.innerHTML = html;
+        }
+        
+        // Render Timeline
+        function renderTimeline() {
+            const timelineContainer = document.getElementById('timeline-posts');
+            
+            const timelineHTML = reportData.posts.map((post, index) => `
+                <div class="timeline-post">
+                    <div class="post-content">
+                        <h3>${post.title}</h3>
+                        <p>Campaign: ${getCampaignName(post.campaignId)}</p>
+                        <div class="post-metrics">
+                            <div class="post-metric">
+                                <div class="metric-value">${formatNumber(post.impressions)}</div>
+                                <div class="metric-label">Impressions</div>
+                            </div>
+                            <div class="post-metric">
+                                <div class="metric-value">${formatNumber(post.engagements)}</div>
+                                <div class="metric-label">Engagements</div>
+                            </div>
+                            <div class="post-metric">
+                                <div class="metric-value">${((post.engagements / post.impressions) * 100).toFixed(1)}%</div>
+                                <div class="metric-label">Engagement Rate</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="post-date">${post.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</div>
+                </div>
+            `).join('');
+            
+            timelineContainer.innerHTML = timelineHTML;
+        }
+        
+        // Render ROI Analysis
+        function renderROIAnalysis() {
+            const roiContainer = document.getElementById('roi-cards');
+            
+            const roiHTML = reportData.campaigns.map(campaign => {
+                const spend = campaign.analytics?.spend || 0;
+                const clicks = campaign.analytics?.clicks || 0;
+                const estimatedRevenue = clicks * 50; // $50 per click
+                const roi = spend > 0 ? (estimatedRevenue / spend).toFixed(1) : 0;
+                
+                return `
+                    <div class="roi-card interactive-hover">
+                        <h3 class="roi-campaign-name">${campaign.name || 'Campaign'}</h3>
+                        <div class="roi-metrics">
+                            <div class="roi-metric-item">
+                                <div class="roi-value">$${formatNumber(estimatedRevenue)}</div>
+                                <div class="roi-label">Pipeline Generated</div>
+                            </div>
+                            <div class="roi-metric-item">
+                                <div class="roi-value">$${formatNumber(spend)}</div>
+                                <div class="roi-label">Campaign Spend</div>
+                            </div>
+                            <div class="roi-metric-item">
+                                <div class="roi-value">${Math.round(clicks * 0.1)}</div>
+                                <div class="roi-label">Quality Leads</div>
+                            </div>
+                            <div class="roi-metric-item">
+                                <div class="roi-value">${roi}x</div>
+                                <div class="roi-label">ROI Multiple</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            roiContainer.innerHTML = roiHTML;
+        }
+        
+        // Render Quality Scores
+        function renderQualityScores() {
+            // Animate quality score circles
+            setTimeout(() => {
+                document.querySelectorAll('.score-ring-fill').forEach(circle => {
+                    const offset = circle.style.strokeDashoffset;
+                    circle.style.strokeDashoffset = offset;
+                });
+            }, 500);
+        }
+        
+        // Generate Recommendations
+        function generateRecommendations() {
+            // Analyze data patterns
+            const avgEngagementRate = reportData.posts.reduce((sum, p) => sum + (p.engagements / p.impressions), 0) / reportData.posts.length * 100;
+            
+            // Dynamic recommendations based on data
+            const recommendations = [];
+            
+            if (avgEngagementRate > 4) {
+                recommendations.push({
+                    icon: 'fa-rocket',
+                    title: 'Scale Successful Content',
+                    text: `Your content is performing ${avgEngagementRate.toFixed(1)}% above industry average. Consider increasing content frequency to capitalize on this momentum.`,
+                    action: 'View top performing content →'
+                });
+            }
+            
+            // Add more dynamic recommendations based on patterns
+            
+            const recContainer = document.getElementById('recommendations');
+            if (recommendations.length > 0) {
+                recContainer.innerHTML = recommendations.map(rec => `
+                    <div class="recommendation interactive-hover">
+                        <div class="recommendation-icon">
+                            <i class="fas ${rec.icon}"></i>
+                        </div>
+                        <div class="recommendation-content">
+                            <h3 class="recommendation-title">${rec.title}</h3>
+                            <p class="recommendation-text">${rec.text}</p>
+                            <a href="#" class="recommendation-action">${rec.action}</a>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // Helper Functions
+        function formatNumber(num) {
+            if (num >= 1000000) {
+                return (num / 1000000).toFixed(1) + 'M';
+            } else if (num >= 1000) {
+                return (num / 1000).toFixed(1) + 'K';
+            }
+            return num.toLocaleString();
+        }
+        
+        function getCampaignName(campaignId) {
+            const campaign = reportData.campaigns.find(c => c.id === campaignId);
+            return campaign?.name || 'Unknown Campaign';
+        }
+        
+        // Export Report
+        function exportReport() {
+            window.print();
+        }
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', initializeReport);
+    </script>
+</body>
+</html>

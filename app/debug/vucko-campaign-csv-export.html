@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vucko Campaign CSV Export</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    <style>
+        .export-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        
+        .export-header {
+            margin-bottom: 2rem;
+        }
+        
+        .export-options {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .option-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .option-label {
+            width: 200px;
+            font-weight: 500;
+        }
+        
+        .date-input {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        
+        .export-button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .export-button:hover {
+            background: #1565c0;
+        }
+        
+        .export-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .status-message {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+        
+        .status-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+        
+        .status-error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
+        
+        .status-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border: 1px solid #2196f3;
+        }
+        
+        .preview-section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 2rem;
+            display: none;
+        }
+        
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        
+        .preview-table th {
+            background: #f5f5f5;
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+        }
+        
+        .preview-table td {
+            padding: 0.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="export-container">
+        <div class="export-header">
+            <h1>Vucko Campaign CSV Export</h1>
+            <p>Export campaign data with performance metrics and demographics to CSV format.</p>
+        </div>
+
+        <div class="export-options">
+            <h2>Export Options</h2>
+            
+            <div class="option-row">
+                <div class="option-label">Date Range:</div>
+                <div>
+                    <input type="date" id="start-date" class="date-input">
+                    to
+                    <input type="date" id="end-date" class="date-input">
+                </div>
+            </div>
+            
+            <div class="option-row">
+                <div class="option-label">Campaign Status:</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="status-active" checked> Active
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="status-paused" checked> Paused
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="status-completed" checked> Completed
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="status-removed"> Removed
+                    </label>
+                </div>
+            </div>
+            
+            <div class="option-row">
+                <div class="option-label">Include Demographics:</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="demo-companies" checked> Top Companies
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="demo-titles" checked> Top Job Titles
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="demo-seniority" checked> Seniority Levels
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" id="demo-industries" checked> Industries
+                    </label>
+                </div>
+            </div>
+            
+            <div class="option-row">
+                <div class="option-label">Data Format:</div>
+                <div class="checkbox-group">
+                    <label class="checkbox-item">
+                        <input type="radio" name="format" value="summary" checked> Summary (1 row per campaign)
+                    </label>
+                    <label class="checkbox-item">
+                        <input type="radio" name="format" value="detailed"> Detailed (includes all demographics)
+                    </label>
+                </div>
+            </div>
+            
+            <div style="margin-top: 2rem;">
+                <button onclick="exportCampaigns()" class="export-button" id="export-btn">
+                    <i class="fas fa-download"></i>
+                    Export to CSV
+                </button>
+            </div>
+            
+            <div id="status-message" class="status-message"></div>
+        </div>
+
+        <div id="preview-section" class="preview-section">
+            <h3>Preview (First 5 rows)</h3>
+            <div style="overflow-x: auto;">
+                <table class="preview-table" id="preview-table">
+                    <thead id="preview-head"></thead>
+                    <tbody id="preview-body"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // Set default dates
+        document.getElementById('end-date').value = new Date().toISOString().split('T')[0];
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 60);
+        document.getElementById('start-date').value = startDate.toISOString().split('T')[0];
+
+        async function exportCampaigns() {
+            const button = document.getElementById('export-btn');
+            const statusDiv = document.getElementById('status-message');
+            
+            // Disable button
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading campaigns...';
+            
+            // Show loading status
+            statusDiv.className = 'status-message status-info';
+            statusDiv.style.display = 'block';
+            statusDiv.innerHTML = '<i class="fas fa-info-circle mr-2"></i>Fetching campaign data from LinkedIn...';
+            
+            try {
+                // Get options
+                const startDate = document.getElementById('start-date').value;
+                const endDate = document.getElementById('end-date').value;
+                const includeActive = document.getElementById('status-active').checked;
+                const includePaused = document.getElementById('status-paused').checked;
+                const includeCompleted = document.getElementById('status-completed').checked;
+                const includeRemoved = document.getElementById('status-removed').checked;
+                const format = document.querySelector('input[name="format"]:checked').value;
+                
+                // Fetch campaigns
+                const response = await fetch('http://localhost:8001/api/linkedin/accounts/510508147/campaigns');
+                const data = await response.json();
+                
+                if (!data.success) {
+                    throw new Error('Failed to fetch campaigns');
+                }
+                
+                statusDiv.innerHTML = '<i class="fas fa-info-circle mr-2"></i>Processing ' + data.campaigns.length + ' campaigns...';
+                
+                // Filter campaigns
+                let campaigns = data.campaigns.filter(campaign => {
+                    // Date filter
+                    const campaignDate = new Date(campaign.changeAuditStamps?.lastModified?.time || 
+                                                  campaign.changeAuditStamps?.created?.time || 0);
+                    if (campaignDate < new Date(startDate) || campaignDate > new Date(endDate)) {
+                        return false;
+                    }
+                    
+                    // Status filter
+                    switch (campaign.status) {
+                        case 'ACTIVE': return includeActive;
+                        case 'PAUSED': return includePaused;
+                        case 'COMPLETED': return includeCompleted;
+                        case 'REMOVED': return includeRemoved;
+                        default: return false;
+                    }
+                });
+                
+                statusDiv.innerHTML = '<i class="fas fa-info-circle mr-2"></i>Loading analytics for ' + campaigns.length + ' campaigns...';
+                
+                // Load analytics
+                const analyticsPromises = campaigns.map(async (campaign) => {
+                    try {
+                        const analyticsResponse = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaign.id}/analytics?startDate=${startDate}&endDate=${endDate}`);
+                        const analyticsData = await analyticsResponse.json();
+                        
+                        if (analyticsData.success && analyticsData.analytics && analyticsData.analytics.length > 0) {
+                            campaign.analytics = analyticsData.analytics[0];
+                        }
+                    } catch (error) {
+                        console.error(`Error loading analytics for ${campaign.id}:`, error);
+                    }
+                });
+                
+                await Promise.all(analyticsPromises);
+                
+                // Load demographics if detailed format
+                if (format === 'detailed') {
+                    statusDiv.innerHTML = '<i class="fas fa-info-circle mr-2"></i>Loading demographics...';
+                    
+                    const demoPromises = campaigns.map(async (campaign) => {
+                        try {
+                            const demoResponse = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaign.id}/demographics`);
+                            const demoData = await demoResponse.json();
+                            
+                            if (demoData.success && demoData.demographics) {
+                                campaign.demographics = demoData.demographics;
+                            }
+                        } catch (error) {
+                            console.error(`Error loading demographics for ${campaign.id}:`, error);
+                        }
+                    });
+                    
+                    await Promise.all(demoPromises);
+                }
+                
+                // Generate CSV
+                const csv = format === 'summary' ? generateSummaryCSV(campaigns) : generateDetailedCSV(campaigns);
+                
+                // Download CSV
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `vucko-campaigns-${startDate}-to-${endDate}.csv`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                // Show success
+                statusDiv.className = 'status-message status-success';
+                statusDiv.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Successfully exported ' + campaigns.length + ' campaigns!';
+                
+                // Show preview
+                showPreview(campaigns, format);
+                
+            } catch (error) {
+                console.error('Export error:', error);
+                statusDiv.className = 'status-message status-error';
+                statusDiv.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>Error: ' + error.message;
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-download"></i> Export to CSV';
+            }
+        }
+
+        function generateSummaryCSV(campaigns) {
+            const headers = [
+                'Campaign ID',
+                'Campaign Name',
+                'Status',
+                'Objective',
+                'Created Date',
+                'Last Modified',
+                'Budget',
+                'Impressions',
+                'Clicks',
+                'CTR %',
+                'Spend',
+                'CPC',
+                'Conversions',
+                'Leads',
+                'Top Company 1',
+                'Top Company 2',
+                'Top Company 3',
+                'Top Job Title 1',
+                'Top Job Title 2',
+                'Top Job Title 3'
+            ];
+            
+            const rows = [headers];
+            
+            campaigns.forEach(campaign => {
+                const analytics = campaign.analytics || {};
+                const demographics = campaign.demographics || {};
+                const ctr = analytics.impressions > 0 ? (analytics.clicks / analytics.impressions * 100).toFixed(2) : '0';
+                const cpc = analytics.clicks > 0 ? (analytics.spend / analytics.clicks).toFixed(2) : '0';
+                
+                // Get top demographics
+                const topCompanies = (demographics.MEMBER_COMPANY || []).slice(0, 3).map(d => d.name);
+                const topTitles = (demographics.MEMBER_JOB_TITLE || []).slice(0, 3).map(d => d.name);
+                
+                const row = [
+                    campaign.id,
+                    campaign.name,
+                    campaign.status,
+                    campaign.objectiveType || '',
+                    new Date(campaign.changeAuditStamps?.created?.time || 0).toLocaleDateString(),
+                    new Date(campaign.changeAuditStamps?.lastModified?.time || 0).toLocaleDateString(),
+                    campaign.totalBudget?.amount || '0',
+                    analytics.impressions || '0',
+                    analytics.clicks || '0',
+                    ctr,
+                    analytics.spend || '0',
+                    cpc,
+                    analytics.conversions || '0',
+                    analytics.leads || '0',
+                    topCompanies[0] || '',
+                    topCompanies[1] || '',
+                    topCompanies[2] || '',
+                    topTitles[0] || '',
+                    topTitles[1] || '',
+                    topTitles[2] || ''
+                ];
+                
+                rows.push(row);
+            });
+            
+            return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+        }
+
+        function generateDetailedCSV(campaigns) {
+            const headers = [
+                'Campaign ID',
+                'Campaign Name',
+                'Status',
+                'Objective',
+                'Impressions',
+                'Clicks',
+                'CTR %',
+                'Spend',
+                'Demographic Type',
+                'Demographic Name',
+                'Demographic Impressions',
+                'Demographic Clicks',
+                'Demographic Percentage'
+            ];
+            
+            const rows = [headers];
+            
+            campaigns.forEach(campaign => {
+                const analytics = campaign.analytics || {};
+                const demographics = campaign.demographics || {};
+                const ctr = analytics.impressions > 0 ? (analytics.clicks / analytics.impressions * 100).toFixed(2) : '0';
+                
+                // Add rows for each demographic dimension
+                Object.entries(demographics).forEach(([dimension, items]) => {
+                    items.forEach(item => {
+                        const row = [
+                            campaign.id,
+                            campaign.name,
+                            campaign.status,
+                            campaign.objectiveType || '',
+                            analytics.impressions || '0',
+                            analytics.clicks || '0',
+                            ctr,
+                            analytics.spend || '0',
+                            dimension,
+                            item.name,
+                            item.impressions || '0',
+                            item.clicks || '0',
+                            (item.percentage || 0).toFixed(2)
+                        ];
+                        
+                        rows.push(row);
+                    });
+                });
+                
+                // If no demographics, add one row with campaign data only
+                if (Object.keys(demographics).length === 0) {
+                    const row = [
+                        campaign.id,
+                        campaign.name,
+                        campaign.status,
+                        campaign.objectiveType || '',
+                        analytics.impressions || '0',
+                        analytics.clicks || '0',
+                        ctr,
+                        analytics.spend || '0',
+                        '',
+                        '',
+                        '',
+                        '',
+                        ''
+                    ];
+                    
+                    rows.push(row);
+                }
+            });
+            
+            return rows.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+        }
+
+        function showPreview(campaigns, format) {
+            const previewSection = document.getElementById('preview-section');
+            const previewHead = document.getElementById('preview-head');
+            const previewBody = document.getElementById('preview-body');
+            
+            previewSection.style.display = 'block';
+            
+            if (format === 'summary') {
+                previewHead.innerHTML = `
+                    <tr>
+                        <th>Campaign Name</th>
+                        <th>Status</th>
+                        <th>Impressions</th>
+                        <th>Clicks</th>
+                        <th>CTR %</th>
+                        <th>Spend</th>
+                    </tr>
+                `;
+                
+                previewBody.innerHTML = campaigns.slice(0, 5).map(campaign => {
+                    const analytics = campaign.analytics || {};
+                    const ctr = analytics.impressions > 0 ? (analytics.clicks / analytics.impressions * 100).toFixed(2) : '0';
+                    
+                    return `
+                        <tr>
+                            <td>${campaign.name.substring(0, 40)}...</td>
+                            <td>${campaign.status}</td>
+                            <td>${(analytics.impressions || 0).toLocaleString()}</td>
+                            <td>${(analytics.clicks || 0).toLocaleString()}</td>
+                            <td>${ctr}%</td>
+                            <td>$${(analytics.spend || 0).toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+    </script>
+</body>
+</html>

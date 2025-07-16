@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Analysis - Signals & Actions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/swiss-minimal.css">
+    <style>
+        .post-content {
+            background: var(--gray-50);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-2xl);
+            margin-bottom: var(--space-3xl);
+        }
+
+        .author-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .post-text {
+            font-size: var(--font-size-base);
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .engagement-pill {
+            display: inline-block;
+            padding: var(--space-xs) var(--space-md);
+            background: var(--gray-100);
+            border: var(--border-width) solid var(--gray-300);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+            margin-right: var(--space-sm);
+        }
+
+        .engagement-pill.active {
+            background: var(--black);
+            color: var(--white);
+            border-color: var(--black);
+        }
+
+        .people-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .person-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-sm) 0;
+            border-bottom: var(--border-width) solid var(--gray-100);
+        }
+
+        .person-row:last-child {
+            border-bottom: none;
+        }
+
+        .reaction-count {
+            display: inline-block;
+            background: var(--gray-100);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            margin-left: var(--space-xs);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Signals & Actions</h1>
+                <p class="sidebar-subtitle">Vucko</p>
+            </div>
+            
+                        <div class="nav-group">
+                <div class="nav-label">Overview</div>
+                <a href="/index.html" class="nav-link">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    Dashboard
+                </a>
+                <a href="/signals.html" class="nav-link">
+                    <i class="fas fa-signal nav-icon"></i>
+                    Signals
+                </a>
+                <a href="/actions.html" class="nav-link">
+                    <i class="fas fa-tasks nav-icon"></i>
+                    Actions
+                </a>
+                <a href="/weekly-report.html" class="nav-link">
+                    <i class="fas fa-calendar nav-icon"></i>
+                    Weekly Report
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Content</div>
+                <a href="/content-calendar.html" class="nav-link">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    Calendar
+                </a>
+                <a href="/content-database.html" class="nav-link">
+                    <i class="fas fa-database nav-icon"></i>
+                    Database
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Campaigns</div>
+                <a href="/audiences.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Audiences
+                </a>
+                <a href="/campaigns.html" class="nav-link">
+                    <i class="fas fa-bullhorn nav-icon"></i>
+                    Campaigns
+                </a>
+                <a href="/posts.html" class="nav-link">
+                    <i class="fas fa-file-alt nav-icon"></i>
+                    Posts
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Contacts</div>
+                <a href="/people.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    People
+                </a>
+                <a href="/companies.html" class="nav-link">
+                    <i class="fas fa-building nav-icon"></i>
+                    Companies
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Strategy</div>
+                <a href="/personas.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Personas
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Data Import</div>
+                <a href="/import-data.html" class="nav-link">
+                    <i class="fas fa-upload nav-icon"></i>
+                    Import Data
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">Post Analysis</h1>
+            </header>
+
+            <div class="detail-container">
+                <!-- Post Content -->
+                <div class="post-content">
+                    <div class="author-info">
+                        <div class="avatar" style="width: 48px; height: 48px;">
+                            <span id="author-initials">AV</span>
+                        </div>
+                        <div>
+                            <div class="font-semibold" id="author-name">Andrew Vucko</div>
+                            <div class="text-xs text-muted" id="author-title">Founder & CEO | Vucko</div>
+                        </div>
+                    </div>
+                    <div class="post-text" id="post-content">
+                        Loading post content...
+                    </div>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr 2fr; gap: var(--space-3xl); margin-bottom: var(--space-3xl);">
+                    <!-- Overview -->
+                    <div>
+                        <h3 class="font-semibold" style="margin-bottom: var(--space-xl);">Overview</h3>
+                        <div style="margin-bottom: var(--space-3xl);">
+                            <div class="stat-value" id="total-engagements">162</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                        
+                        <h4 class="text-sm font-medium text-muted" style="margin-bottom: var(--space-md);">Reactions</h4>
+                        <div class="simple-list">
+                            <div class="metric-row">
+                                <span>Celebrate</span>
+                                <span id="celebrate-count">20</span>
+                            </div>
+                            <div class="metric-row">
+                                <span>Like</span>
+                                <span id="like-count">142</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patterns & Insights -->
+                    <div>
+                        <h3 class="font-semibold" style="margin-bottom: var(--space-xl);">Patterns & Insights</h3>
+                        
+                        <div style="margin-bottom: var(--space-2xl);">
+                            <div class="stat-value" id="followers-count">0</div>
+                            <div class="stat-label">Followers</div>
+                        </div>
+
+                        <div style="margin-bottom: var(--space-xl);">
+                            <h4 class="text-sm font-medium text-muted" style="margin-bottom: var(--space-md);">Top Companies</h4>
+                            <div id="top-companies-list" class="simple-list">
+                                <div class="engagement-pill">Motion Designer</div>
+                                <span class="reaction-count">2</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 class="text-sm font-medium text-muted" style="margin-bottom: var(--space-md);">Top Titles</h4>
+                            <div id="top-titles" class="text-sm text-muted">No title patterns found</div>
+                        </div>
+                    </div>
+
+                    <!-- Top People -->
+                    <div>
+                        <h3 class="font-semibold" style="margin-bottom: var(--space-xl);">Top People</h3>
+                        <div class="people-list" id="top-people-list">
+                            <div class="person-row">
+                                <span>Loading...</span>
+                                <span class="reaction-count">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campaign Performance -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3xl);">
+                    <div>
+                        <h3 class="font-semibold" style="margin-bottom: var(--space-xl);">Campaign Performance</h3>
+                        <div class="simple-list">
+                            <div class="metric-row">
+                                <span class="metric-label">Campaign Reach</span>
+                                <span class="metric-value" id="campaign-reach">43,000</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Campaign Spend</span>
+                                <span class="metric-value" id="campaign-spend">$8500.00</span>
+                            </div>
+                            <div class="metric-row">
+                                <span class="metric-label">Cost per Engagement</span>
+                                <span class="metric-value" id="cost-per-engagement">$52.47</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="font-semibold" style="margin-bottom: var(--space-xl);">LinkedIn Campaign Data</h3>
+                        <div class="card">
+                            <div class="text-sm" id="campaign-info">
+                                <p class="text-muted">No campaign data available</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/config.js"></script>
+    <script>
+        let currentPost = null;
+        let supabase;
+
+        // Initialize Supabase
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                return true;
+            }
+            return false;
+        }
+
+        // Get post ID from URL
+        function getPostId() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Load post details
+        async function loadPostDetails() {
+            const postId = getPostId();
+            if (!postId) {
+                showError('No post ID provided');
+                return;
+            }
+
+            if (!supabase) {
+                console.error('Supabase not initialized');
+                showError('Unable to load post data');
+                return;
+            }
+
+            try {
+                // Load post data
+                const { data: post, error } = await supabase
+                    .from('posts')
+                    .select('*')
+                    .eq('id', postId)
+                    .eq('tenant_id', DEFAULT_TENANT_ID)
+                    .single();
+
+                if (error) throw error;
+
+                currentPost = post;
+
+                // Load engagements
+                const { data: engagements } = await supabase
+                    .from('engagements')
+                    .select('*, persons(*)')
+                    .eq('post_id', postId)
+                    .eq('tenant_id', DEFAULT_TENANT_ID)
+                    .order('engaged_at', { ascending: false });
+
+                displayPostAnalysis(post, engagements || []);
+            } catch (error) {
+                console.error('Error loading post:', error);
+                showError('Failed to load post data');
+            }
+        }
+
+
+        // Display post analysis
+        function displayPostAnalysis(post, engagements) {
+            // Post content
+            document.getElementById('post-content').textContent = post.content || post.post_title || 'No content available';
+
+            // Total engagements
+            document.getElementById('total-engagements').textContent = engagements.length;
+
+            // Count reactions
+            const reactions = { like: 0, celebrate: 0 };
+            engagements.forEach(eng => {
+                const type = eng.reaction_type || 'like';
+                if (reactions[type] !== undefined) {
+                    reactions[type]++;
+                }
+            });
+            
+            document.getElementById('like-count').textContent = reactions.like;
+            document.getElementById('celebrate-count').textContent = reactions.celebrate;
+
+            // Count followers
+            const followers = engagements.filter(eng => eng.persons?.is_follower).length;
+            document.getElementById('followers-count').textContent = followers;
+
+            // Top companies
+            const companies = {};
+            engagements.forEach(eng => {
+                const company = eng.persons?.current_company || 'Unknown';
+                companies[company] = (companies[company] || 0) + 1;
+            });
+
+            const topCompanies = Object.entries(companies)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 3);
+
+            if (topCompanies.length > 0) {
+                document.getElementById('top-companies-list').innerHTML = topCompanies.map(([company, count]) => 
+                    `<div><span class="engagement-pill">${company}</span><span class="reaction-count">${count}</span></div>`
+                ).join('');
+            }
+
+            // Top people
+            const topPeople = engagements.slice(0, 10);
+            if (topPeople.length > 0) {
+                document.getElementById('top-people-list').innerHTML = topPeople.map((eng, index) => `
+                    <div class="person-row">
+                        <span>${index + 1}. ${eng.persons?.name || 'Unknown'}</span>
+                        <span class="reaction-count">2</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+
+        // Show error
+        function showError(message) {
+            document.getElementById('post-content').textContent = message;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            let attempts = 0;
+            const checkSupabase = setInterval(() => {
+                attempts++;
+                if (initSupabase()) {
+                    clearInterval(checkSupabase);
+                    loadPostDetails();
+                } else if (attempts > 20) {
+                    clearInterval(checkSupabase);
+                    console.error('Failed to initialize Supabase after 20 attempts');
+                    showError('Unable to initialize database connection');
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

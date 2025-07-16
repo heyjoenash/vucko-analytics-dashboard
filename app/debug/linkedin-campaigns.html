@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Campaigns - Signals & Actions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/swiss-design.css">
+</head>
+<body class="has-sidebar page-with-sidebar">
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div id="header-container"></div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-container">
+            <nav class="breadcrumb">
+                <span class="breadcrumb-item">Dashboard</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-item breadcrumb-current">LinkedIn Campaigns</span>
+            </nav>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <div class="page-title-section">
+                        <h1 class="page-title">LinkedIn Campaign Intelligence</h1>
+                        <p class="page-subtitle">Real-time campaign data integrated with engagement analytics</p>
+                    </div>
+                    <div class="page-actions">
+                        <button id="sync-all-btn" class="btn btn-primary">
+                            <i class="fas fa-sync mr-2"></i>
+                            Sync Vucko Data
+                        </button>
+                        <button id="refresh-btn" class="btn btn-secondary">
+                            <i class="fas fa-refresh mr-2"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sync Status -->
+            <div id="sync-status" class="mb-6 hidden">
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-center">
+                        <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mr-3"></div>
+                        <span class="text-blue-800" id="sync-message">Syncing data...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Accounts</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="total-accounts">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2V7a2 2 0 012-2h2a2 2 0 002 2v2a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 00-2 2h-2a2 2 0 00-2 2v6a2 2 0 01-2 2H9z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Active Campaigns</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="active-campaigns">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Spend</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="total-spend">$0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Impressions</dt>
+                                <dd class="text-lg font-medium text-gray-900" id="total-impressions">0</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accounts and Campaigns -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Accounts List -->
+                <div class="bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">LinkedIn Accounts</h2>
+                    </div>
+                    <div class="divide-y divide-gray-200" id="accounts-list">
+                        <div class="p-6 text-center text-gray-500">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No accounts synced</h3>
+                            <p class="mt-1 text-sm text-gray-500">Click "Sync All Accounts" to get started</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Campaigns List -->
+                <div class="lg:col-span-2 bg-white rounded-lg shadow">
+                    <div class="px-6 py-4 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-900">Campaigns</h2>
+                        <p class="text-sm text-gray-500 mt-1">Select an account to view campaigns</p>
+                    </div>
+                    <div id="campaigns-container">
+                        <div class="p-6 text-center text-gray-500">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2V7a2 2 0 012-2h2a2 2 0 002 2v2a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 00-2 2h-2a2 2 0 00-2 2v6a2 2 0 01-2 2H9z"></path>
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">No campaigns loaded</h3>
+                            <p class="mt-1 text-sm text-gray-500">Select an account to view its campaigns</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Campaign Detail Modal -->
+    <div id="campaign-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden">
+        <div class="relative top-20 mx-auto p-5 border w-11/12 md:w-3/4 lg:w-1/2 shadow-lg rounded-md bg-white">
+            <div class="mt-3">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900" id="modal-campaign-name">Campaign Details</h3>
+                    <button id="close-modal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="modal-campaign-content">
+                    <!-- Campaign details will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="services/linkedin-api.js"></script>
+    <script src="services/vucko-sync.js"></script>
+    <script>
+        // Initialize Supabase
+        const { createClient } = supabase;
+        const supabaseClient = createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+        window.supabase = supabaseClient;
+
+        // Initialize services (avoid redeclaration)
+        if (typeof window.linkedInAPI === 'undefined') {
+            window.linkedInAPI = new LinkedInAPI();
+        }
+        if (typeof window.vuckoSync === 'undefined') {
+            window.vuckoSync = new VuckoSyncService(supabaseClient);
+        }
+        const vuckoSync = window.vuckoSync;
+
+        let selectedAccountId = null;
+        let accountsData = [];
+        let campaignsData = [];
+
+        // Load sidebar and header
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadComponents();
+            await loadDashboardData();
+            setupEventListeners();
+        });
+
+        async function loadComponents() {
+            try {
+                const sidebarResponse = await fetch('components/sidebar.html');
+                const sidebarHtml = await sidebarResponse.text();
+                document.getElementById('sidebar-container').innerHTML = sidebarHtml;
+
+                const headerResponse = await fetch('components/header.html');
+                const headerHtml = await headerResponse.text();
+                document.getElementById('header-container').innerHTML = headerHtml;
+
+                // Set active state
+                const activeLink = document.querySelector('a[href="linkedin-campaigns.html"]');
+                if (activeLink) {
+                    activeLink.classList.add('bg-gray-100', 'text-gray-900');
+                }
+            } catch (error) {
+                console.error('Error loading components:', error);
+            }
+        }
+
+        async function loadDashboardData() {
+            try {
+                // Always load from LinkedIn API for real-time data
+                await syncLinkedInData();
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+
+        function setupEventListeners() {
+            document.getElementById('sync-all-btn').addEventListener('click', syncLinkedInData);
+            document.getElementById('refresh-btn').addEventListener('click', loadDashboardData);
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+        }
+
+        async function syncLinkedInData() {
+            showSyncStatus('Connecting to LinkedIn Marketing API...');
+            
+            try {
+                // Fetch accounts from LinkedIn API
+                const accountsResponse = await fetch('http://localhost:8001/api/linkedin/accounts');
+                const accountsResult = await accountsResponse.json();
+                
+                if (!accountsResult.elements || accountsResult.elements.length === 0) {
+                    throw new Error('No LinkedIn ad accounts found');
+                }
+                
+                updateSyncStatus(`Found ${accountsResult.elements.length} accounts. Loading campaigns...`);
+                
+                // Store accounts data
+                accountsData = accountsResult.elements;
+                
+                // Display accounts
+                displayAccounts(accountsData);
+                
+                // Load campaigns for the first account (or Vucko if available)
+                const vuckoAccount = accountsData.find(a => a.name === 'Vucko');
+                const targetAccount = vuckoAccount || accountsData[0];
+                
+                if (targetAccount) {
+                    await selectAccount(targetAccount.id);
+                }
+                
+                hideSyncStatus();
+                showNotification(
+                    `✅ Successfully loaded ${accountsData.length} LinkedIn ad accounts`, 
+                    'success'
+                );
+
+            } catch (error) {
+                console.error('LinkedIn sync failed:', error);
+                hideSyncStatus();
+                showNotification(`❌ Sync failed: ${error.message}`, 'error');
+            }
+        }
+
+        function displayAccounts(accounts) {
+            const container = document.getElementById('accounts-list');
+            
+            if (accounts.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 text-center text-gray-500">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No accounts found</h3>
+                        <p class="mt-1 text-sm text-gray-500">Click "Sync LinkedIn Data" to get started</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = accounts.map(account => `
+                <div class="p-4 hover:bg-gray-50 cursor-pointer account-item ${account.name === 'Vucko' ? 'bg-blue-50 border-l-4 border-blue-500' : ''}" data-account-id="${account.id}">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="text-sm font-medium text-gray-900">${account.name}</h3>
+                            <p class="text-xs text-gray-500">${account.type} • ${account.currency}</p>
+                            ${account.reference ? `<p class="text-xs text-gray-400">${account.reference}</p>` : ''}
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                account.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                            }">
+                                ${account.status}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.account-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const accountId = parseInt(item.dataset.accountId);
+                    selectAccount(accountId);
+                });
+            });
+        }
+
+        async function selectAccount(accountId) {
+            selectedAccountId = accountId;
+            
+            // Update UI to show selected state
+            document.querySelectorAll('.account-item').forEach(item => {
+                item.classList.remove('bg-blue-50', 'border-blue-500');
+                if (parseInt(item.dataset.accountId) === accountId) {
+                    item.classList.add('bg-blue-50');
+                }
+            });
+
+            // Load campaigns for this account
+            await loadCampaigns(accountId);
+        }
+
+        async function loadCampaigns(accountId) {
+            const container = document.getElementById('campaigns-container');
+            
+            // Show loading state
+            container.innerHTML = `
+                <div class="p-6 text-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p class="text-sm text-gray-500 mt-2">Loading campaigns...</p>
+                </div>
+            `;
+            
+            try {
+                // Fetch campaigns from LinkedIn API
+                const response = await fetch(`http://localhost:8001/api/linkedin/accounts/${accountId}/campaigns`);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to load campaigns');
+                }
+
+                campaignsData = data.elements || [];
+                
+                // Sort campaigns by created date (newest first)
+                campaignsData.sort((a, b) => {
+                    const dateA = new Date(a.changeAuditStamps?.created?.time || 0);
+                    const dateB = new Date(b.changeAuditStamps?.created?.time || 0);
+                    return dateB - dateA;
+                });
+                
+                displayCampaigns(campaignsData);
+
+            } catch (error) {
+                console.error('Error loading campaigns:', error);
+                container.innerHTML = `
+                    <div class="p-6 text-center text-red-500">
+                        <p>Error loading campaigns: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayCampaigns(campaigns) {
+            const container = document.getElementById('campaigns-container');
+            
+            if (campaigns.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 text-center text-gray-500">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2-2V7a2 2 0 012-2h2a2 2 0 002 2v2a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 00-2 2h-2a2 2 0 00-2 2v6a2 2 0 01-2 2H9z"></path>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">No campaigns found</h3>
+                        <p class="mt-1 text-sm text-gray-500">This account has no campaigns</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Update summary stats
+            updateSummaryCards(campaigns);
+
+            container.innerHTML = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaign</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Budget</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Objective</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Format</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200">
+                            ${campaigns.map(campaign => {
+                                const createdDate = campaign.changeAuditStamps?.created?.time 
+                                    ? new Date(campaign.changeAuditStamps.created.time).toLocaleDateString() 
+                                    : 'N/A';
+                                const modifiedDate = campaign.changeAuditStamps?.lastModified?.time 
+                                    ? new Date(campaign.changeAuditStamps.lastModified.time).toLocaleDateString() 
+                                    : 'N/A';
+                                const totalBudget = campaign.totalBudget?.amount 
+                                    ? `$${(parseFloat(campaign.totalBudget.amount) / 100).toFixed(2)} ${campaign.totalBudget.currencyCode}`
+                                    : 'N/A';
+                                
+                                return `
+                                    <tr class="hover:bg-gray-50 cursor-pointer campaign-row" data-campaign-id="${campaign.id}">
+                                        <td class="px-4 py-4">
+                                            <div class="text-sm font-medium text-gray-900">${campaign.name || 'Unnamed Campaign'}</div>
+                                            <div class="text-xs text-gray-500">ID: ${campaign.id}</div>
+                                        </td>
+                                        <td class="px-4 py-4">
+                                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(campaign.status)}">
+                                                ${campaign.status}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-4 text-sm text-gray-500">${createdDate}</td>
+                                        <td class="px-4 py-4 text-sm text-gray-500">${modifiedDate}</td>
+                                        <td class="px-4 py-4 text-sm text-gray-500">${totalBudget}</td>
+                                        <td class="px-4 py-4 text-sm text-gray-500">${campaign.objectiveType || 'N/A'}</td>
+                                        <td class="px-4 py-4 text-sm text-gray-500">${campaign.format || 'N/A'}</td>
+                                    </tr>
+                                `;
+                            }).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            // Add click handlers to navigate to detail page
+            document.querySelectorAll('.campaign-row').forEach(row => {
+                row.addEventListener('click', () => {
+                    const campaignId = row.dataset.campaignId;
+                    window.location.href = `campaign-linkedin-detail.html?id=${campaignId}&accountId=${selectedAccountId}`;
+                });
+            });
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'ACTIVE': return 'bg-green-100 text-green-800';
+                case 'PAUSED': return 'bg-yellow-100 text-yellow-800';
+                case 'COMPLETED': return 'bg-blue-100 text-blue-800';
+                case 'REMOVED': return 'bg-gray-100 text-gray-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+
+        function closeModal() {
+            document.getElementById('campaign-modal').classList.add('hidden');
+        }
+
+        function updateSummaryCards(summary) {
+            const accounts = accountsData.length;
+            const activeCampaigns = summary.filter(s => s.status === 'ACTIVE').length;
+            const totalSpend = summary.reduce((sum, s) => sum + (parseFloat(s.total_spend) || 0), 0);
+            const totalImpressions = summary.reduce((sum, s) => sum + (parseInt(s.total_impressions) || 0), 0);
+
+            document.getElementById('total-accounts').textContent = accounts;
+            document.getElementById('active-campaigns').textContent = activeCampaigns;
+            document.getElementById('total-spend').textContent = `$${totalSpend.toFixed(2)}`;
+            document.getElementById('total-impressions').textContent = totalImpressions.toLocaleString();
+        }
+
+        function showSyncStatus(message) {
+            document.getElementById('sync-message').textContent = message;
+            document.getElementById('sync-status').classList.remove('hidden');
+        }
+
+        function updateSyncStatus(message) {
+            document.getElementById('sync-message').textContent = message;
+        }
+
+        function hideSyncStatus() {
+            document.getElementById('sync-status').classList.add('hidden');
+        }
+
+        function showNotification(message, type = 'info') {
+            // Simple notification - could be enhanced with a proper notification system
+            const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+            
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('campaign-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeModal();
+            }
+        });
+    </script>
+</body>
+</html>

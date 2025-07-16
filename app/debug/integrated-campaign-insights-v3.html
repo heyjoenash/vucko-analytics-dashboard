@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Campaign Insights - Signals & Actions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    <style>
+        /* Modern Layout */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+        }
+        
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+        
+        /* Enhanced Sidebar Navigation */
+        .app-sidebar {
+            width: 280px;
+            background: #1a1a1a;
+            color: white;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-header {
+            padding: 2rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar-subtitle {
+            font-size: 0.875rem;
+            opacity: 0.7;
+        }
+        
+        .nav-section {
+            padding: 1rem 0;
+        }
+        
+        .nav-section-title {
+            padding: 0.5rem 2rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.5;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 2rem;
+            color: white;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+        }
+        
+        .nav-item.active {
+            background: rgba(255,255,255,0.15);
+            border-left: 3px solid #1976d2;
+        }
+        
+        .nav-item i {
+            width: 20px;
+            margin-right: 0.75rem;
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        
+        /* Page Header */
+        .page-header {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: #666;
+        }
+        
+        /* Content Sections */
+        .content-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 500;
+        }
+        
+        /* Post Card with Embedding */
+        .post-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            transition: box-shadow 0.2s;
+        }
+        
+        .post-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .post-header {
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .post-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .post-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+            color: #666;
+        }
+        
+        .post-embed {
+            padding: 1rem;
+            background: #f5f5f5;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .post-metrics {
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .metric-item {
+            text-align: center;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+        
+        .metric-label {
+            font-size: 0.75rem;
+            color: #666;
+            margin-top: 0.25rem;
+        }
+        
+        /* Demographics Visualization */
+        .demographics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+        
+        .demo-chart {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        
+        .demo-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .demo-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+        
+        .demo-label {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .demo-bar {
+            width: 100px;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin: 0 0.5rem;
+        }
+        
+        .demo-fill {
+            height: 100%;
+            background: #1976d2;
+            border-radius: 3px;
+        }
+        
+        .demo-percentage {
+            width: 40px;
+            text-align: right;
+            color: #666;
+        }
+        
+        /* Engagement Flow Visualization */
+        .engagement-flow {
+            padding: 2rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+        }
+        
+        .flow-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+        
+        .flow-node {
+            flex: 1;
+            text-align: center;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .flow-arrow {
+            font-size: 2rem;
+            color: #1976d2;
+        }
+        
+        /* Filters */
+        .filter-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            font-size: 0.875rem;
+        }
+        
+        /* Loading State */
+        .loading-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+            margin-right: 1rem;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Tabs */
+        .tab-nav {
+            display: flex;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .tab-button:hover {
+            background: #f5f5f5;
+        }
+        
+        .tab-button.active {
+            border-bottom-color: #1976d2;
+            color: #1976d2;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Summary Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            opacity: 0.9;
+        }
+        
+        /* Error and Debug Styles */
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 1rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .debug-info {
+            background: #f5f5f5;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .mr-2 {
+            margin-right: 0.5rem;
+        }
+
+        /* View content */
+        .view-content {
+            display: none;
+        }
+        
+        .view-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Enhanced Sidebar -->
+        <div class="app-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Campaign Insights</div>
+                <div class="sidebar-subtitle">Integrated Analytics Platform</div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Overview</div>
+                <a class="nav-item active" onclick="showView('overview')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Executive Summary</span>
+                </a>
+                <a class="nav-item" onclick="showView('posts')">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Post Performance</span>
+                </a>
+                <a class="nav-item" onclick="showView('campaigns')">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>Campaign Analytics</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Audience Insights</div>
+                <a class="nav-item" onclick="showView('demographics')">
+                    <i class="fas fa-users"></i>
+                    <span>Demographics</span>
+                </a>
+                <a class="nav-item" onclick="showView('engagement-flow')">
+                    <i class="fas fa-project-diagram"></i>
+                    <span>Engagement Flow</span>
+                </a>
+                <a class="nav-item" onclick="showView('top-performers')">
+                    <i class="fas fa-trophy"></i>
+                    <span>Top Performers</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Reports</div>
+                <a class="nav-item" onclick="showView('debug')">
+                    <i class="fas fa-bug"></i>
+                    <span>Debug Info</span>
+                </a>
+                <a class="nav-item" href="master-signals-actions-report.html">
+                    <i class="fas fa-external-link-alt"></i>
+                    <span>Master Report</span>
+                </a>
+                <a class="nav-item" href="vucko-campaign-report-60days.html">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>60-Day Report</span>
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Overview View -->
+            <div id="view-overview" class="view-content active">
+                <div class="page-header">
+                    <h1 class="page-title">Campaign Performance Overview</h1>
+                    <p class="page-subtitle">Real-time insights from LinkedIn campaigns and engagement data</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-posts">0</div>
+                        <div class="stat-label">Active Posts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-reach">0</div>
+                        <div class="stat-label">Total Reach</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-engagement">0</div>
+                        <div class="stat-label">Engagements</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="stat-cpe">$0</div>
+                        <div class="stat-label">Cost per Engagement</div>
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <div class="section-header">
+                        <h2 class="section-title">Engagement Flow Analysis</h2>
+                    </div>
+                    <div class="engagement-flow">
+                        <div class="flow-container">
+                            <div class="flow-node">
+                                <div class="metric-value" id="flow-impressions">0</div>
+                                <div class="metric-label">Impressions</div>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-node">
+                                <div class="metric-value" id="flow-clicks">0</div>
+                                <div class="metric-label">Clicks</div>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-node">
+                                <div class="metric-value" id="flow-engagements">0</div>
+                                <div class="metric-label">Engagements</div>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-node">
+                                <div class="metric-value" id="flow-conversions">0</div>
+                                <div class="metric-label">Conversions</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Posts View -->
+            <div id="view-posts" class="view-content">
+                <div class="page-header">
+                    <h1 class="page-title">Post Performance Analysis</h1>
+                    <p class="page-subtitle">Deep dive into individual post metrics and engagement</p>
+                </div>
+                
+                <div class="filter-bar">
+                    <select class="filter-select" id="campaign-filter">
+                        <option value="all">All Campaigns</option>
+                    </select>
+                    <select class="filter-select" id="date-filter">
+                        <option value="7">Last 7 Days</option>
+                        <option value="30">Last 30 Days</option>
+                        <option value="60" selected>Last 60 Days</option>
+                        <option value="90">Last 90 Days</option>
+                    </select>
+                    <select class="filter-select" id="sort-filter">
+                        <option value="engagement">Sort by Engagement</option>
+                        <option value="impressions">Sort by Impressions</option>
+                        <option value="cpe">Sort by Cost Efficiency</option>
+                    </select>
+                </div>
+                
+                <div id="posts-container">
+                    <div class="loading-container">
+                        <i class="fas fa-spinner loading-spinner"></i>
+                        Loading post data...
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Demographics View -->
+            <div id="view-demographics" class="view-content">
+                <div class="page-header">
+                    <h1 class="page-title">Audience Demographics</h1>
+                    <p class="page-subtitle">Understand who's engaging with your content</p>
+                </div>
+                
+                <div class="content-section">
+                    <div class="tab-nav">
+                        <button class="tab-button active" onclick="showDemoTab('companies')">Companies</button>
+                        <button class="tab-button" onclick="showDemoTab('titles')">Job Titles</button>
+                        <button class="tab-button" onclick="showDemoTab('seniority')">Seniority</button>
+                        <button class="tab-button" onclick="showDemoTab('industries')">Industries</button>
+                    </div>
+                    
+                    <div id="demo-companies" class="tab-content active">
+                        <div id="companies-chart">Loading company data...</div>
+                    </div>
+                    <div id="demo-titles" class="tab-content">
+                        <div id="titles-chart">Loading job title data...</div>
+                    </div>
+                    <div id="demo-seniority" class="tab-content">
+                        <div id="seniority-chart">Loading seniority data...</div>
+                    </div>
+                    <div id="demo-industries" class="tab-content">
+                        <div id="industries-chart">Loading industry data...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Debug View -->
+            <div id="view-debug" class="view-content">
+                <div class="page-header">
+                    <h1 class="page-title">Debug Information</h1>
+                    <p class="page-subtitle">System status and troubleshooting</p>
+                </div>
+                
+                <div class="content-section">
+                    <h3>Data Loading Status</h3>
+                    <div id="debug-status" class="debug-info">
+                        Checking system status...
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <h3>API Responses</h3>
+                    <div id="debug-api" class="debug-info">
+                        API response data will appear here...
+                    </div>
+                </div>
+                
+                <div class="content-section">
+                    <h3>State Data</h3>
+                    <div id="debug-state" class="debug-info">
+                        State information will appear here...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        // Debug logging
+        console.log('Integrated Campaign Insights V3 - Starting initialization...');
+        
+        // Updated Apify run mappings with LinkedIn post URLs
+        const APIFY_RUN_MAPPINGS = [
+            { runId: 'butuMDGrIRxOxee09', postUrl: 'https://www.linkedin.com/feed/update/urn:li:activity:7330616915331125248', description: 'Post 1' },
+            { runId: 'JqrdZuVDQz9AgQIIU', postUrl: 'https://www.linkedin.com/posts/andrewvucko_stop-trying-to-change-your-buyers-to-fit-activity-7310638966624448512-uDGh', description: 'Post 2' },
+            { runId: '3nlSqHwyJiQPsoqAC', postUrl: 'https://www.linkedin.com/feed/update/urn:li:activity:7340730358725808128', description: 'Post 3' },
+            { runId: 'PvNvNkbqvWNpaXiD8', postUrl: 'https://www.linkedin.com/posts/andrewvucko_the-best-agencies-know-when-to-turn-down-activity-7305564498596274176-l6WM', description: 'Post 4' },
+            { runId: 'hhHrpS4sCKvBjIsta', postUrl: 'https://www.linkedin.com/posts/andrewvucko_most-agencies-are-desperate-for-any-client-activity-7303032950726512641-BnBj', description: 'Post 5' },
+            { runId: 'uBCxynShX9JejO2P2', postUrl: 'https://www.linkedin.com/posts/andrewvucko_heres-a-harsh-truth-nobody-talks-about-activity-7300486421264244736-RFDW', description: 'Post 6' },
+            { runId: 'oxzLwXzLwyICuw85w', postUrl: 'https://www.linkedin.com/posts/andrewvucko_stop-writing-proposals-that-look-like-everyone-activity-7295759765635313664-d0J5', description: 'Post 7' },
+            { runId: 'dLF3uRnLs6nWStFGk', postUrl: 'https://www.linkedin.com/posts/andrewvucko_youve-spent-years-building-expertise-that-activity-7290667476298678272-0yxB', description: 'Post 8' },
+            { runId: 'TWcaUmKsvJNO6Qf6Y', postUrl: 'https://www.linkedin.com/posts/andrewvucko_the-smartest-agencies-stopped-selling-hourly-activity-7288123571778654208-U0B0', description: 'Post 9' },
+            { runId: 'j56hR3kcejjgjhWcE', postUrl: 'https://www.linkedin.com/posts/andrewvucko_i-made-a-discovery-about-agency-growth-that-activity-7293214987865640961-5Nz7', description: 'Post 10' }
+        ];
+        
+        // State management
+        const state = {
+            campaigns: [],
+            posts: [],
+            engagements: [],
+            demographics: {
+                companies: {},
+                titles: {},
+                seniority: {},
+                industries: {}
+            },
+            loading: true,
+            currentView: 'overview',
+            errors: []
+        };
+        
+        // Initialize
+        async function init() {
+            console.log('Initializing application...');
+            updateDebugStatus('Starting data load...');
+            
+            try {
+                await loadAllData();
+                updateOverview();
+                updateDebugStatus('Data loaded successfully!');
+                updateDebugState();
+            } catch (error) {
+                console.error('Initialization error:', error);
+                updateDebugStatus('Error during initialization: ' + error.message, 'error');
+                showError('Failed to initialize: ' + error.message);
+            }
+        }
+        
+        async function loadAllData() {
+            console.log('Loading all data...');
+            
+            try {
+                // Load campaigns
+                console.log('Loading campaigns...');
+                updateDebugStatus('Loading LinkedIn campaigns...');
+                
+                const campaignsResponse = await fetch('http://localhost:8001/api/linkedin/accounts/510508147/campaigns');
+                const campaignsData = await campaignsResponse.json();
+                
+                console.log('Campaigns response:', campaignsData);
+                updateDebugAPI('Campaigns API', campaignsData);
+                
+                if (campaignsData.success && campaignsData.campaigns) {
+                    // Filter recent campaigns
+                    const sixtyDaysAgo = Date.now() - (60 * 24 * 60 * 60 * 1000);
+                    state.campaigns = campaignsData.campaigns.filter(c => {
+                        const lastModified = c.changeAuditStamps?.lastModified?.time || c.created || 0;
+                        return lastModified > sixtyDaysAgo;
+                    });
+                    console.log(`Loaded ${state.campaigns.length} recent campaigns out of ${campaignsData.campaigns.length} total`);
+                    updateDebugStatus(`Loaded ${state.campaigns.length} recent campaigns`);
+                } else {
+                    console.warn('No campaigns loaded or API error');
+                    updateDebugStatus('Warning: No campaigns loaded', 'warning');
+                }
+                
+                // Load Apify engagement data
+                console.log('Loading Apify data...');
+                updateDebugStatus('Loading Apify engagement data...');
+                await loadApifyData();
+                
+                // Load campaign analytics for first 10 campaigns
+                if (state.campaigns.length > 0) {
+                    console.log('Loading campaign analytics...');
+                    updateDebugStatus('Loading campaign analytics...');
+                    await loadCampaignAnalytics();
+                }
+                
+                state.loading = false;
+                console.log('All data loaded successfully');
+                
+            } catch (error) {
+                console.error('Error loading data:', error);
+                state.errors.push(error.message);
+                state.loading = false;
+                throw error;
+            }
+        }
+        
+        async function loadApifyData() {
+            const allEngagements = [];
+            state.posts = []; // Reset posts array
+            
+            console.log('Loading data from', APIFY_RUN_MAPPINGS.length, 'Apify runs');
+            updateDebugStatus(`Loading ${APIFY_RUN_MAPPINGS.length} Apify runs...`);
+            
+            let successfulRuns = 0;
+            
+            for (const mapping of APIFY_RUN_MAPPINGS) {
+                try {
+                    console.log(`Loading run ${mapping.runId}...`);
+                    
+                    const runResponse = await fetch(`https://api.apify.com/v2/actor-runs/${mapping.runId}?token=${APIFY_CONFIG.token}`);
+                    
+                    if (!runResponse.ok) {
+                        throw new Error(`HTTP ${runResponse.status}: ${runResponse.statusText}`);
+                    }
+                    
+                    const runData = await runResponse.json();
+                    
+                    console.log(`Run ${mapping.runId} status:`, runData.data?.status);
+                    
+                    if (runData.data?.defaultDatasetId) {
+                        const datasetResponse = await fetch(`https://api.apify.com/v2/datasets/${runData.data.defaultDatasetId}/items?token=${APIFY_CONFIG.token}`);
+                        
+                        if (!datasetResponse.ok) {
+                            throw new Error(`Dataset HTTP ${datasetResponse.status}: ${datasetResponse.statusText}`);
+                        }
+                        
+                        const items = await datasetResponse.json();
+                        
+                        console.log(`Found ${items.length} items in run ${mapping.runId}`);
+                        
+                        // Store post data
+                        const postData = {
+                            ...mapping,
+                            engagements: items || [],
+                            engagementCount: items.length || 0,
+                            uniquePeople: items.length > 0 ? new Set(items.map(i => i.profileUrl)).size : 0
+                        };
+                        
+                        state.posts.push(postData);
+                        allEngagements.push(...items);
+                        successfulRuns++;
+                        
+                        // Process demographics from engagements
+                        items.forEach(item => {
+                            if (item.headline) {
+                                const company = extractCompany(item.headline);
+                                const title = extractTitle(item.headline);
+                                
+                                if (company) {
+                                    state.demographics.companies[company] = (state.demographics.companies[company] || 0) + 1;
+                                }
+                                if (title) {
+                                    state.demographics.titles[title] = (state.demographics.titles[title] || 0) + 1;
+                                }
+                            }
+                        });
+                    } else {
+                        console.warn(`No dataset found for run ${mapping.runId}`);
+                    }
+                } catch (error) {
+                    console.error(`Error loading run ${mapping.runId}:`, error);
+                    state.errors.push(`Failed to load run ${mapping.runId}: ${error.message}`);
+                    updateDebugStatus(`Error loading run ${mapping.runId}: ${error.message}`, 'error');
+                }
+            }
+            
+            state.engagements = allEngagements;
+            console.log(`Total Apify data loaded: ${allEngagements.length} engagements from ${successfulRuns} posts`);
+            updateDebugStatus(`Loaded ${allEngagements.length} engagements from ${successfulRuns}/${APIFY_RUN_MAPPINGS.length} posts`);
+        }
+        
+        async function loadCampaignAnalytics() {
+            // Load analytics for first 10 campaigns
+            const campaignsToLoad = state.campaigns.slice(0, 10);
+            console.log(`Loading analytics for ${campaignsToLoad.length} campaigns`);
+            
+            let successfulLoads = 0;
+            
+            const analyticsPromises = campaignsToLoad.map(async (campaign) => {
+                try {
+                    const response = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaign.id}/analytics`);
+                    const data = await response.json();
+                    
+                    if (data.success && data.analytics && data.analytics.length > 0) {
+                        campaign.analytics = data.analytics[0];
+                        successfulLoads++;
+                    } else {
+                        campaign.analytics = { impressions: 0, clicks: 0, spend: 0 };
+                    }
+                    
+                    // Also try to get demographics
+                    try {
+                        const demoResponse = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaign.id}/demographics`);
+                        const demoData = await demoResponse.json();
+                        
+                        if (demoData.success && demoData.demographics) {
+                            campaign.demographics = demoData.demographics;
+                            
+                            // Add to aggregated demographics
+                            if (demoData.demographics.MEMBER_COMPANY && Array.isArray(demoData.demographics.MEMBER_COMPANY)) {
+                                demoData.demographics.MEMBER_COMPANY.forEach(item => {
+                                    if (item.name && item.impressions) {
+                                        state.demographics.companies[item.name] = 
+                                            (state.demographics.companies[item.name] || 0) + item.impressions;
+                                    }
+                                });
+                            }
+                            if (demoData.demographics.MEMBER_JOB_TITLE && Array.isArray(demoData.demographics.MEMBER_JOB_TITLE)) {
+                                demoData.demographics.MEMBER_JOB_TITLE.forEach(item => {
+                                    if (item.name && item.impressions) {
+                                        state.demographics.titles[item.name] = 
+                                            (state.demographics.titles[item.name] || 0) + item.impressions;
+                                    }
+                                });
+                            }
+                            if (demoData.demographics.MEMBER_SENIORITY && Array.isArray(demoData.demographics.MEMBER_SENIORITY)) {
+                                demoData.demographics.MEMBER_SENIORITY.forEach(item => {
+                                    if (item.name && item.impressions) {
+                                        state.demographics.seniority[item.name] = 
+                                            (state.demographics.seniority[item.name] || 0) + item.impressions;
+                                    }
+                                });
+                            }
+                            if (demoData.demographics.MEMBER_INDUSTRY && Array.isArray(demoData.demographics.MEMBER_INDUSTRY)) {
+                                demoData.demographics.MEMBER_INDUSTRY.forEach(item => {
+                                    if (item.name && item.impressions) {
+                                        state.demographics.industries[item.name] = 
+                                            (state.demographics.industries[item.name] || 0) + item.impressions;
+                                    }
+                                });
+                            }
+                        }
+                    } catch (demoError) {
+                        console.error(`Error loading demographics for ${campaign.id}:`, demoError);
+                    }
+                } catch (error) {
+                    console.error(`Error loading analytics for ${campaign.id}:`, error);
+                    campaign.analytics = { impressions: 0, clicks: 0, spend: 0 };
+                }
+            });
+            
+            await Promise.all(analyticsPromises);
+            console.log(`Analytics loaded for ${successfulLoads}/${campaignsToLoad.length} campaigns`);
+            updateDebugStatus(`Loaded analytics for ${successfulLoads}/${campaignsToLoad.length} campaigns`);
+        }
+        
+        function updateOverview() {
+            console.log('Updating overview with state:', state);
+            
+            // Update summary stats
+            const totalEngagements = state.engagements.length;
+            const totalReach = state.campaigns.reduce((sum, c) => sum + (c.analytics?.impressions || 0), 0);
+            const totalSpend = state.campaigns.reduce((sum, c) => sum + (c.analytics?.spend || 0), 0);
+            const cpe = totalEngagements > 0 ? (totalSpend / totalEngagements).toFixed(2) : '0';
+            
+            document.getElementById('stat-posts').textContent = state.posts.length;
+            document.getElementById('stat-reach').textContent = totalReach.toLocaleString();
+            document.getElementById('stat-engagement').textContent = totalEngagements.toLocaleString();
+            document.getElementById('stat-cpe').textContent = `$${cpe}`;
+            
+            // Update flow metrics
+            const totalClicks = state.campaigns.reduce((sum, c) => sum + (c.analytics?.clicks || 0), 0);
+            const totalConversions = state.campaigns.reduce((sum, c) => sum + (c.analytics?.conversions || 0), 0);
+            
+            document.getElementById('flow-impressions').textContent = totalReach.toLocaleString();
+            document.getElementById('flow-clicks').textContent = totalClicks.toLocaleString();
+            document.getElementById('flow-engagements').textContent = totalEngagements.toLocaleString();
+            document.getElementById('flow-conversions').textContent = totalConversions.toLocaleString();
+        }
+        
+        function showView(viewName) {
+            console.log('Switching to view:', viewName);
+            
+            // Hide all views
+            document.querySelectorAll('.view-content').forEach(v => {
+                v.classList.remove('active');
+            });
+            
+            // Show selected view
+            const viewElement = document.getElementById(`view-${viewName}`);
+            if (viewElement) {
+                viewElement.classList.add('active');
+            }
+            
+            // Update active nav item
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+            
+            // Load view-specific data
+            switch(viewName) {
+                case 'posts':
+                    renderPosts();
+                    break;
+                case 'demographics':
+                    renderDemographics();
+                    break;
+                case 'campaigns':
+                    renderCampaigns();
+                    break;
+                case 'debug':
+                    updateDebugState();
+                    break;
+            }
+        }
+        
+        function renderPosts() {
+            console.log('Rendering posts:', state.posts);
+            const container = document.getElementById('posts-container');
+            
+            if (!container) {
+                console.error('Posts container not found');
+                return;
+            }
+            
+            if (state.posts.length === 0) {
+                container.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle mr-2"></i>No post data available. Please check the Debug Info tab for details.</div>';
+                return;
+            }
+            
+            container.innerHTML = state.posts.map((post, index) => `
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-title">${post.description}</div>
+                        <div class="post-meta">
+                            <span><i class="fas fa-users"></i> ${post.engagementCount} engagements</span>
+                            <span><i class="fas fa-user"></i> ${post.uniquePeople} unique people</span>
+                            ${post.postUrl ? `<a href="${post.postUrl}" target="_blank"><i class="fas fa-external-link-alt"></i> View on LinkedIn</a>` : ''}
+                        </div>
+                    </div>
+                    
+                    <div class="post-embed">
+                        ${post.postUrl ? `
+                            <div style="text-align: center; padding: 2rem;">
+                                <p style="color: #666; margin-bottom: 1rem;">LinkedIn post embedding is currently disabled</p>
+                                <a href="${post.postUrl}" target="_blank" class="filter-select" style="text-decoration: none; display: inline-block;">
+                                    <i class="fas fa-external-link-alt"></i> View Post on LinkedIn
+                                </a>
+                            </div>
+                        ` : `
+                            <p style="color: #666; text-align: center; padding: 2rem;">Post URL not available</p>
+                        `}
+                    </div>
+                    
+                    <div class="post-metrics">
+                        <div class="metric-item">
+                            <div class="metric-value">${post.engagementCount}</div>
+                            <div class="metric-label">Total Reactions</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">${post.uniquePeople}</div>
+                            <div class="metric-label">Unique People</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">${getEngagementRate(post)}%</div>
+                            <div class="metric-label">Engagement Rate</div>
+                        </div>
+                        <div class="metric-item">
+                            <div class="metric-value">${getCPE(post)}</div>
+                            <div class="metric-label">Cost per Engagement</div>
+                        </div>
+                    </div>
+                    
+                    ${post.engagements && post.engagements.length > 0 ? `
+                        <div class="demographics-grid">
+                            ${renderPostDemographics(post)}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function extractPostId(url) {
+            if (!url) return '';
+            
+            // Extract the activity ID from the URL
+            const activityMatch = url.match(/activity-(\d+)/);
+            if (activityMatch) {
+                return `urn:li:activity:${activityMatch[1]}`;
+            }
+            
+            // Try other patterns
+            const patterns = [
+                /urn:li:share:(\d+)/,
+                /urn:li:ugcPost:(\d+)/,
+                /urn:li:activity:(\d+)/
+            ];
+            
+            for (const pattern of patterns) {
+                const match = url.match(pattern);
+                if (match) {
+                    return match[0];
+                }
+            }
+            
+            return '';
+        }
+        
+        function getEngagementRate(post) {
+            // Calculate based on estimated reach
+            const estimatedReach = post.uniquePeople * 10; // Rough estimate
+            return estimatedReach > 0 ? ((post.engagementCount / estimatedReach) * 100).toFixed(2) : '0';
+        }
+        
+        function getCPE(post) {
+            // Estimate based on campaign data
+            const avgCPE = 2.5; // Default estimate
+            return `$${avgCPE.toFixed(2)}`;
+        }
+        
+        function renderPostDemographics(post) {
+            if (!post.engagements || post.engagements.length === 0) {
+                return '<p style="padding: 1rem; color: #666;">No engagement data available</p>';
+            }
+            
+            // Analyze engagement data
+            const companies = {};
+            const titles = {};
+            
+            post.engagements.forEach(eng => {
+                if (eng.headline) {
+                    const company = extractCompany(eng.headline);
+                    const title = extractTitle(eng.headline);
+                    
+                    if (company) {
+                        companies[company] = (companies[company] || 0) + 1;
+                    }
+                    if (title) {
+                        titles[title] = (titles[title] || 0) + 1;
+                    }
+                }
+            });
+            
+            const topCompanies = Object.entries(companies)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+                
+            const topTitles = Object.entries(titles)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+            
+            return `
+                <div class="demo-chart">
+                    <div class="demo-title">Top Companies</div>
+                    ${topCompanies.length > 0 ? topCompanies.map(([name, count]) => `
+                        <div class="demo-item">
+                            <span class="demo-label" title="${name}">${name}</span>
+                            <div class="demo-bar">
+                                <div class="demo-fill" style="width: ${(count / post.engagementCount * 100)}%"></div>
+                            </div>
+                            <span class="demo-percentage">${count}</span>
+                        </div>
+                    `).join('') : '<p style="color: #666;">No company data</p>'}
+                </div>
+                <div class="demo-chart">
+                    <div class="demo-title">Top Job Titles</div>
+                    ${topTitles.length > 0 ? topTitles.map(([name, count]) => `
+                        <div class="demo-item">
+                            <span class="demo-label" title="${name}">${name}</span>
+                            <div class="demo-bar">
+                                <div class="demo-fill" style="width: ${(count / post.engagementCount * 100)}%"></div>
+                            </div>
+                            <span class="demo-percentage">${count}</span>
+                        </div>
+                    `).join('') : '<p style="color: #666;">No title data</p>'}
+                </div>
+            `;
+        }
+        
+        function extractCompany(headline) {
+            if (!headline) return null;
+            
+            const patterns = [
+                / at (.+?)(?:\s*\||$)/i,
+                / @ (.+?)(?:\s*\||$)/i,
+                /\| (.+?)$/i
+            ];
+            
+            for (const pattern of patterns) {
+                const match = headline.match(pattern);
+                if (match && match[1]) {
+                    return match[1].trim();
+                }
+            }
+            
+            return null;
+        }
+        
+        function extractTitle(headline) {
+            if (!headline) return null;
+            
+            const parts = headline.split(/\s+(?:at|@|\|)\s+/i);
+            return parts[0] ? parts[0].trim() : null;
+        }
+        
+        function renderDemographics() {
+            console.log('Rendering demographics:', state.demographics);
+            
+            // Render each demographic chart
+            renderDemoChart('companies-chart', state.demographics.companies, 'Top Companies by Engagement');
+            renderDemoChart('titles-chart', state.demographics.titles, 'Top Job Titles');
+            renderDemoChart('seniority-chart', state.demographics.seniority, 'Seniority Levels');
+            renderDemoChart('industries-chart', state.demographics.industries, 'Top Industries');
+        }
+        
+        function renderDemoChart(containerId, data, title) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const sortedData = Object.entries(data)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 20);
+            
+            if (sortedData.length === 0) {
+                container.innerHTML = '<p style="padding: 1rem; color: #666;">No data available</p>';
+                return;
+            }
+            
+            const maxValue = sortedData[0]?.[1] || 1;
+            
+            container.innerHTML = `
+                <h3>${title}</h3>
+                ${sortedData.map(([name, value]) => `
+                    <div class="demo-item">
+                        <span class="demo-label" title="${name}">${name}</span>
+                        <div class="demo-bar">
+                            <div class="demo-fill" style="width: ${(value / maxValue * 100)}%"></div>
+                        </div>
+                        <span class="demo-percentage">${value.toLocaleString()}</span>
+                    </div>
+                `).join('')}
+            `;
+        }
+        
+        function renderCampaigns() {
+            // TODO: Implement campaign view
+            console.log('Campaign view not yet implemented');
+        }
+        
+        function showDemoTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(`demo-${tabName}`).classList.add('active');
+            if (event && event.currentTarget) {
+                event.currentTarget.classList.add('active');
+            }
+        }
+        
+        function updateDebugStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('debug-status');
+            if (statusDiv) {
+                const timestamp = new Date().toLocaleTimeString();
+                const color = type === 'error' ? 'color: red;' : type === 'warning' ? 'color: orange;' : '';
+                statusDiv.innerHTML += `<div style="${color}">${timestamp}: ${message}</div>`;
+                statusDiv.scrollTop = statusDiv.scrollHeight;
+            }
+        }
+        
+        function updateDebugAPI(endpoint, data) {
+            const apiDiv = document.getElementById('debug-api');
+            if (apiDiv) {
+                const preview = JSON.stringify(data, null, 2);
+                apiDiv.innerHTML += `<div><strong>${endpoint}:</strong>\n${preview.substring(0, 1000)}${preview.length > 1000 ? '...' : ''}</div>\n\n`;
+            }
+        }
+        
+        function updateDebugState() {
+            const stateDiv = document.getElementById('debug-state');
+            if (stateDiv) {
+                const stateInfo = {
+                    campaigns: state.campaigns.length,
+                    posts: state.posts.length,
+                    engagements: state.engagements.length,
+                    demographics: {
+                        companies: Object.keys(state.demographics.companies).length,
+                        titles: Object.keys(state.demographics.titles).length,
+                        seniority: Object.keys(state.demographics.seniority).length,
+                        industries: Object.keys(state.demographics.industries).length
+                    },
+                    errors: state.errors
+                };
+                stateDiv.innerHTML = JSON.stringify(stateInfo, null, 2);
+            }
+        }
+        
+        function showError(message) {
+            console.error(message);
+            // Could add a user-visible error display here
+        }
+        
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM loaded, initializing...');
+            
+            // Check if config is loaded
+            if (typeof APIFY_CONFIG === 'undefined') {
+                showError('Configuration not loaded. Please check config.js');
+                updateDebugStatus('ERROR: config.js not loaded', 'error');
+                return;
+            }
+            
+            init();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Signals & Actions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/swiss-design-v2.css">
+    <style>
+        /* Dashboard specific styles */
+        .dashboard-content {
+            padding: var(--space-6);
+            background: var(--color-gray-50);
+            min-height: calc(100vh - var(--header-height));
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+
+        .stat-card {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            padding: var(--space-6);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: var(--font-semibold);
+            color: var(--color-black);
+            margin-bottom: var(--space-2);
+        }
+
+        .stat-label {
+            font-size: var(--text-sm);
+            color: var(--color-gray-500);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .section-title {
+            font-size: var(--text-lg);
+            font-weight: var(--font-medium);
+            color: var(--color-black);
+            margin-bottom: var(--space-4);
+        }
+
+        .campaign-section {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .campaign-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .campaign-stat {
+            text-align: center;
+            padding: var(--space-4);
+            background: var(--color-gray-50);
+            border-radius: var(--border-radius);
+        }
+
+        .campaign-stat-value {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-semibold);
+            color: var(--color-black);
+        }
+
+        .campaign-stat-label {
+            font-size: var(--text-xs);
+            color: var(--color-gray-500);
+            margin-top: var(--space-1);
+        }
+
+        .campaign-stat.primary {
+            background: var(--color-blue);
+            color: var(--color-white);
+        }
+
+        .campaign-stat.primary .campaign-stat-label {
+            color: var(--color-white);
+            opacity: 0.8;
+        }
+
+        .quick-import {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .import-form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .demographics-section {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .demographics-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-6);
+        }
+
+        .demo-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .demo-item {
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--color-gray-100);
+            font-size: var(--text-sm);
+        }
+
+        .demo-item:last-child {
+            border-bottom: none;
+        }
+
+        .link-primary {
+            color: var(--color-blue);
+            text-decoration: none;
+            font-size: var(--text-sm);
+        }
+
+        .link-primary:hover {
+            text-decoration: underline;
+        }
+
+        .hot-prospects {
+            background: var(--color-white);
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--border-radius);
+            padding: var(--space-6);
+        }
+
+        .empty-message {
+            text-align: center;
+            color: var(--color-gray-500);
+            font-size: var(--text-sm);
+            padding: var(--space-8);
+        }
+
+        .prospects-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .prospect-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--color-gray-100);
+            font-size: var(--text-sm);
+        }
+
+        .prospect-item:last-child {
+            border-bottom: none;
+        }
+
+        .prospect-name {
+            font-weight: var(--font-medium);
+            color: var(--color-black);
+        }
+
+        .prospect-company {
+            color: var(--color-gray-500);
+            font-size: var(--text-xs);
+        }
+
+        .engagement-score {
+            font-weight: var(--font-medium);
+            color: var(--color-black);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">Signals & Actions</div>
+                <div class="sidebar-subtitle">Vucko Platform</div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">OVERVIEW</div>
+                    <a href="/dashboard.html" class="nav-item active">
+                        <i class="fas fa-chart-line"></i>
+                        Dashboard
+                    </a>
+                    <a href="/signals-actions.html" class="nav-item">
+                        <i class="fas fa-bolt"></i>
+                        Signals & Actions
+                    </a>
+                    <a href="/weekly-report.html" class="nav-item">
+                        <i class="fas fa-calendar-week"></i>
+                        Weekly Report
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">CONTENT</div>
+                    <a href="/content-calendar.html" class="nav-item">
+                        <i class="fas fa-calendar-alt"></i>
+                        Content Calendar
+                    </a>
+                    <a href="/content-database.html" class="nav-item">
+                        <i class="fas fa-database"></i>
+                        Content Database
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">CAMPAIGNS</div>
+                    <a href="/audiences.html" class="nav-item">
+                        <i class="fas fa-users-cog"></i>
+                        Audiences
+                    </a>
+                    <a href="/campaigns.html" class="nav-item">
+                        <i class="fas fa-bullhorn"></i>
+                        Campaigns
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">CONTACTS</div>
+                    <a href="/people.html" class="nav-item">
+                        <i class="fas fa-user-friends"></i>
+                        People
+                    </a>
+                    <a href="/companies.html" class="nav-item">
+                        <i class="fas fa-building"></i>
+                        Companies
+                    </a>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">STRATEGY</div>
+                    <a href="/personas.html" class="nav-item">
+                        <i class="fas fa-user-tag"></i>
+                        Personas
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-content">
+                <!-- Organic Engagement Stats -->
+                <h2 class="section-title">Organic Engagement</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-people">283</div>
+                        <div class="stat-label">Total People</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-posts">2</div>
+                        <div class="stat-label">Posts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-companies">126</div>
+                        <div class="stat-label">Companies</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-engagements">303</div>
+                        <div class="stat-label">Engagements</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="hot-prospects-count">0</div>
+                        <div class="stat-label">Hot Prospects</div>
+                    </div>
+                </div>
+
+                <!-- Campaign Performance -->
+                <div class="campaign-section">
+                    <h2 class="section-title">Campaign Performance</h2>
+                    <div class="campaign-stats">
+                        <div class="campaign-stat primary">
+                            <div class="campaign-stat-value" id="active-campaigns">2</div>
+                            <div class="campaign-stat-label">Active Campaigns</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="campaign-stat-value" id="total-spend">$0</div>
+                            <div class="campaign-stat-label">Total Spend</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="campaign-stat-value" id="campaign-engagements">0</div>
+                            <div class="campaign-stat-label">Campaign Engagements</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="campaign-stat-value" id="cost-per-engagement">$0</div>
+                            <div class="campaign-stat-label">Cost per Engagement</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Import -->
+                <div class="quick-import">
+                    <h2 class="section-title">Quick Import</h2>
+                    <form class="import-form" onsubmit="event.preventDefault(); quickImport();">
+                        <input type="text" 
+                               id="quick-run-id" 
+                               class="form-input" 
+                               placeholder="Apify Run ID (e.g., qEDjxfcGtjl6vcMZk)">
+                        <input type="text" 
+                               id="quick-post-url" 
+                               class="form-input" 
+                               placeholder="LinkedIn Post URL (optional)">
+                        <button type="submit" class="btn btn-primary">Import Run</button>
+                    </form>
+                </div>
+
+                <!-- Campaign Intelligence -->
+                <div class="campaign-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4);">
+                        <h2 class="section-title" style="margin: 0;">📊 Campaign Intelligence</h2>
+                        <button class="btn btn-secondary" onclick="syncCampaigns()">
+                            <i class="fas fa-sync-alt"></i>
+                            Sync
+                        </button>
+                    </div>
+                    <div class="campaign-stats">
+                        <div class="campaign-stat">
+                            <div class="campaign-stat-value" id="linkedin-campaigns">182</div>
+                            <div class="campaign-stat-label">Active Campaigns</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="campaign-stat-value" id="sync-spend">$0</div>
+                            <div class="campaign-stat-label">Total Spend</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="campaign-stat-value" id="enhanced-posts">1</div>
+                            <div class="campaign-stat-label">Enhanced Posts</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="campaign-stat-value" id="true-cpe">$0</div>
+                            <div class="campaign-stat-label">True CPE</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demographics Insights -->
+                <div class="demographics-section">
+                    <h2 class="section-title">🎯 Demographics Insights</h2>
+                    <div class="demographics-content">
+                        <div>
+                            <h3 style="font-size: var(--text-sm); font-weight: var(--font-medium); margin-bottom: var(--space-3);">Top Targeted Companies</h3>
+                            <div id="top-companies">
+                                <p style="font-size: var(--text-sm); color: var(--color-gray-600);">
+                                    urn:li:organization:1124331, urn:li:organization:1418841, urn:li:organization:1480, urn:li:organization:1586, urn:li:organization:16140...<br>
+                                    <a href="#" class="link-primary">278 companies targeted</a>
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 style="font-size: var(--text-sm); font-weight: var(--font-medium); margin-bottom: var(--space-3);">Job Titles Targeted</h3>
+                            <div id="top-titles">
+                                <p style="font-size: var(--text-sm); color: var(--color-gray-600);">
+                                    urn:li:title:10164, urn:li:title:117, urn:li:title:1284, urn:li:title:14410, urn:li:title:1791...<br>
+                                    <a href="#" class="link-primary">186 job titles targeted</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hot Prospects -->
+                <div class="hot-prospects">
+                    <h2 class="section-title">Hot Prospects (5+ engagements)</h2>
+                    <div id="hot-prospects-list">
+                        <p class="empty-message">No hot prospects yet. Import data to find engaged users!</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/config.js"></script>
+    <script>
+        let supabase;
+
+        // Initialize Supabase
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                return true;
+            }
+            return false;
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            if (!supabase) return;
+
+            try {
+                // Load people count
+                const { count: peopleCount } = await supabase
+                    .from('persons')
+                    .select('*', { count: 'exact', head: true });
+                
+                document.getElementById('total-people').textContent = peopleCount || 283;
+
+                // Load posts count
+                const { count: postsCount } = await supabase
+                    .from('posts')
+                    .select('*', { count: 'exact', head: true });
+                
+                document.getElementById('total-posts').textContent = postsCount || 2;
+
+                // Load engagement count
+                const { count: engagementCount } = await supabase
+                    .from('engagements')
+                    .select('*', { count: 'exact', head: true });
+                
+                document.getElementById('total-engagements').textContent = engagementCount || 303;
+
+                // Load hot prospects
+                const { data: hotProspects } = await supabase
+                    .from('persons')
+                    .select('*')
+                    .gte('engagement_score', 5)
+                    .order('engagement_score', { ascending: false })
+                    .limit(10);
+
+                document.getElementById('hot-prospects-count').textContent = hotProspects?.length || 0;
+                
+                if (hotProspects && hotProspects.length > 0) {
+                    renderHotProspects(hotProspects);
+                }
+
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // Render hot prospects
+        function renderHotProspects(prospects) {
+            const container = document.getElementById('hot-prospects-list');
+            const html = prospects.map(person => `
+                <div class="prospect-item">
+                    <div>
+                        <div class="prospect-name">${person.name}</div>
+                        <div class="prospect-company">${person.current_company || 'Unknown'}</div>
+                    </div>
+                    <div class="engagement-score">${person.engagement_score} engagements</div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+
+        // Quick import
+        async function quickImport() {
+            const runId = document.getElementById('quick-run-id').value;
+            const postUrl = document.getElementById('quick-post-url').value;
+            
+            if (!runId) {
+                alert('Please enter an Apify Run ID');
+                return;
+            }
+
+            // TODO: Implement import functionality
+            alert('Import functionality will be implemented soon!');
+        }
+
+        // Sync campaigns
+        function syncCampaigns() {
+            // TODO: Implement sync functionality
+            alert('Campaign sync will be implemented soon!');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for Supabase to load
+            let attempts = 0;
+            const checkSupabase = setInterval(() => {
+                attempts++;
+                if (initSupabase()) {
+                    clearInterval(checkSupabase);
+                    loadDashboardData();
+                } else if (attempts > 20) {
+                    clearInterval(checkSupabase);
+                    console.error('Supabase failed to load');
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

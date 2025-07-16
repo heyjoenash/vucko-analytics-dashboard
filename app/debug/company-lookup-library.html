@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Lookup Library - LinkedIn URN Decoder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .json-display {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h1 class="text-2xl font-bold mb-2">Company Lookup Library</h1>
+            <p class="text-gray-600">
+                This tool demonstrates how to build a comprehensive company lookup library for LinkedIn URNs.
+                It shows different approaches including static mappings, API lookups, and intelligent parsing.
+            </p>
+        </div>
+
+        <!-- Test URN Decoder -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">Test URN Decoder</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Enter URNs to decode (one per line)</label>
+                    <textarea id="urnInput" class="w-full h-32 p-3 border rounded-lg" placeholder="urn:li:organization:1035
+urn:li:title:10236
+urn:li:geo:103644278
+urn:li:industry:43"></textarea>
+                </div>
+                <button onclick="decodeURNs()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Decode URNs
+                </button>
+            </div>
+            
+            <div id="decodeResults" class="mt-6" style="display: none;">
+                <h3 class="font-semibold mb-3">Decoded Results:</h3>
+                <div id="resultsContent"></div>
+            </div>
+        </div>
+
+        <!-- Common Company URNs -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-lg font-semibold mb-4">Common Company URNs Library</h2>
+            <p class="text-sm text-gray-600 mb-4">
+                Here's a starter library of common company URNs. You can expand this with your own mappings.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-medium mb-2">Tech Companies</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between p-2 bg-gray-50 rounded">
+                            <span>urn:li:organization:1035</span>
+                            <span class="font-medium">Microsoft</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded">
+                            <span>urn:li:organization:1441</span>
+                            <span class="font-medium">Google</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded">
+                            <span>urn:li:organization:162479</span>
+                            <span class="font-medium">Apple</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded">
+                            <span>urn:li:organization:2029</span>
+                            <span class="font-medium">Amazon</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded">
+                            <span>urn:li:organization:10667</span>
+                            <span class="font-medium">Meta (Facebook)</span>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-medium mb-2">Consulting/Finance</h3>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between p-2 bg-gray-50 rounded">
+                            <span>urn:li:organization:1038</span>
+                            <span class="font-medium">McKinsey & Company</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded">
+                            <span>urn:li:organization:1375</span>
+                            <span class="font-medium">Deloitte</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded">
+                            <span>urn:li:organization:1073</span>
+                            <span class="font-medium">PwC</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded">
+                            <span>urn:li:organization:1009</span>
+                            <span class="font-medium">Goldman Sachs</span>
+                        </div>
+                        <div class="flex justify-between p-2 bg-gray-50 rounded">
+                            <span>urn:li:organization:1449</span>
+                            <span class="font-medium">JPMorgan Chase</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Implementation Guide -->
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-lg font-semibold mb-4">Implementation Approach</h2>
+            <div class="space-y-4">
+                <div>
+                    <h3 class="font-medium mb-2">1. Static Mappings (Fastest)</h3>
+                    <p class="text-sm text-gray-600 mb-2">Store common URN mappings in your code:</p>
+                    <pre class="json-display">const companyMappings = {
+    'urn:li:organization:1035': 'Microsoft',
+    'urn:li:organization:1441': 'Google',
+    'urn:li:organization:162479': 'Apple',
+    // Add more as needed
+};</pre>
+                </div>
+                
+                <div>
+                    <h3 class="font-medium mb-2">2. CSV/Database Import</h3>
+                    <p class="text-sm text-gray-600 mb-2">Build a larger database by:</p>
+                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <li>Collecting URNs from your campaigns</li>
+                        <li>Using LinkedIn's targeting entities API when available</li>
+                        <li>Manually mapping common companies in your industry</li>
+                        <li>Importing from CSV files with URN → Company Name mappings</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="font-medium mb-2">3. Fallback Strategies</h3>
+                    <p class="text-sm text-gray-600 mb-2">When URN is not in your library:</p>
+                    <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                        <li>Extract the numeric ID: urn:li:organization:1035 → "Company 1035"</li>
+                        <li>Try the LinkedIn API (if available)</li>
+                        <li>Cache successful lookups for future use</li>
+                        <li>Allow manual override/addition by users</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Expanded company mappings library
+        const companyMappings = {
+            // Tech Giants
+            'urn:li:organization:1035': 'Microsoft',
+            'urn:li:organization:1441': 'Google',
+            'urn:li:organization:162479': 'Apple',
+            'urn:li:organization:2029': 'Amazon',
+            'urn:li:organization:10667': 'Meta (Facebook)',
+            'urn:li:organization:13634': 'Netflix',
+            'urn:li:organization:5470': 'Tesla',
+            'urn:li:organization:45366': 'Uber',
+            'urn:li:organization:207470': 'Airbnb',
+            
+            // Consulting
+            'urn:li:organization:1038': 'McKinsey & Company',
+            'urn:li:organization:1375': 'Deloitte',
+            'urn:li:organization:1073': 'PwC',
+            'urn:li:organization:1254': 'EY',
+            'urn:li:organization:1404': 'Accenture',
+            'urn:li:organization:2538': 'Boston Consulting Group',
+            
+            // Finance
+            'urn:li:organization:1009': 'Goldman Sachs',
+            'urn:li:organization:1449': 'JPMorgan Chase',
+            'urn:li:organization:1067': 'Morgan Stanley',
+            'urn:li:organization:1292': 'Bank of America',
+            'urn:li:organization:1816': 'Citigroup',
+            
+            // Tech/Enterprise
+            'urn:li:organization:1028': 'IBM',
+            'urn:li:organization:3608': 'Salesforce',
+            'urn:li:organization:1180': 'Oracle',
+            'urn:li:organization:2494': 'Adobe',
+            'urn:li:organization:5089': 'VMware',
+            
+            // Retail
+            'urn:li:organization:3748': 'Walmart',
+            'urn:li:organization:1586': 'Target',
+            'urn:li:organization:1551': 'Costco',
+            'urn:li:organization:1406': 'The Home Depot',
+            
+            // Healthcare
+            'urn:li:organization:2456': 'Johnson & Johnson',
+            'urn:li:organization:2146': 'Pfizer',
+            'urn:li:organization:11405': 'UnitedHealth Group',
+            
+            // Add more mappings as needed
+        };
+        
+        // Job title mappings
+        const titleMappings = {
+            'urn:li:title:10236': 'Software Engineer',
+            'urn:li:title:10870': 'Senior Software Engineer',
+            'urn:li:title:1091': 'Product Manager',
+            'urn:li:title:10870': 'Senior Product Manager',
+            'urn:li:title:1254': 'Data Scientist',
+            'urn:li:title:16140': 'Marketing Manager',
+            'urn:li:title:3365': 'Business Analyst',
+            'urn:li:title:2661': 'Project Manager',
+            'urn:li:title:5471': 'Sales Manager',
+            'urn:li:title:12748': 'Chief Executive Officer',
+        };
+        
+        // Location mappings
+        const locationMappings = {
+            'urn:li:geo:103644278': 'United States',
+            'urn:li:geo:101174742': 'Canada',
+            'urn:li:geo:100657539': 'United Kingdom',
+            'urn:li:geo:105080838': 'Germany',
+            'urn:li:geo:105015875': 'France',
+            'urn:li:geo:90000049': 'San Francisco Bay Area',
+            'urn:li:geo:90000070': 'New York City Metropolitan Area',
+            'urn:li:geo:90000084': 'Greater Los Angeles Area',
+            'urn:li:geo:90009496': 'Greater London',
+        };
+        
+        // Industry mappings
+        const industryMappings = {
+            'urn:li:industry:43': 'Financial Services',
+            'urn:li:industry:96': 'Information Technology and Services',
+            'urn:li:industry:6': 'Computer Software',
+            'urn:li:industry:4': 'Computer Hardware',
+            'urn:li:industry:80': 'Marketing and Advertising',
+            'urn:li:industry:47': 'Management Consulting',
+            'urn:li:industry:14': 'Retail',
+            'urn:li:industry:57': 'Telecommunications',
+            'urn:li:industry:42': 'Banking',
+            'urn:li:industry:41': 'Investment Banking',
+        };
+        
+        function decodeURN(urn) {
+            // Try company mappings
+            if (companyMappings[urn]) return companyMappings[urn];
+            
+            // Try title mappings
+            if (titleMappings[urn]) return titleMappings[urn];
+            
+            // Try location mappings
+            if (locationMappings[urn]) return locationMappings[urn];
+            
+            // Try industry mappings
+            if (industryMappings[urn]) return industryMappings[urn];
+            
+            // Intelligent fallback parsing
+            if (urn.includes(':organization:')) {
+                const id = urn.split(':').pop();
+                return `Company ${id}`;
+            }
+            
+            if (urn.includes(':title:')) {
+                const id = urn.split(':').pop();
+                return `Job Title ${id}`;
+            }
+            
+            if (urn.includes(':geo:')) {
+                const id = urn.split(':').pop();
+                return `Location ${id}`;
+            }
+            
+            if (urn.includes(':industry:')) {
+                const id = urn.split(':').pop();
+                return `Industry ${id}`;
+            }
+            
+            // Default fallback
+            return urn;
+        }
+        
+        async function decodeURNs() {
+            const input = document.getElementById('urnInput').value.trim();
+            const urns = input.split('\n').filter(line => line.trim());
+            
+            if (urns.length === 0) {
+                alert('Please enter at least one URN');
+                return;
+            }
+            
+            const results = [];
+            for (const urn of urns) {
+                const decoded = decodeURN(urn.trim());
+                results.push({
+                    urn: urn.trim(),
+                    decoded: decoded,
+                    found: decoded !== urn.trim()
+                });
+            }
+            
+            displayResults(results);
+        }
+        
+        function displayResults(results) {
+            const container = document.getElementById('decodeResults');
+            const content = document.getElementById('resultsContent');
+            
+            const html = `
+                <div class="space-y-2">
+                    ${results.map(result => `
+                        <div class="flex items-center justify-between p-3 rounded ${result.found ? 'bg-green-50' : 'bg-gray-50'}">
+                            <div>
+                                <p class="font-mono text-sm text-gray-600">${result.urn}</p>
+                                <p class="font-medium ${result.found ? 'text-green-700' : 'text-gray-700'}">
+                                    ${result.decoded}
+                                </p>
+                            </div>
+                            <div>
+                                ${result.found ? 
+                                    '<i class="fas fa-check-circle text-green-600"></i>' : 
+                                    '<i class="fas fa-question-circle text-gray-400"></i>'
+                                }
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <div class="mt-4 p-3 bg-blue-50 rounded">
+                    <p class="text-sm">
+                        <strong>Summary:</strong> 
+                        ${results.filter(r => r.found).length} of ${results.length} URNs decoded successfully
+                    </p>
+                </div>
+            `;
+            
+            content.innerHTML = html;
+            container.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

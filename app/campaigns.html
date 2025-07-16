@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campaigns - Signals & Actions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/swiss-minimal.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Signals & Actions</h1>
+                <p class="sidebar-subtitle">Vucko</p>
+            </div>
+            
+                        <div class="nav-group">
+                <div class="nav-label">Overview</div>
+                <a href="/index.html" class="nav-link">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    Dashboard
+                </a>
+                <a href="/signals.html" class="nav-link">
+                    <i class="fas fa-signal nav-icon"></i>
+                    Signals
+                </a>
+                <a href="/actions.html" class="nav-link">
+                    <i class="fas fa-tasks nav-icon"></i>
+                    Actions
+                </a>
+                <a href="/weekly-report.html" class="nav-link">
+                    <i class="fas fa-calendar nav-icon"></i>
+                    Weekly Report
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Content</div>
+                <a href="/content-calendar.html" class="nav-link">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    Content Calendar
+                </a>
+                <a href="/content-database.html" class="nav-link">
+                    <i class="fas fa-database nav-icon"></i>
+                    Content Database
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Campaigns</div>
+                <a href="/audiences.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Audiences
+                </a>
+                <a href="/campaigns.html" class="nav-link active">
+                    <i class="fas fa-bullhorn nav-icon"></i>
+                    Campaigns
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Contacts</div>
+                <a href="/people.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    People
+                </a>
+                <a href="/companies.html" class="nav-link">
+                    <i class="fas fa-building nav-icon"></i>
+                    Companies
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Strategy</div>
+                <a href="/personas.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Personas
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Data Import</div>
+                <a href="/import-data.html" class="nav-link">
+                    <i class="fas fa-upload nav-icon"></i>
+                    Import Data
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">Campaigns</h1>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="createNewCampaign()">
+                        <i class="fas fa-plus"></i>
+                        New Campaign
+                    </button>
+                </div>
+            </header>
+
+            <!-- Filters -->
+            <div class="filters-row">
+                <div class="filter-pills">
+                    <button class="filter-pill active" onclick="filterCampaigns('all')">
+                        All <span class="count">0</span>
+                    </button>
+                    <button class="filter-pill" onclick="filterCampaigns('active')">
+                        Active <span class="count">0</span>
+                    </button>
+                    <button class="filter-pill" onclick="filterCampaigns('paused')">
+                        Paused <span class="count">0</span>
+                    </button>
+                    <button class="filter-pill" onclick="filterCampaigns('completed')">
+                        Completed <span class="count">0</span>
+                    </button>
+                </div>
+                <input type="text" class="search-input" placeholder="Search campaigns..." id="campaign-search" onkeyup="searchCampaigns(this.value)">
+            </div>
+
+            <!-- Data Table -->
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30%">Campaign</th>
+                        <th style="width: 15%">Status</th>
+                        <th style="width: 10%">Type</th>
+                        <th style="width: 15%">Budget</th>
+                        <th style="width: 10%">Posts</th>
+                        <th style="width: 10%">People</th>
+                        <th style="width: 10%">Cost/Person</th>
+                    </tr>
+                </thead>
+                <tbody id="campaigns-tbody">
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <p>No campaigns yet. Create your first campaign to start tracking performance.</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/config.js"></script>
+    <script>
+        let allCampaigns = [];
+        let filteredCampaigns = [];
+        let currentFilter = 'all';
+        let currentSearch = '';
+
+        // Initialize Supabase
+        let supabase;
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                return true;
+            }
+            return false;
+        }
+
+        // Load campaigns
+        async function loadCampaigns() {
+            if (!supabase) {
+                console.error('Supabase not initialized');
+                return;
+            }
+
+            try {
+                // Load from campaign_groups table
+                const { data: campaigns, error } = await supabase
+                    .from('campaign_groups')
+                    .select(`
+                        *,
+                        post_campaigns (count),
+                        campaign_performance (
+                            post_count,
+                            person_count,
+                            total_acquisition_cost
+                        )
+                    `)
+                    .eq('tenant_id', DEFAULT_TENANT_ID)
+                    .order('created_at', { ascending: false });
+
+                if (error) {
+                    console.error('Error loading campaigns:', error);
+                    allCampaigns = [];
+                    updateCounts();
+                    applyFilters();
+                    return;
+                }
+
+                allCampaigns = campaigns || [];
+                updateCounts();
+                applyFilters();
+            } catch (error) {
+                console.error('Error:', error);
+                allCampaigns = [];
+                updateCounts();
+                applyFilters();
+            }
+        }
+
+
+        // Update filter counts
+        function updateCounts() {
+            const counts = {
+                all: allCampaigns.length,
+                active: allCampaigns.filter(c => c.status === 'active').length,
+                paused: allCampaigns.filter(c => c.status === 'paused').length,
+                completed: allCampaigns.filter(c => c.status === 'completed').length
+            };
+
+            // Update filter pill counts
+            document.querySelectorAll('.filter-pill').forEach(pill => {
+                const text = pill.textContent.trim().toLowerCase();
+                const filterType = text.split(' ')[0]; // Get first word
+                const countSpan = pill.querySelector('.count');
+                if (countSpan && counts[filterType] !== undefined) {
+                    countSpan.textContent = counts[filterType];
+                }
+            });
+        }
+
+        // Filter campaigns
+        function filterCampaigns(filter) {
+            currentFilter = filter;
+            
+            // Update active state
+            document.querySelectorAll('.filter-pill').forEach(pill => {
+                pill.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            applyFilters();
+        }
+
+        // Search campaigns
+        function searchCampaigns(search) {
+            currentSearch = search.toLowerCase();
+            applyFilters();
+        }
+
+        // Apply all filters
+        function applyFilters() {
+            filteredCampaigns = allCampaigns.filter(campaign => {
+                // Status filter
+                const matchesStatus = currentFilter === 'all' || campaign.status === currentFilter;
+                
+                // Search filter
+                const matchesSearch = !currentSearch || 
+                    campaign.name.toLowerCase().includes(currentSearch) ||
+                    (campaign.client_name || '').toLowerCase().includes(currentSearch);
+
+                return matchesStatus && matchesSearch;
+            });
+
+            renderCampaigns();
+        }
+
+        // Render campaigns table
+        function renderCampaigns() {
+            const tbody = document.getElementById('campaigns-tbody');
+            
+            if (filteredCampaigns.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <p>No campaigns found. Try adjusting your filters or search terms.</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredCampaigns.map(campaign => {
+                const perf = campaign.campaign_performance || {};
+                const costPerPerson = perf.person_count > 0 
+                    ? (perf.total_acquisition_cost / perf.person_count).toFixed(2)
+                    : '0.00';
+
+                return `
+                    <tr onclick="viewCampaignDetail(${campaign.id})">
+                        <td>
+                            <div>${campaign.name}</div>
+                            <div class="text-xs text-muted">${campaign.client_name || 'No client'}</div>
+                        </td>
+                        <td>
+                            <span class="badge ${campaign.status === 'active' ? 'high' : campaign.status === 'paused' ? 'medium' : 'low'}">
+                                ${campaign.status}
+                            </span>
+                        </td>
+                        <td>${campaign.campaign_type}</td>
+                        <td>
+                            ${campaign.budget_amount > 0 
+                                ? `$${campaign.budget_amount.toLocaleString()}`
+                                : 'Organic'
+                            }
+                        </td>
+                        <td>${perf.post_count || 0}</td>
+                        <td>${perf.person_count || 0}</td>
+                        <td>
+                            ${perf.total_acquisition_cost > 0
+                                ? `$${costPerPerson}`
+                                : '—'
+                            }
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // View campaign detail
+        function viewCampaignDetail(campaignId) {
+            window.location.href = `/campaign-detail.html?id=${campaignId}`;
+        }
+
+        // Create new campaign
+        function createNewCampaign() {
+            // TODO: Implement campaign creation modal
+            alert('Campaign creation will be implemented soon!');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Wait for Supabase to load
+            let attempts = 0;
+            const checkSupabase = setInterval(() => {
+                attempts++;
+                if (initSupabase()) {
+                    clearInterval(checkSupabase);
+                    loadCampaigns();
+                } else if (attempts > 20) {
+                    clearInterval(checkSupabase);
+                    console.error('Failed to initialize Supabase after 20 attempts');
+                    allCampaigns = [];
+                    updateCounts();
+                    applyFilters();
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

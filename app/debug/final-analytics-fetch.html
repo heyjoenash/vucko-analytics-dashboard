@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Final Analytics Fetch</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
+    <script src="services/linkedin-api.js"></script>
+    <style>
+        body { font-family: -apple-system, system-ui, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        button { padding: 15px 30px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin: 10px 0; display: block; width: 100%; }
+        button:hover { background: #218838; }
+        .log { background: #000; color: #0f0; padding: 15px; margin: 10px 0; border-radius: 4px; height: 400px; overflow-y: auto; font-family: 'Courier New', monospace; font-size: 0.9em; }
+        h1 { color: #333; }
+        .status { padding: 15px; margin: 10px 0; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Final Analytics Fetch</h1>
+    <div id="status" class="status">
+        LinkedIn API proxy is running on port 8001.<br>
+        Campaigns 255144676 and 255703466 are linked to post 2.<br>
+        Ready to fetch analytics data.
+    </div>
+    
+    <button onclick="fetchAnalytics()">🚀 Fetch Analytics Now</button>
+    
+    <div id="log" class="log">System ready...<br></div>
+    
+    <script>
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            logDiv.innerHTML += `[${timestamp}] ${message}<br>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(message);
+        }
+        
+        async function fetchAnalytics() {
+            log('Initializing...');
+            
+            try {
+                // Initialize Supabase
+                const supabaseUrl = 'https://misuahtcociqkmkajvrw.supabase.co';
+                const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1pc3VhaHRjb2NpcWtta2FqdnJ3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTM4NzY4NCwiZXhwIjoyMDY2OTYzNjg0fQ.eI3NTRguummX2Fs4iaRA4a6vutDPV2av0at9pJRDlSc';
+                const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+                log('✅ Supabase connected');
+                
+                // Initialize LinkedIn API (will use port 8001)
+                const linkedInAPI = new LinkedInAPI();
+                log('✅ LinkedIn API initialized (using port 8001)');
+                
+                // Test API connection
+                log('Testing LinkedIn API connection...');
+                try {
+                    const testResult = await linkedInAPI.testConnection();
+                    log('✅ API connection successful');
+                } catch (testError) {
+                    log(`⚠️ API test warning: ${testError.message}`);
+                }
+                
+                // Campaign IDs
+                const campaignIds = [255144676, 255703466];
+                let totalRecords = 0;
+                
+                // Fetch analytics for each campaign
+                for (const campaignId of campaignIds) {
+                    log(`\n📊 Processing campaign ${campaignId}...`);
+                    
+                    try {
+                        // Method 1: Try the integrated fetch method
+                        log('Attempting fetchAndStoreCampaignDemographics...');
+                        const result = await linkedInAPI.fetchAndStoreCampaignDemographics(campaignId);
+                        
+                        if (result && result.success) {
+                            log(`✅ Success! Stored ${result.totalRecords || 0} records`);
+                            totalRecords += (result.totalRecords || 0);
+                        } else {
+                            log('No data returned, trying alternative method...');
+                            
+                            // Method 2: Direct API call with manual storage
+                            const demographics = await linkedInAPI.getCampaignDemographics(campaignId);
+                            
+                            if (demographics && demographics.elements) {
+                                log(`Got ${demographics.elements.length} demographic records`);
+                                
+                                // Manually store each record
+                                const records = [];
+                                for (const element of demographics.elements) {
+                                    if (element.pivotValues) {
+                                        Object.entries(element.pivotValues).forEach(([pivotType, values]) => {
+                                            Object.entries(values).forEach(([pivotValue, metrics]) => {
+                                                records.push({
+                                                    linkedin_campaign_id: campaignId,
+                                                    pivot_type: pivotType,
+                                                    pivot_value: pivotValue,
+                                                    impressions: metrics.impressions || 0,
+                                                    clicks: metrics.clicks || 0,
+                                                    spend: metrics.costInUsd || 0,
+                                                    cost_in_usd: metrics.costInUsd || 0,
+                                                    tenant_id: '00000000-0000-0000-0000-000000000001'
+                                                });
+                                            });
+                                        });
+                                    }
+                                }
+                                
+                                if (records.length > 0) {
+                                    const { error } = await supabase
+                                        .from('linkedin_campaign_analytics')
+                                        .upsert(records, { 
+                                            onConflict: 'linkedin_campaign_id,pivot_type,pivot_value,date_range_start,tenant_id' 
+                                        });
+                                        
+                                    if (error) {
+                                        log(`❌ Storage error: ${error.message}`);
+                                    } else {
+                                        log(`✅ Stored ${records.length} records`);
+                                        totalRecords += records.length;
+                                    }
+                                }
+                            } else {
+                                log(`⚠️ No analytics data available for campaign ${campaignId}`);
+                            }
+                        }
+                    } catch (error) {
+                        log(`❌ Error for campaign ${campaignId}: ${error.message}`);
+                    }
+                }
+                
+                // Verify final results
+                log('\n🔍 Verifying final data...');
+                const { data: analytics, count } = await supabase
+                    .from('linkedin_campaign_analytics')
+                    .select('*', { count: 'exact' })
+                    .in('linkedin_campaign_id', campaignIds);
+                    
+                log(`\n✅ COMPLETE!`);
+                log(`Total analytics records in database: ${count || 0}`);
+                log(`Records added this session: ${totalRecords}`);
+                
+                // Update status
+                const statusDiv = document.getElementById('status');
+                if (count > 0) {
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = `
+                        ✅ Analytics fetch complete!<br>
+                        Total records: ${count}<br>
+                        <br>
+                        <a href="post-analysis.html?id=2" style="color: #155724; font-weight: bold;">
+                            → View Post Analysis with Campaign Data
+                        </a>
+                    `;
+                    
+                    // Auto redirect after 3 seconds
+                    setTimeout(() => {
+                        window.location.href = 'post-analysis.html?id=2';
+                    }, 3000);
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.innerHTML = `
+                        ⚠️ No analytics data could be fetched.<br>
+                        This may be because the campaigns are old or have no demographic data.<br>
+                        <br>
+                        <a href="post-analysis.html?id=2">→ View Post Analysis (organic data only)</a>
+                    `;
+                }
+                
+            } catch (error) {
+                log(`❌ Fatal error: ${error.message}`);
+                console.error('Full error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

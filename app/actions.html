@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actions Pipeline - Signals & Actions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/swiss-minimal.css">
+    <style>
+        .pipeline-container {
+            display: flex;
+            gap: var(--space-xl);
+            overflow-x: auto;
+            padding: var(--space-xl);
+            min-height: calc(100vh - 200px);
+        }
+
+        .pipeline-stage {
+            flex: 0 0 300px;
+            background: var(--gray-50);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+        }
+
+        .stage-header {
+            padding: var(--space-lg);
+            border-bottom: var(--border-width) solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stage-title {
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-lg);
+        }
+
+        .stage-count {
+            background: var(--gray-200);
+            color: var(--gray-700);
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+        }
+
+        .stage-cards {
+            padding: var(--space-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-md);
+            min-height: 400px;
+        }
+
+        .deal-card {
+            background: var(--white);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            cursor: move;
+            transition: all 0.2s ease;
+        }
+
+        .deal-card:hover {
+            border-color: var(--gray-400);
+            transform: translateY(-2px);
+        }
+
+        .deal-card.dragging {
+            opacity: 0.5;
+        }
+
+        .deal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: var(--space-sm);
+        }
+
+        .deal-title {
+            font-weight: var(--font-weight-medium);
+            margin-bottom: var(--space-xs);
+        }
+
+        .deal-company {
+            font-size: var(--font-size-sm);
+            color: var(--gray-600);
+        }
+
+        .deal-value {
+            font-weight: var(--font-weight-semibold);
+            font-size: var(--font-size-sm);
+        }
+
+        .deal-meta {
+            display: flex;
+            gap: var(--space-md);
+            margin-top: var(--space-sm);
+            font-size: var(--font-size-xs);
+            color: var(--gray-600);
+        }
+
+        .deal-actions {
+            display: flex;
+            gap: var(--space-sm);
+            margin-top: var(--space-md);
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: var(--space-xs) var(--space-sm);
+            border: var(--border-width) solid var(--gray-300);
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-xs);
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            background: var(--gray-50);
+        }
+
+        .add-deal-btn {
+            width: 100%;
+            padding: var(--space-sm);
+            border: var(--border-width) dashed var(--gray-300);
+            background: transparent;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            color: var(--gray-600);
+            font-size: var(--font-size-sm);
+        }
+
+        .add-deal-btn:hover {
+            border-color: var(--gray-400);
+            background: var(--gray-50);
+        }
+
+        .pipeline-filters {
+            display: flex;
+            gap: var(--space-xl);
+            padding: var(--space-xl);
+            border-bottom: var(--border-width) solid var(--gray-200);
+        }
+
+        .filter-stat {
+            text-align: center;
+        }
+
+        .filter-stat-value {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-xs);
+        }
+
+        .filter-stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--gray-600);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Signals & Actions</h1>
+                <p class="sidebar-subtitle">Vucko</p>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Overview</div>
+                <a href="/index.html" class="nav-link">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    Dashboard
+                </a>
+                <a href="/signals.html" class="nav-link">
+                    <i class="fas fa-bolt nav-icon"></i>
+                    Signals
+                </a>
+                <a href="/actions.html" class="nav-link active">
+                    <i class="fas fa-tasks nav-icon"></i>
+                    Actions
+                </a>
+                <a href="/weekly-report.html" class="nav-link">
+                    <i class="fas fa-calendar nav-icon"></i>
+                    Weekly Report
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Content</div>
+                <a href="/content-calendar.html" class="nav-link">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    Content Calendar
+                </a>
+                <a href="/content-database.html" class="nav-link">
+                    <i class="fas fa-database nav-icon"></i>
+                    Content Database
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Campaigns</div>
+                <a href="/audiences.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Audiences
+                </a>
+                <a href="/campaigns.html" class="nav-link">
+                    <i class="fas fa-bullhorn nav-icon"></i>
+                    Campaigns
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Contacts</div>
+                <a href="/people.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    People
+                </a>
+                <a href="/companies.html" class="nav-link">
+                    <i class="fas fa-building nav-icon"></i>
+                    Companies
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Strategy</div>
+                <a href="/personas.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Personas
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Data Import</div>
+                <a href="/import-data.html" class="nav-link">
+                    <i class="fas fa-upload nav-icon"></i>
+                    Import Data
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">Actions Pipeline</h1>
+                <div class="page-actions">
+                    <button class="btn btn-primary" onclick="createNewDeal()">
+                        <i class="fas fa-plus"></i>
+                        New Opportunity
+                    </button>
+                </div>
+            </header>
+
+            <!-- Pipeline Stats -->
+            <div class="pipeline-filters">
+                <div class="filter-stat">
+                    <div class="filter-stat-value" id="total-value">$0</div>
+                    <div class="filter-stat-label">Total Pipeline Value</div>
+                </div>
+                <div class="filter-stat">
+                    <div class="filter-stat-value" id="total-deals">0</div>
+                    <div class="filter-stat-label">Active Opportunities</div>
+                </div>
+                <div class="filter-stat">
+                    <div class="filter-stat-value" id="avg-value">$0</div>
+                    <div class="filter-stat-label">Average Deal Size</div>
+                </div>
+                <div class="filter-stat">
+                    <div class="filter-stat-value" id="notable-count">0</div>
+                    <div class="filter-stat-label">Notable Signals</div>
+                </div>
+            </div>
+
+            <!-- Pipeline Container -->
+            <div class="pipeline-container" id="pipeline-container">
+                <!-- Pipeline stages will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <script src="/config.js"></script>
+    <script>
+        let stages = [];
+        let deals = [];
+        let supabase;
+
+        // Initialize Supabase
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                return true;
+            }
+            return false;
+        }
+
+        // Load pipeline stages and deals
+        async function loadPipeline() {
+            if (!supabase) {
+                console.error('Supabase not available');
+                renderEmptyPipeline();
+                return;
+            }
+
+            try {
+                // Load stages
+                const { data: stagesData, error: stagesError } = await supabase
+                    .from('pipeline_stages')
+                    .select('*')
+                    .eq('tenant_id', DEFAULT_TENANT_ID)
+                    .eq('is_active', true)
+                    .order('order_position');
+
+                if (stagesError) throw stagesError;
+                stages = stagesData || [];
+
+                // Load deals
+                const { data: dealsData, error: dealsError } = await supabase
+                    .from('pipeline_dashboard')
+                    .select('*')
+                    .eq('tenant_id', DEFAULT_TENANT_ID);
+
+                if (dealsError) throw dealsError;
+                deals = dealsData || [];
+
+                renderPipeline();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading pipeline:', error);
+                renderEmptyPipeline();
+            }
+        }
+
+        // Render empty pipeline with default stages
+        function renderEmptyPipeline() {
+            stages = [
+                { id: '1', name: 'New Signal', order_position: 1 },
+                { id: '2', name: 'Qualified', order_position: 2 },
+                { id: '3', name: 'Contacted', order_position: 3 },
+                { id: '4', name: 'In Discussion', order_position: 4 },
+                { id: '5', name: 'Proposal', order_position: 5 },
+                { id: '6', name: 'Closed Won', order_position: 6 }
+            ];
+            deals = [];
+            renderPipeline();
+        }
+
+        // Render pipeline
+        function renderPipeline() {
+            const container = document.getElementById('pipeline-container');
+            
+            container.innerHTML = stages.map(stage => {
+                const stageDeals = deals.filter(d => d.stage_id === stage.id);
+                
+                return `
+                    <div class="pipeline-stage" data-stage-id="${stage.id}">
+                        <div class="stage-header">
+                            <h3 class="stage-title">${stage.name}</h3>
+                            <span class="stage-count">${stageDeals.length}</span>
+                        </div>
+                        <div class="stage-cards" ondrop="drop(event)" ondragover="allowDrop(event)">
+                            ${stageDeals.map(deal => renderDealCard(deal)).join('')}
+                            <button class="add-deal-btn" onclick="addDealToStage('${stage.id}')">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Render deal card
+        function renderDealCard(deal) {
+            return `
+                <div class="deal-card" draggable="true" ondragstart="drag(event)" data-deal-id="${deal.id}">
+                    <div class="deal-header">
+                        <div>
+                            <div class="deal-title">${deal.person_name || 'Unknown'}</div>
+                            <div class="deal-company">${deal.company_name || deal.current_company || 'No company'}</div>
+                        </div>
+                        ${deal.value ? `<div class="deal-value">$${deal.value.toLocaleString()}</div>` : ''}
+                    </div>
+                    <div class="deal-meta">
+                        ${deal.expected_close_date ? `<span><i class="fas fa-calendar"></i> ${new Date(deal.expected_close_date).toLocaleDateString()}</span>` : ''}
+                        ${deal.probability ? `<span><i class="fas fa-percentage"></i> ${deal.probability}%</span>` : ''}
+                    </div>
+                    <div class="deal-actions">
+                        <button class="action-btn" onclick="viewPerson(${deal.person_id})">
+                            <i class="fas fa-user"></i> View
+                        </button>
+                        <button class="action-btn" onclick="createAction(${deal.person_id})">
+                            <i class="fas fa-phone"></i> Action
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Update stats
+        function updateStats() {
+            const totalValue = deals.reduce((sum, d) => sum + (d.value || 0), 0);
+            const activeDeals = deals.filter(d => !['Closed Won', 'Closed Lost'].includes(d.stage_name));
+            const avgValue = activeDeals.length > 0 ? totalValue / activeDeals.length : 0;
+            const notableCount = deals.filter(d => d.is_notable).length;
+
+            document.getElementById('total-value').textContent = `$${totalValue.toLocaleString()}`;
+            document.getElementById('total-deals').textContent = activeDeals.length;
+            document.getElementById('avg-value').textContent = `$${Math.round(avgValue).toLocaleString()}`;
+            document.getElementById('notable-count').textContent = notableCount;
+        }
+
+        // Drag and drop functions
+        function allowDrop(ev) {
+            ev.preventDefault();
+        }
+
+        function drag(ev) {
+            ev.dataTransfer.setData("dealId", ev.target.dataset.dealId);
+        }
+
+        async function drop(ev) {
+            ev.preventDefault();
+            const dealId = ev.dataTransfer.getData("dealId");
+            const stageElement = ev.target.closest('.pipeline-stage');
+            if (!stageElement) return;
+            
+            const newStageId = stageElement.dataset.stageId;
+            
+            // Update in database
+            if (supabase) {
+                const { error } = await supabase
+                    .from('deals')
+                    .update({ stage_id: newStageId })
+                    .eq('id', dealId);
+                
+                if (error) {
+                    console.error('Error updating deal stage:', error);
+                    return;
+                }
+            }
+            
+            // Reload pipeline
+            loadPipeline();
+        }
+
+        // Actions
+        function createNewDeal() {
+            alert('Deal creation will be implemented with the import flow');
+        }
+
+        function addDealToStage(stageId) {
+            alert('Quick add will be implemented with the import flow');
+        }
+
+        function viewPerson(personId) {
+            if (personId) {
+                window.location.href = `/person-detail.html?id=${personId}`;
+            }
+        }
+
+        function createAction(personId) {
+            alert('Action creation will be implemented soon');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            let attempts = 0;
+            const checkSupabase = setInterval(() => {
+                attempts++;
+                if (initSupabase()) {
+                    clearInterval(checkSupabase);
+                    loadPipeline();
+                } else if (attempts > 20) {
+                    clearInterval(checkSupabase);
+                    renderEmptyPipeline();
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

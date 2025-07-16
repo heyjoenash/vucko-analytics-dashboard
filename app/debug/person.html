@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Person Detail - Signals & Actions</title>
+    
+    <!-- External Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- Swiss Design System -->
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    
+    <style>
+        /* Page-specific overrides only - main styles in swiss-design.css */
+    </style>
+</head>
+<body class="has-sidebar page-with-sidebar">
+    <div id="app" class="min-h-screen">
+        <!-- Sidebar Navigation -->
+        <div id="sidebar-container"></div>
+        
+        <!-- Mobile Sidebar Toggle -->
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Page Header with Actions -->
+        <div class="main-content">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h1 class="text-xl font-semibold text-gray-900">Person Detail</h1>
+                    <div class="text-sm text-muted">LinkedIn Profile Analysis</div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button onclick="app.exportPerson()" class="btn btn-secondary">
+                        Export
+                    </button>
+                    <button onclick="window.location.href='index.html#people'" class="btn btn-secondary">
+                        Back to People
+                    </button>
+                </div>
+            </div>
+
+        <!-- Main Content -->
+        <main>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Left Column: Person Details -->
+                <div class="lg:col-span-1">
+                    <!-- Person Info -->
+                    <div class="metric-card mb-6">
+                        <div id="personInfo">
+                            <div class="skeleton h-96 rounded"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Engagement Stats -->
+                    <div class="metric-card mb-6">
+                        <h3 class="text-strong text-base mb-4">Engagement Stats</h3>
+                        <div id="personStats">
+                            <div class="skeleton h-20 rounded"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="metric-card">
+                        <h3 class="text-strong text-base mb-4">Actions</h3>
+                        <div id="personActions" class="space-y-3">
+                            <button class="w-full btn btn-primary" onclick="app.openLinkedIn()">
+                                <i class="fab fa-linkedin mr-2"></i>View on LinkedIn
+                            </button>
+                            <select id="leadStatus" onchange="app.updateLeadStatus(this.value)" class="w-full control-select">
+                                <option value="">Select Lead Status...</option>
+                                <option value="nurturing">Nurturing</option>
+                                <option value="to_follow_up">Follow Up</option>
+                                <option value="add_on_linkedin">Add on LinkedIn</option>
+                            </select>
+                            <button class="w-full btn btn-secondary" onclick="app.toggleNotable()">
+                                <i class="fas fa-star mr-2"></i>Toggle Notable
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Engagement History -->
+                <div class="lg:col-span-2">
+                    <!-- Engagement Timeline -->
+                    <div class="metric-card mb-6">
+                        <h3 class="text-strong text-base mb-4">Engagement History</h3>
+                        <div id="engagementTimeline">
+                            <!-- Timeline will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Related Posts -->
+                    <div class="metric-card">
+                        <h3 class="text-strong text-base mb-4">Posts Engaged With</h3>
+                        <div class="data-table">
+                            <table class="w-full" style="table-layout: fixed;">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 40%;">Post</th>
+                                        <th style="width: 20%;">Reaction</th>
+                                        <th style="width: 20%;">Date</th>
+                                        <th style="width: 20%;">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="postsEngagedTable">
+                                    <tr>
+                                        <td colspan="4" class="text-center py-8 text-muted">
+                                            Loading engagement history...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Initialize Supabase
+        let supabaseClient;
+        
+        // Application state
+        const app = {
+            personId: null,
+            person: null,
+            engagements: [],
+            
+            async init() {
+                // Get person ID from URL
+                const urlParams = new URLSearchParams(window.location.search);
+                this.personId = urlParams.get('id');
+                
+                if (!this.personId) {
+                    alert('No person ID provided');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                // Initialize Supabase
+                supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                
+                // Load data
+                await this.loadPerson();
+                await this.loadEngagements();
+                this.renderPersonInfo();
+                this.renderStats();
+                this.renderEngagementHistory();
+            },
+            
+            async loadPerson() {
+                const { data, error } = await supabaseClient
+                    .from('persons')
+                    .select('*')
+                    .eq('id', this.personId)
+                    .single();
+                
+                if (error) {
+                    console.error('Error loading person:', error);
+                    alert('Failed to load person data');
+                    return;
+                }
+                
+                this.person = data;
+                
+                // Set lead status if exists
+                if (data.lead_status) {
+                    document.getElementById('leadStatus').value = data.lead_status;
+                }
+            },
+            
+            async loadEngagements() {
+                const { data, error } = await supabaseClient
+                    .from('engagements')
+                    .select(`
+                        *,
+                        post:posts (
+                            id,
+                            linkedin_url,
+                            post_title,
+                            created_at
+                        )
+                    `)
+                    .eq('person_id', this.personId)
+                    .order('engaged_at', { ascending: false });
+                
+                if (error) {
+                    console.error('Error loading engagements:', error);
+                    return;
+                }
+                
+                this.engagements = data || [];
+            },
+            
+            renderPersonInfo() {
+                const container = document.getElementById('personInfo');
+                
+                container.innerHTML = `
+                    <div class="text-center">
+                        ${this.person.profile_picture ? 
+                            `<img src="${this.person.profile_picture}" 
+                                 alt="${this.person.name}" 
+                                 class="w-24 h-24 rounded-lg mx-auto mb-4 border-2 border-slate-200"
+                                 onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-24 h-24 rounded-lg mx-auto mb-4 border-2 border-slate-200 bg-slate-100 flex items-center justify-center\\'><i class=\\'fas fa-user text-3xl text-slate-400\\'></i></div>'">` :
+                            '<div class="w-24 h-24 rounded-lg mx-auto mb-4 border-2 border-slate-200 bg-slate-100 flex items-center justify-center"><i class="fas fa-user text-3xl text-slate-400"></i></div>'
+                        }
+                        <h2 class="text-xl font-semibold text-slate-900 mb-2">${this.person.name}</h2>
+                        <p class="text-sm text-muted mb-4">${this.person.headline || 'No headline'}</p>
+                        ${this.person.is_notable ? 
+                            '<span class="data-pill high mb-4"><i class="fas fa-star mr-1"></i>Notable</span>' : 
+                            ''
+                        }
+                    </div>
+                    
+                    <div class="mt-6 space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-muted">Company</span>
+                            <span class="text-strong">${this.person.company_override || this.person.current_company || '—'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-muted">Title</span>
+                            <span class="text-strong">${this.person.title_override || this.person.current_title || '—'}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-muted">Follower</span>
+                            <span class="text-strong">${this.person.is_follower ? 'Yes' : 'No'}</span>
+                        </div>
+                        ${this.person.location ? `
+                            <div class="flex justify-between">
+                                <span class="text-muted">Location</span>
+                                <span class="text-strong">${this.person.location}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            },
+            
+            renderStats() {
+                const container = document.getElementById('personStats');
+                
+                const totalEngagements = this.engagements.length;
+                const reactionTypes = {};
+                
+                this.engagements.forEach(e => {
+                    const type = e.reaction_type || 'like';
+                    reactionTypes[type] = (reactionTypes[type] || 0) + 1;
+                });
+                
+                container.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="text-center p-3 bg-slate-50 rounded border border-slate-200">
+                            <div class="text-xl font-semibold text-slate-900 text-mono">${this.person.engagement_score || 0}</div>
+                            <div class="text-xs text-muted mt-1">Score</div>
+                        </div>
+                        <div class="text-center p-3 bg-blue-50 rounded border border-blue-200">
+                            <div class="text-xl font-semibold text-blue-900 text-mono">${totalEngagements}</div>
+                            <div class="text-xs text-muted mt-1">Engagements</div>
+                        </div>
+                    </div>
+                    ${Object.keys(reactionTypes).length > 0 ? `
+                        <div class="space-y-2">
+                            ${Object.entries(reactionTypes).map(([type, count]) => `
+                                <div class="flex items-center justify-between py-1">
+                                    <span class="text-sm capitalize text-muted">${type}</span>
+                                    <span class="text-sm font-medium text-mono">${count}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                `;
+            },
+            
+            renderEngagementHistory() {
+                const tbody = document.getElementById('postsEngagedTable');
+                
+                if (this.engagements.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center py-8 text-muted">
+                                No engagement history found
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                tbody.innerHTML = this.engagements.map(engagement => {
+                    const post = engagement.post;
+                    const engagedDate = new Date(engagement.engaged_at).toLocaleDateString();
+                    
+                    return `
+                        <tr class="hover-row" onclick="window.location.href='post-analysis.html?id=${post?.id}'">
+                            <td>
+                                <div class="text-sm text-truncate">
+                                    ${post?.post_title || 'Untitled Post'}
+                                </div>
+                                <div class="text-xs text-muted mt-1">
+                                    ${post?.created_at ? new Date(post.created_at).toLocaleDateString() : '—'}
+                                </div>
+                            </td>
+                            <td>
+                                <span class="data-pill">${engagement.reaction_type || 'like'}</span>
+                            </td>
+                            <td class="text-sm">${engagedDate}</td>
+                            <td>
+                                <button onclick="event.stopPropagation(); window.open('${post?.linkedin_url}', '_blank')" 
+                                        class="action-button"
+                                        title="View on LinkedIn">
+                                    <svg class="icon icon-sm" viewBox="0 0 24 24">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                        <polyline points="15 3 21 3 21 9"></polyline>
+                                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            },
+            
+            async updateLeadStatus(status) {
+                const { error } = await supabaseClient
+                    .from('persons')
+                    .update({ 
+                        lead_status: status || null,
+                        last_lead_update: new Date().toISOString()
+                    })
+                    .eq('id', this.personId);
+                
+                if (error) {
+                    console.error('Error updating lead status:', error);
+                    alert('Failed to update lead status');
+                }
+            },
+            
+            async toggleNotable() {
+                const newStatus = !this.person.is_notable;
+                
+                const { error } = await supabaseClient
+                    .from('persons')
+                    .update({ 
+                        is_notable: newStatus,
+                        notable_reason: newStatus ? 'Marked as notable' : null
+                    })
+                    .eq('id', this.personId);
+                
+                if (error) {
+                    console.error('Error updating notable status:', error);
+                    alert('Failed to update notable status');
+                    return;
+                }
+                
+                this.person.is_notable = newStatus;
+                this.renderPersonInfo();
+            },
+            
+            openLinkedIn() {
+                if (this.person.linkedin_url) {
+                    window.open(this.person.linkedin_url, '_blank');
+                }
+            },
+            
+            async exportPerson() {
+                const data = {
+                    ...this.person,
+                    engagements: this.engagements.map(e => ({
+                        post_title: e.post?.post_title,
+                        reaction_type: e.reaction_type,
+                        engaged_at: e.engaged_at
+                    }))
+                };
+                
+                const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `person-${this.person.name.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+        };
+        
+        // Navigation functions
+        function navigateTo(page) {
+            if (page === 'people') return; // Already on people detail
+            window.location.href = `index.html#${page}`;
+        }
+        
+        // Load sidebar component
+        async function loadSidebar() {
+            try {
+                const response = await fetch('components/sidebar.html');
+                const sidebarHTML = await response.text();
+                document.getElementById('sidebar-container').innerHTML = sidebarHTML;
+            } catch (error) {
+                console.error('Failed to load sidebar:', error);
+            }
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load sidebar first
+            await loadSidebar();
+            
+            window.app = app;
+            app.init();
+        });
+    </script>
+</body>
+</html>

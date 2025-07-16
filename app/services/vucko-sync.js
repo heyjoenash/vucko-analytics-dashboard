@@ -7,6 +7,15 @@ class VuckoSyncService {
         this.tenantId = DEFAULT_TENANT_ID;
         this.vuckoAccountId = 510508147; // Vucko's LinkedIn account ID
         this.linkedInAPI = window.linkedInAPI;
+        this.campaignPostSync = null; // Will be initialized when needed
+    }
+    
+    // Initialize campaign post sync service
+    initCampaignPostSync() {
+        if (!this.campaignPostSync && window.CampaignPostSyncService) {
+            this.campaignPostSync = new window.CampaignPostSyncService(this.supabase);
+        }
+        return this.campaignPostSync;
     }
 
     // Silent background sync of Vucko campaign data
@@ -17,13 +26,28 @@ class VuckoSyncService {
             // Step 1: Sync Vucko campaigns silently
             const campaigns = await this.syncVuckoCampaigns();
             
-            // Step 2: Match campaigns to existing posts
+            // Step 2: Initialize campaign post sync service
+            const postSyncService = this.initCampaignPostSync();
+            
+            // Step 3: Extract and create posts from campaign creatives
+            let postsCreated = 0;
+            let postsUpdated = 0;
+            
+            if (postSyncService) {
+                console.log('📝 Extracting posts from campaign creatives...');
+                const syncResults = await postSyncService.syncMultipleCampaigns(campaigns);
+                postsCreated = syncResults.totalPostsCreated;
+                postsUpdated = syncResults.totalPostsUpdated;
+                console.log(`✅ Synced ${postsCreated} new posts and updated ${postsUpdated} existing posts`);
+            }
+            
+            // Step 4: Match campaigns to existing posts (for posts not created from creatives)
             const matches = await this.matchCampaignsToExistingPosts(campaigns);
             
-            // Step 3: Enhance existing data with campaign intelligence
+            // Step 5: Enhance existing data with campaign intelligence
             await this.enhanceExistingData(matches);
             
-            // Step 4: Calculate true ROI for all engagement data
+            // Step 6: Calculate true ROI for all engagement data
             await this.calculateTrueROI();
             
             console.log('✅ Vucko background sync completed successfully');
@@ -31,7 +55,9 @@ class VuckoSyncService {
                 success: true,
                 campaignCount: campaigns.length,
                 matchCount: matches.length,
-                message: `Enhanced ${matches.length} posts with campaign data`
+                postsCreated,
+                postsUpdated,
+                message: `Enhanced ${matches.length} posts with campaign data, created ${postsCreated} new posts`
             };
             
         } catch (error) {
@@ -97,7 +123,11 @@ class VuckoSyncService {
         // After storing campaign, fetch and store its analytics/demographics data
         if (this.linkedInAPI && data[0]) {
             try {
-                await this.linkedInAPI.fetchAndStoreCampaignDemographics(campaign.id);
+                // Make sure linkedInAPI is initialized
+                if (!window.linkedInAPI) {
+                    window.linkedInAPI = new LinkedInAPI();
+                }
+                await window.linkedInAPI.fetchAndStoreCampaignDemographics(campaign.id);
                 console.log(`✅ Stored analytics data for campaign: ${campaign.name}`);
             } catch (analyticsError) {
                 console.warn(`⚠️ Could not fetch analytics for campaign ${campaign.id}:`, analyticsError.message);

@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Campaign Detail - Signals & Actions</title>
+    <script src="https://cdn.tailwindcss.com/3.3.0"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    <style>
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #64748b;
+        }
+        .tab-btn.active {
+            border-bottom-color: #0066cc;
+            color: #0066cc;
+        }
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        .json-display {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+        .loading-skeleton {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+    </style>
+</head>
+<body class="has-sidebar page-with-sidebar">
+    <!-- Sidebar -->
+    <div id="sidebar-container"></div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div id="header-container"></div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-container">
+            <nav class="breadcrumb">
+                <span class="breadcrumb-item" onclick="window.location.href='index.html'">Dashboard</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-item" onclick="window.location.href='linkedin-campaigns.html'">LinkedIn Campaigns</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-item breadcrumb-current" id="campaign-name-breadcrumb">Campaign Detail</span>
+            </nav>
+        </div>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="page-header-content">
+                    <div class="page-title-section">
+                        <h1 class="page-title" id="campaign-name">Loading Campaign...</h1>
+                        <p class="page-subtitle">Complete LinkedIn Campaign Intelligence</p>
+                    </div>
+                    <div class="page-actions">
+                        <button onclick="exportCampaignData()" class="btn btn-secondary">
+                            <i class="fas fa-download mr-2"></i>
+                            Export Data
+                        </button>
+                        <button onclick="window.location.href='linkedin-campaigns.html'" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Back to Campaigns
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Campaign Status -->
+            <div id="campaign-status" class="mb-6"></div>
+
+            <!-- Tabs -->
+            <div class="bg-white rounded-lg shadow mb-6">
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                        <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+                        <button class="tab-btn" onclick="switchTab('targeting')">Targeting</button>
+                        <button class="tab-btn" onclick="switchTab('creatives')">Creatives</button>
+                        <button class="tab-btn" onclick="switchTab('analytics')">Analytics</button>
+                        <button class="tab-btn" onclick="switchTab('raw')">Raw Data</button>
+                    </nav>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div id="overview" class="tab-content active">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Campaign Details -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold mb-4">Campaign Details</h3>
+                        <div id="campaign-details" class="space-y-4">
+                            <div class="loading-skeleton h-64 bg-gray-100 rounded"></div>
+                        </div>
+                    </div>
+
+                    <!-- Performance Metrics -->
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h3 class="text-lg font-semibold mb-4">Performance Metrics</h3>
+                        <div id="performance-metrics" class="metric-grid">
+                            <div class="loading-skeleton h-32 bg-gray-100 rounded"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Demographics -->
+                <div class="bg-white rounded-lg shadow p-6 mt-6">
+                    <h3 class="text-lg font-semibold mb-4">Audience Demographics</h3>
+                    <div id="demographics-overview" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="loading-skeleton h-64 bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="targeting" class="tab-content">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Campaign Targeting</h3>
+                    <div id="targeting-data" class="space-y-6">
+                        <div class="loading-skeleton h-96 bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="creatives" class="tab-content">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Campaign Creatives</h3>
+                    <div id="creatives-data" class="space-y-6">
+                        <div class="loading-skeleton h-96 bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="analytics" class="tab-content">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Detailed Analytics</h3>
+                    <div id="analytics-data" class="space-y-6">
+                        <div class="loading-skeleton h-96 bg-gray-100 rounded"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="raw" class="tab-content">
+                <div class="bg-white rounded-lg shadow p-6">
+                    <h3 class="text-lg font-semibold mb-4">Raw API Data</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="font-medium mb-2">Campaign Data</h4>
+                            <div id="raw-campaign" class="json-display">Loading...</div>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-2">Analytics Data</h4>
+                            <div id="raw-analytics" class="json-display">Loading...</div>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-2">Demographics Data</h4>
+                            <div id="raw-demographics" class="json-display">Loading...</div>
+                        </div>
+                        <div>
+                            <h4 class="font-medium mb-2">Creatives Data</h4>
+                            <div id="raw-creatives" class="json-display">Loading...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="services/urn-decoder.js"></script>
+    <script>
+        // Global variables
+        let campaignId = null;
+        let accountId = null;
+        let campaignData = {};
+        let analyticsData = {};
+        let demographicsData = {};
+        let creativesData = {};
+
+        // Initialize page
+        async function init() {
+            // Get campaign ID from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            campaignId = urlParams.get('id');
+            accountId = urlParams.get('accountId');
+            
+            console.log('URL params:', {
+                campaignId,
+                accountId,
+                fullURL: window.location.href
+            });
+
+            if (!campaignId || !accountId) {
+                showError('Missing campaign ID or account ID');
+                return;
+            }
+
+            // Load all data
+            await Promise.all([
+                loadCampaignDetails(),
+                loadAnalytics(),
+                loadDemographics(),
+                loadCreatives()
+            ]);
+        }
+
+        // Load campaign details
+        async function loadCampaignDetails() {
+            try {
+                const url = `http://localhost:8001/api/linkedin/campaigns/${campaignId}?accountId=${accountId}`;
+                console.log('Loading campaign details from:', url);
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    campaignData = data.campaign;
+                    displayCampaignDetails();
+                    displayTargeting();
+                } else {
+                    console.error('Failed to load campaign details:', data.error);
+                }
+            } catch (error) {
+                console.error('Error loading campaign details:', error);
+            }
+        }
+
+        // Load analytics
+        async function loadAnalytics() {
+            try {
+                const response = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaignId}/analytics`);
+                const data = await response.json();
+                
+                analyticsData = data;
+                displayAnalytics();
+                displayPerformanceMetrics();
+            } catch (error) {
+                console.error('Error loading analytics:', error);
+            }
+        }
+
+        // Load demographics
+        async function loadDemographics() {
+            try {
+                const response = await fetch(`http://localhost:8001/api/linkedin/campaigns/${campaignId}/demographics`);
+                const data = await response.json();
+                
+                demographicsData = data;
+                displayDemographics();
+            } catch (error) {
+                console.error('Error loading demographics:', error);
+            }
+        }
+
+        // Load creatives
+        async function loadCreatives() {
+            try {
+                const url = `http://localhost:8001/api/linkedin/campaigns/${campaignId}/creatives`;
+                console.log('Loading creatives from:', url);
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                creativesData = data;
+                displayCreatives();
+            } catch (error) {
+                console.error('Error loading creatives:', error);
+            }
+        }
+
+        // Display campaign details
+        function displayCampaignDetails() {
+            // Update page title
+            document.getElementById('campaign-name').textContent = campaignData.name || 'Campaign';
+            document.getElementById('campaign-name-breadcrumb').textContent = campaignData.name || 'Campaign Detail';
+
+            // Display status
+            const status = campaignData.status || 'UNKNOWN';
+            const statusColor = {
+                'ACTIVE': 'bg-green-100 text-green-800',
+                'PAUSED': 'bg-yellow-100 text-yellow-800',
+                'ARCHIVED': 'bg-gray-100 text-gray-800',
+                'COMPLETED': 'bg-blue-100 text-blue-800'
+            }[status] || 'bg-gray-100 text-gray-800';
+
+            document.getElementById('campaign-status').innerHTML = `
+                <div class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${statusColor}">
+                    <i class="fas fa-circle text-xs mr-2"></i>
+                    ${status}
+                </div>
+            `;
+
+            // Display details with better organization
+            const detailsHtml = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-4">
+                        <h4 class="font-semibold text-gray-800 border-b pb-2">Campaign Information</h4>
+                        <div>
+                            <span class="text-sm text-gray-500">Campaign ID</span>
+                            <p class="font-mono text-sm">${campaignId}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">Account</span>
+                            <p class="font-medium">Vucko (${accountId})</p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">Type</span>
+                            <p class="font-medium">${formatCampaignType(campaignData.type)}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">Objective</span>
+                            <p class="font-medium">${formatObjectiveType(campaignData.objectiveType)}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">Format</span>
+                            <p class="font-medium">${formatCampaignFormat(campaignData.format)}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">Cost Type</span>
+                            <p class="font-medium">${campaignData.costType || 'N/A'}</p>
+                        </div>
+                        ${campaignData.servingStatuses && campaignData.servingStatuses.length > 0 ? `
+                            <div>
+                                <span class="text-sm text-gray-500">Serving Status</span>
+                                <div class="flex flex-wrap gap-1 mt-1">
+                                    ${campaignData.servingStatuses.map(status => `
+                                        <span class="inline-flex px-2 py-1 text-xs rounded-md bg-gray-100 text-gray-700">
+                                            ${formatServingStatus(status)}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <h4 class="font-semibold text-gray-800 border-b pb-2">Budget & Schedule</h4>
+                        ${campaignData.totalBudget ? `
+                            <div>
+                                <span class="text-sm text-gray-500">Total Budget</span>
+                                <p class="font-medium text-lg">${formatBudget(campaignData.totalBudget)}</p>
+                            </div>
+                        ` : ''}
+                        ${campaignData.dailyBudget ? `
+                            <div>
+                                <span class="text-sm text-gray-500">Daily Budget</span>
+                                <p class="font-medium">${formatBudget(campaignData.dailyBudget)}</p>
+                            </div>
+                        ` : ''}
+                        ${campaignData.unitCost ? `
+                            <div>
+                                <span class="text-sm text-gray-500">Unit Cost (${campaignData.costType})</span>
+                                <p class="font-medium">${formatBudget(campaignData.unitCost)}</p>
+                            </div>
+                        ` : ''}
+                        ${campaignData.runSchedule ? `
+                            <div>
+                                <span class="text-sm text-gray-500">Campaign Schedule</span>
+                                <p class="font-medium">
+                                    ${formatDate(campaignData.runSchedule.start)} - 
+                                    ${campaignData.runSchedule.end ? formatDate(campaignData.runSchedule.end) : 'Ongoing'}
+                                </p>
+                            </div>
+                        ` : ''}
+                        <div>
+                            <span class="text-sm text-gray-500">Created</span>
+                            <p class="font-medium">${formatDate(campaignData.changeAuditStamps?.created?.time)}</p>
+                        </div>
+                        <div>
+                            <span class="text-sm text-gray-500">Last Modified</span>
+                            <p class="font-medium">${formatDate(campaignData.changeAuditStamps?.lastModified?.time)}</p>
+                        </div>
+                        ${campaignData.optimizationTargetType ? `
+                            <div>
+                                <span class="text-sm text-gray-500">Optimization</span>
+                                <p class="font-medium">${formatOptimizationType(campaignData.optimizationTargetType)}</p>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('campaign-details').innerHTML = detailsHtml;
+            
+            // Update raw data
+            document.getElementById('raw-campaign').textContent = JSON.stringify(campaignData, null, 2);
+        }
+
+        // Display performance metrics
+        function displayPerformanceMetrics() {
+            const metrics = analyticsData.analytics?.[0] || {};
+            
+            const metricsHtml = `
+                <div class="metric-card">
+                    <div class="metric-value">${formatNumber(metrics.impressions || 0)}</div>
+                    <div class="metric-label">Impressions</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-value">${formatNumber(metrics.clicks || 0)}</div>
+                    <div class="metric-label">Clicks</div>
+                </div>
+                ${metrics.views ? `
+                    <div class="metric-card">
+                        <div class="metric-value">${formatNumber(metrics.views)}</div>
+                        <div class="metric-label">Views</div>
+                    </div>
+                ` : ''}
+                <div class="metric-card">
+                    <div class="metric-value">$${formatNumber(metrics.spend || 0)}</div>
+                    <div class="metric-label">Spend</div>
+                </div>
+                ${metrics.videoViews ? `
+                    <div class="metric-card">
+                        <div class="metric-value">${formatNumber(metrics.videoViews)}</div>
+                        <div class="metric-label">Video Views</div>
+                    </div>
+                ` : ''}
+                ${metrics.leads ? `
+                    <div class="metric-card">
+                        <div class="metric-value">${formatNumber(metrics.leads)}</div>
+                        <div class="metric-label">Leads</div>
+                    </div>
+                ` : ''}
+            `;
+
+            document.getElementById('performance-metrics').innerHTML = metricsHtml;
+        }
+
+        // Display demographics
+        function displayDemographics() {
+            const demographics = demographicsData.demographics || {};
+            
+            const demographicsHtml = `
+                <div>
+                    <h4 class="font-medium mb-3">Top Companies</h4>
+                    ${renderDemographicTable(demographics.MEMBER_COMPANY || [])}
+                </div>
+                <div>
+                    <h4 class="font-medium mb-3">Top Job Titles</h4>
+                    ${renderDemographicTable(demographics.MEMBER_JOB_TITLE || [])}
+                </div>
+                <div>
+                    <h4 class="font-medium mb-3">Seniority</h4>
+                    ${renderDemographicTable(demographics.MEMBER_SENIORITY || [])}
+                </div>
+                <div>
+                    <h4 class="font-medium mb-3">Industries</h4>
+                    ${renderDemographicTable(demographics.MEMBER_INDUSTRY || [])}
+                </div>
+            `;
+
+            document.getElementById('demographics-overview').innerHTML = demographicsHtml;
+            
+            // Update raw data
+            document.getElementById('raw-demographics').textContent = JSON.stringify(demographicsData, null, 2);
+        }
+
+        // Render demographic table
+        function renderDemographicTable(items) {
+            if (!items || items.length === 0) {
+                return '<p class="text-sm text-gray-500">No data available</p>';
+            }
+
+            return `
+                <div class="space-y-2">
+                    ${items.slice(0, 5).map(item => `
+                        <div class="flex items-center justify-between p-2 bg-gray-50 rounded">
+                            <span class="text-sm font-medium">${item.name}</span>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs text-gray-500">${item.percentage}%</span>
+                                <span class="text-xs font-mono">${formatNumber(item.impressions)}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Display targeting
+        async function displayTargeting() {
+            const targeting = campaignData.targetingCriteria || {};
+            
+            if (!targeting || Object.keys(targeting).length === 0) {
+                document.getElementById('targeting-data').innerHTML = '<p class="text-gray-500">No targeting criteria configured</p>';
+                return;
+            }
+
+            // Show loading state
+            document.getElementById('targeting-data').innerHTML = `
+                <div class="text-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                    <p class="text-sm text-gray-500 mt-2">Decoding targeting criteria...</p>
+                </div>
+            `;
+
+            try {
+                // Process targeting criteria with URN decoder
+                const processedTargeting = await window.urnDecoder.processTargetingCriteria(targeting);
+                
+                if (!processedTargeting) {
+                    document.getElementById('targeting-data').innerHTML = '<p class="text-gray-500">Unable to process targeting criteria</p>';
+                    return;
+                }
+
+                let targetingHtml = '<div class="space-y-6">';
+
+                // Display include criteria
+                if (processedTargeting.include && processedTargeting.include.length > 0) {
+                    targetingHtml += `
+                        <div class="border border-green-200 bg-green-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-green-800 mb-3 flex items-center">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                Include (Target Audience)
+                            </h4>
+                            <div class="space-y-4">
+                                ${await Promise.all(processedTargeting.include.map(async criterion => await renderTargetingCriterion(criterion))).then(html => html.join(''))}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Display exclude criteria
+                if (processedTargeting.exclude && processedTargeting.exclude.length > 0) {
+                    targetingHtml += `
+                        <div class="border border-red-200 bg-red-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-red-800 mb-3 flex items-center">
+                                <i class="fas fa-times-circle mr-2"></i>
+                                Exclude (Blocked Audience)
+                            </h4>
+                            <div class="space-y-4">
+                                ${await Promise.all(processedTargeting.exclude.map(async criterion => await renderTargetingCriterion(criterion))).then(html => html.join(''))}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                targetingHtml += '</div>';
+
+                document.getElementById('targeting-data').innerHTML = targetingHtml;
+            } catch (error) {
+                console.error('Error processing targeting criteria:', error);
+                document.getElementById('targeting-data').innerHTML = `
+                    <div class="text-red-600 text-center py-4">
+                        <i class="fas fa-exclamation-triangle mr-2"></i>
+                        Failed to decode targeting criteria
+                    </div>
+                `;
+            }
+        }
+
+        // Render individual targeting criterion with enhanced display and batch URN decoding
+        async function renderTargetingCriterion(criterion) {
+            const { facetType, values } = criterion;
+            
+            // For organizations, titles, and locations - batch decode URNs
+            if (['interfaceLocales', 'locations', 'organizations', 'titles', 'jobTitles'].includes(facetType)) {
+                // Extract URNs that need decoding
+                const urnsToResolve = values
+                    .filter(v => v.decoded && v.decoded.startsWith('urn:'))
+                    .map(v => v.decoded);
+                
+                if (urnsToResolve.length > 0) {
+                    try {
+                        // Batch decode URNs
+                        const response = await fetch('http://localhost:8001/api/linkedin/targeting/decode-urns', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ urns: urnsToResolve })
+                        });
+                        
+                        if (response.ok) {
+                            const { results } = await response.json();
+                            // Update values with decoded names
+                            values.forEach(value => {
+                                if (results[value.decoded]) {
+                                    value.displayName = results[value.decoded];
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.warn('Failed to batch decode URNs:', error);
+                    }
+                }
+            }
+            
+            // Format facet type for display
+            const facetDisplayNames = {
+                'interfaceLocales': 'Languages',
+                'locations': 'Locations',
+                'organizations': 'Companies',
+                'titles': 'Job Titles',
+                'jobTitles': 'Job Titles',
+                'companyRevenues': 'Company Revenues',
+                'yearsOfExperience': 'Years of Experience',
+                'seniority': 'Seniority Levels',
+                'industries': 'Industries',
+                'memberCompanySize': 'Company Sizes',
+                'jobFunctions': 'Job Functions'
+            };
+            
+            return `
+                <div class="bg-white rounded border p-3">
+                    <h5 class="font-medium text-gray-800 mb-2">${facetDisplayNames[facetType] || facetType}</h5>
+                    <div class="flex flex-wrap gap-2">
+                        ${values.map(value => `
+                            <span class="inline-flex items-center px-2.5 py-1.5 rounded-md text-xs font-medium bg-blue-100 text-blue-800" 
+                                  title="${value.decoded}">
+                                ${value.displayName || value.decoded}
+                            </span>
+                        `).join('')}
+                    </div>
+                    ${values.length > 10 ? `<p class="text-xs text-gray-500 mt-2">${values.length} total criteria</p>` : ''}
+                </div>
+            `;
+        }
+
+        // Display creatives with enhanced visual display
+        async function displayCreatives() {
+            const creatives = creativesData.creatives || [];
+            
+            if (creatives.length === 0) {
+                document.getElementById('creatives-data').innerHTML = '<p class="text-gray-500">No creatives found</p>';
+                return;
+            }
+
+            const creativesHtml = `
+                <div class="space-y-6">
+                    ${await Promise.all(creatives.map(async creative => {
+                        // Extract creative content details
+                        let content = {};
+                        
+                        if (creative.data) {
+                            // Text Ad
+                            if (creative.data['com.linkedin.ads.TextAdCreativeVariables']) {
+                                const textAd = creative.data['com.linkedin.ads.TextAdCreativeVariables'];
+                                content = {
+                                    type: 'TEXT_AD',
+                                    headline: textAd.text,
+                                    destinationUrl: textAd.vectorImage
+                                };
+                            }
+                            // Sponsored Update (with share)
+                            else if (creative.data['com.linkedin.ads.SponsoredUpdateCreativeVariables']) {
+                                const sponsoredUpdate = creative.data['com.linkedin.ads.SponsoredUpdateCreativeVariables'];
+                                const shareUrn = sponsoredUpdate.share;
+                                content = {
+                                    type: 'SPONSORED_UPDATE',
+                                    shareUrn: shareUrn,
+                                    activity: sponsoredUpdate.activity
+                                };
+                            }
+                            // Video Ad
+                            else if (creative.data['com.linkedin.ads.SponsoredVideoCreativeVariables']) {
+                                const videoAd = creative.data['com.linkedin.ads.SponsoredVideoCreativeVariables'];
+                                content = {
+                                    type: 'VIDEO_AD',
+                                    userGeneratedContentPost: videoAd.userGeneratedContentPost
+                                };
+                            }
+                        }
+                        
+                        return `
+                            <div class="border rounded-lg overflow-hidden bg-white shadow-sm">
+                                <div class="p-4 border-b bg-gray-50">
+                                    <div class="flex items-start justify-between">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">Creative ${creative.id}</h4>
+                                            <p class="text-sm text-gray-500 mt-1">
+                                                ${formatCreativeType(creative.type || content.type)} 
+                                                ${creative.format ? `• ${creative.format}` : ''}
+                                            </p>
+                                        </div>
+                                        <span class="px-3 py-1 text-xs font-medium rounded-full ${creative.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                                            ${creative.status || 'Unknown'}
+                                        </span>
+                                    </div>
+                                </div>
+                                
+                                <div class="p-4">
+                                    ${content.type === 'TEXT_AD' && content.headline ? `
+                                        <div class="space-y-3">
+                                            <div>
+                                                <span class="text-sm font-medium text-gray-700">Ad Headline:</span>
+                                                <p class="mt-1 text-base">${content.headline}</p>
+                                            </div>
+                                            ${content.destinationUrl ? `
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-700">Destination:</span>
+                                                    <p class="mt-1 text-sm text-blue-600 truncate">${content.destinationUrl}</p>
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                    ` : ''}
+                                    
+                                    ${content.type === 'SPONSORED_UPDATE' && content.shareUrn ? `
+                                        <div class="space-y-3">
+                                            <div class="bg-gray-50 rounded p-3">
+                                                <span class="text-sm font-medium text-gray-700">LinkedIn Share:</span>
+                                                <p class="mt-1 font-mono text-xs text-gray-600">${content.shareUrn}</p>
+                                                ${content.activity ? `
+                                                    <a href="https://www.linkedin.com/feed/update/${content.activity.replace('urn:li:activity:', '')}" 
+                                                       target="_blank" 
+                                                       class="inline-block mt-2 text-sm text-blue-600 hover:underline">
+                                                        View on LinkedIn →
+                                                    </a>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                    
+                                    ${content.type === 'VIDEO_AD' && content.userGeneratedContentPost ? `
+                                        <div class="space-y-3">
+                                            <div class="bg-gray-50 rounded p-3">
+                                                <span class="text-sm font-medium text-gray-700">Video Post:</span>
+                                                <p class="mt-1 font-mono text-xs text-gray-600">${content.userGeneratedContentPost}</p>
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                    
+                                    ${!content.type ? `
+                                        <div class="text-sm text-gray-500">
+                                            <p>Creative data available in raw format</p>
+                                            <details class="mt-2">
+                                                <summary class="cursor-pointer text-blue-600 hover:underline">View raw data</summary>
+                                                <pre class="mt-2 text-xs bg-gray-50 p-2 rounded overflow-x-auto">${JSON.stringify(creative.data, null, 2)}</pre>
+                                            </details>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                
+                                ${creative.reference ? `
+                                    <div class="px-4 py-3 bg-gray-50 border-t">
+                                        <span class="text-xs text-gray-500">Reference: ${creative.reference}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    })).then(html => html.join(''))}
+                </div>
+            `;
+
+            document.getElementById('creatives-data').innerHTML = creativesHtml;
+            
+            // Update raw data
+            document.getElementById('raw-creatives').textContent = JSON.stringify(creativesData, null, 2);
+        }
+
+        // Display analytics
+        function displayAnalytics() {
+            const analyticsHtml = `
+                <div class="space-y-6">
+                    <div>
+                        <h4 class="font-medium mb-3">Performance Summary</h4>
+                        <div class="bg-gray-50 rounded p-4">
+                            <pre class="text-sm">${JSON.stringify(analyticsData.analytics?.[0] || {}, null, 2)}</pre>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('analytics-data').innerHTML = analyticsHtml;
+            
+            // Update raw data
+            document.getElementById('raw-analytics').textContent = JSON.stringify(analyticsData, null, 2);
+        }
+
+        // Helper functions
+        function formatDate(timestamp) {
+            if (!timestamp) return 'N/A';
+            return new Date(timestamp).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat().format(num);
+        }
+
+        function formatBudget(budget) {
+            if (!budget || !budget.amount) return 'N/A';
+            
+            // Log the budget structure for debugging
+            console.log('Budget structure:', budget);
+            
+            let amount = parseFloat(budget.amount);
+            
+            // LinkedIn API v202501 returns amounts in dollars, not cents
+            // Check if the amount seems to be in cents (very large number) vs dollars
+            // If amount is greater than 10000, it's likely in cents and needs division
+            if (amount > 10000) {
+                amount = amount / 100;
+                console.log('Budget appears to be in cents, converted:', amount);
+            } else {
+                console.log('Budget appears to be in dollars:', amount);
+            }
+            
+            return `$${amount.toFixed(2)} ${budget.currencyCode || 'USD'}`;
+        }
+
+        function formatCampaignType(type) {
+            const typeMap = {
+                'SPONSORED_UPDATES': 'Sponsored Content',
+                'SPONSORED_INMAILS': 'Sponsored InMail',
+                'TEXT_ADS': 'Text Ads',
+                'DYNAMIC_ADS': 'Dynamic Ads'
+            };
+            return typeMap[type] || type || 'N/A';
+        }
+
+        function formatCreativeType(type) {
+            const typeMap = {
+                'TEXT_AD': 'Text Ad',
+                'SPONSORED_UPDATE': 'Sponsored Content',
+                'VIDEO_AD': 'Video Ad',
+                'SPONSORED_STATUS_UPDATE': 'Sponsored Status Update',
+                'SPONSORED_INMAILS': 'Sponsored InMail'
+            };
+            return typeMap[type] || type || 'Creative';
+        }
+
+        function formatObjectiveType(objective) {
+            const objectiveMap = {
+                'BRAND_AWARENESS': 'Brand Awareness',
+                'WEBSITE_VISITS': 'Website Visits',
+                'ENGAGEMENT': 'Engagement',
+                'VIDEO_VIEWS': 'Video Views',
+                'LEAD_GENERATION': 'Lead Generation',
+                'WEBSITE_CONVERSIONS': 'Website Conversions',
+                'JOB_APPLICANTS': 'Job Applicants'
+            };
+            return objectiveMap[objective] || objective || 'N/A';
+        }
+
+        function formatCampaignFormat(format) {
+            const formatMap = {
+                'SINGLE_IMAGE': 'Single Image',
+                'SINGLE_VIDEO': 'Single Video',
+                'CAROUSEL': 'Carousel',
+                'EVENT': 'Event',
+                'DOCUMENT': 'Document'
+            };
+            return formatMap[format] || format || 'N/A';
+        }
+
+        function formatOptimizationType(optimization) {
+            const optimizationMap = {
+                'MAX_REACH': 'Maximize Reach',
+                'MAX_CLICKS': 'Maximize Clicks',
+                'MAX_CONVERSIONS': 'Maximize Conversions',
+                'MAX_LEAD_GENERATION': 'Maximize Lead Generation'
+            };
+            return optimizationMap[optimization] || optimization || 'N/A';
+        }
+
+        function formatServingStatus(status) {
+            const statusMap = {
+                'CAMPAIGN_END_DATE_HOLD': 'Campaign End Date Hold',
+                'STOPPED': 'Stopped',
+                'CAMPAIGN_GROUP_END_DATE_HOLD': 'Campaign Group End Date Hold',
+                'DRAFT': 'Draft',
+                'PENDING_APPROVAL': 'Pending Approval',
+                'APPROVED': 'Approved',
+                'REJECTED': 'Rejected'
+            };
+            return statusMap[status] || status || 'Unknown';
+        }
+
+        function formatTargetingKey(key) {
+            return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+        }
+
+        function renderTargetingValue(value) {
+            if (Array.isArray(value)) {
+                return `<div class="space-y-1">${value.map(v => `<div class="text-sm">${JSON.stringify(v)}</div>`).join('')}</div>`;
+            } else if (typeof value === 'object') {
+                return `<pre class="text-sm">${JSON.stringify(value, null, 2)}</pre>`;
+            } else {
+                return `<span class="text-sm">${value}</span>`;
+            }
+        }
+
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Mark button as active
+            event.target.classList.add('active');
+        }
+
+        function showError(message) {
+            document.getElementById('campaign-name').textContent = 'Error';
+            document.getElementById('campaign-status').innerHTML = `
+                <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
+                    ${message}
+                </div>
+            `;
+        }
+
+        async function exportCampaignData() {
+            const exportData = {
+                campaign: campaignData,
+                analytics: analyticsData,
+                demographics: demographicsData,
+                creatives: creativesData,
+                exportDate: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `campaign-${campaignId}-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Load components
+        async function loadComponents() {
+            try {
+                // Load sidebar
+                const sidebarResponse = await fetch('components/sidebar.html');
+                const sidebarHTML = await sidebarResponse.text();
+                document.getElementById('sidebar-container').innerHTML = sidebarHTML;
+
+                // Load header
+                const headerResponse = await fetch('components/header.html');
+                const headerHTML = await headerResponse.text();
+                document.getElementById('header-container').innerHTML = headerHTML;
+            } catch (error) {
+                console.error('Failed to load components:', error);
+            }
+        }
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadComponents();
+            await init();
+        });
+    </script>
+</body>
+</html>

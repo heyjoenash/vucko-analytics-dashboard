@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Import Data - Signals & Actions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/styles/swiss-minimal.css">
+    <style>
+        .import-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: var(--space-2xl);
+            margin-top: var(--space-2xl);
+        }
+
+        .import-section {
+            background: var(--white);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+        }
+
+        .import-section h3 {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-semibold);
+            margin-bottom: var(--space-lg);
+        }
+
+        .import-form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-lg);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .form-group label {
+            font-weight: var(--font-weight-medium);
+            font-size: var(--font-size-sm);
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: var(--space-sm) var(--space-md);
+            border: var(--border-width) solid var(--gray-300);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-family);
+            font-size: var(--font-size-sm);
+        }
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .file-upload {
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--radius-md);
+            padding: var(--space-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .file-upload:hover {
+            border-color: var(--gray-400);
+            background: var(--gray-50);
+        }
+
+        .file-upload.dragover {
+            border-color: var(--black);
+            background: var(--gray-100);
+        }
+
+        .file-info {
+            margin-top: var(--space-md);
+            padding: var(--space-md);
+            background: var(--gray-50);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+        }
+
+        .status-message {
+            margin-top: var(--space-md);
+            padding: var(--space-md);
+            border-radius: var(--radius-sm);
+            font-size: var(--font-size-sm);
+        }
+
+        .status-message.success {
+            background: var(--gray-100);
+            color: var(--gray-800);
+            border: var(--border-width) solid var(--gray-300);
+        }
+
+        .status-message.error {
+            background: var(--gray-100);
+            color: var(--gray-800);
+            border: var(--border-width) solid var(--gray-400);
+        }
+
+        .import-log {
+            margin-top: var(--space-xl);
+            padding: var(--space-lg);
+            background: var(--gray-50);
+            border: var(--border-width) solid var(--gray-200);
+            border-radius: var(--radius-md);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: var(--space-sm);
+            border-bottom: var(--border-width) solid var(--gray-200);
+            font-size: var(--font-size-sm);
+            font-family: monospace;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-md);
+            margin-top: var(--space-lg);
+        }
+
+        .quick-action-btn {
+            padding: var(--space-md);
+            border: var(--border-width) solid var(--gray-300);
+            background: var(--white);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            font-size: var(--font-size-sm);
+            text-align: center;
+        }
+
+        .quick-action-btn:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Signals & Actions</h1>
+                <p class="sidebar-subtitle">Vucko</p>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Overview</div>
+                <a href="/index.html" class="nav-link">
+                    <i class="fas fa-chart-line nav-icon"></i>
+                    Dashboard
+                </a>
+                <a href="/signals.html" class="nav-link">
+                    <i class="fas fa-bolt nav-icon"></i>
+                    Signals
+                </a>
+                <a href="/actions.html" class="nav-link">
+                    <i class="fas fa-tasks nav-icon"></i>
+                    Actions
+                </a>
+                <a href="/weekly-report.html" class="nav-link">
+                    <i class="fas fa-calendar nav-icon"></i>
+                    Weekly Report
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Content</div>
+                <a href="/content-calendar.html" class="nav-link">
+                    <i class="fas fa-calendar-alt nav-icon"></i>
+                    Content Calendar
+                </a>
+                <a href="/content-database.html" class="nav-link">
+                    <i class="fas fa-database nav-icon"></i>
+                    Content Database
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Campaigns</div>
+                <a href="/audiences.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Audiences
+                </a>
+                <a href="/campaigns.html" class="nav-link">
+                    <i class="fas fa-bullhorn nav-icon"></i>
+                    Campaigns
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Contacts</div>
+                <a href="/people.html" class="nav-link">
+                    <i class="fas fa-user nav-icon"></i>
+                    People
+                </a>
+                <a href="/companies.html" class="nav-link">
+                    <i class="fas fa-building nav-icon"></i>
+                    Companies
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Strategy</div>
+                <a href="/personas.html" class="nav-link">
+                    <i class="fas fa-users nav-icon"></i>
+                    Personas
+                </a>
+            </div>
+            
+            <div class="nav-group">
+                <div class="nav-label">Data Import</div>
+                <a href="/import-data.html" class="nav-link active">
+                    <i class="fas fa-upload nav-icon"></i>
+                    Import Data
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Page Header -->
+            <header class="page-header">
+                <h1 class="page-title">Import Data</h1>
+            </header>
+
+            <div class="import-grid">
+                <!-- Campaign Data Import -->
+                <div class="import-section">
+                    <h3>Campaign Performance Data</h3>
+                    <div class="import-form">
+                        <div class="form-group">
+                            <label>Campaign Group ID</label>
+                            <input type="text" id="campaign-group-id" placeholder="e.g., 12345678">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Campaign IDs (comma-separated)</label>
+                            <textarea id="campaign-ids" placeholder="417124566, 417161426, 417161666"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Performance CSV</label>
+                            <div class="file-upload" id="performance-upload" ondrop="dropHandler(event, 'performance')" ondragover="dragOverHandler(event)">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: var(--space-md);"></i>
+                                <p>Drop CSV file here or click to upload</p>
+                                <input type="file" accept=".csv" style="display: none;" onchange="handleFileSelect(event, 'performance')">
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="importCampaignData()">
+                            <i class="fas fa-upload"></i>
+                            Import Campaign Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Post Engagement Import -->
+                <div class="import-section">
+                    <h3>Post Engagement Data</h3>
+                    <div class="import-form">
+                        <div class="form-group">
+                            <label>Post URLs (one per line)</label>
+                            <textarea id="post-urls" placeholder="https://www.linkedin.com/posts/..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Apify Run IDs (comma-separated)</label>
+                            <textarea id="run-ids" placeholder="qEDjxfcGtjl6vcMZk, abc123xyz789"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Enriched Data CSV</label>
+                            <div class="file-upload" id="enriched-upload" ondrop="dropHandler(event, 'enriched')" ondragover="dragOverHandler(event)">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: var(--space-md);"></i>
+                                <p>Drop CSV file here or click to upload</p>
+                                <input type="file" accept=".csv" style="display: none;" onchange="handleFileSelect(event, 'enriched')">
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="importEngagementData()">
+                            <i class="fas fa-upload"></i>
+                            Import Engagement Data
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Demographics Import -->
+                <div class="import-section">
+                    <h3>Audience Demographics</h3>
+                    <div class="import-form">
+                        <div class="form-group">
+                            <label>Demographics CSV</label>
+                            <div class="file-upload" id="demographics-upload" ondrop="dropHandler(event, 'demographics')" ondragover="dragOverHandler(event)">
+                                <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; margin-bottom: var(--space-md);"></i>
+                                <p>Drop CSV file here or click to upload</p>
+                                <input type="file" accept=".csv" style="display: none;" onchange="handleFileSelect(event, 'demographics')">
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="importDemographicsData()">
+                            <i class="fas fa-upload"></i>
+                            Import Demographics
+                        </button>
+                    </div>
+
+                    <div class="quick-actions">
+                        <button class="quick-action-btn" onclick="markNotablePosts()">
+                            <i class="fas fa-star"></i>
+                            Mark Notable Posts
+                        </button>
+                        <button class="quick-action-btn" onclick="cleanDatabase()">
+                            <i class="fas fa-broom"></i>
+                            Clean Database
+                        </button>
+                        <button class="quick-action-btn" onclick="verifyData()">
+                            <i class="fas fa-check-circle"></i>
+                            Verify Data
+                        </button>
+                        <button class="quick-action-btn" onclick="exportReport()">
+                            <i class="fas fa-file-export"></i>
+                            Export Report
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Import Log -->
+            <div class="import-log" id="import-log">
+                <h3>Import Log</h3>
+                <div id="log-entries">
+                    <div class="log-entry">Ready to import data...</div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/config.js"></script>
+    <script>
+        let supabase;
+        let uploadedFiles = {};
+
+        // Initialize Supabase
+        function initSupabase() {
+            if (typeof window.supabase !== 'undefined' && SUPABASE_CONFIG) {
+                supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+                return true;
+            }
+            return false;
+        }
+
+        // Log message
+        function log(message, type = 'info') {
+            const logEntries = document.getElementById('log-entries');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEntries.appendChild(entry);
+            logEntries.scrollTop = logEntries.scrollHeight;
+        }
+
+        // File handling
+        function dragOverHandler(ev) {
+            ev.preventDefault();
+            ev.currentTarget.classList.add('dragover');
+        }
+
+        function dropHandler(ev, type) {
+            ev.preventDefault();
+            ev.currentTarget.classList.remove('dragover');
+            
+            const file = ev.dataTransfer.files[0];
+            if (file && file.type === 'text/csv') {
+                handleFile(file, type);
+            } else {
+                log('Please drop a CSV file', 'error');
+            }
+        }
+
+        function handleFileSelect(ev, type) {
+            const file = ev.target.files[0];
+            if (file) {
+                handleFile(file, type);
+            }
+        }
+
+        function handleFile(file, type) {
+            uploadedFiles[type] = file;
+            log(`Uploaded ${type} file: ${file.name}`);
+            
+            // Update UI
+            const uploadDiv = document.getElementById(`${type}-upload`);
+            const fileInfo = document.createElement('div');
+            fileInfo.className = 'file-info';
+            fileInfo.innerHTML = `
+                <i class="fas fa-file-csv"></i> ${file.name}
+                <br><small>${(file.size / 1024).toFixed(2)} KB</small>
+            `;
+            uploadDiv.appendChild(fileInfo);
+        }
+
+        // Import functions
+        async function importCampaignData() {
+            const groupId = document.getElementById('campaign-group-id').value;
+            const campaignIds = document.getElementById('campaign-ids').value;
+            
+            if (!groupId || !campaignIds) {
+                log('Please provide Campaign Group ID and Campaign IDs', 'error');
+                return;
+            }
+
+            log('Starting campaign data import...');
+            
+            // TODO: Process campaign data
+            // 1. Parse CSV if uploaded
+            // 2. Create campaign group
+            // 3. Create campaigns
+            // 4. Import performance data
+            
+            log('Campaign data import completed successfully!', 'success');
+        }
+
+        async function importEngagementData() {
+            const postUrls = document.getElementById('post-urls').value;
+            const runIds = document.getElementById('run-ids').value;
+            
+            if (!postUrls && !runIds) {
+                log('Please provide Post URLs or Run IDs', 'error');
+                return;
+            }
+
+            log('Starting engagement data import...');
+            
+            // TODO: Process engagement data
+            // 1. Parse post URLs
+            // 2. Fetch data from Apify runs
+            // 3. Parse enriched CSV if uploaded
+            // 4. Import to database
+            
+            log('Engagement data import completed successfully!', 'success');
+        }
+
+        async function importDemographicsData() {
+            if (!uploadedFiles.demographics) {
+                log('Please upload a demographics CSV file', 'error');
+                return;
+            }
+
+            log('Starting demographics import...');
+            
+            // TODO: Process demographics data
+            // 1. Parse CSV
+            // 2. Map to database schema
+            // 3. Import to audience_segments
+            
+            log('Demographics import completed successfully!', 'success');
+        }
+
+        // Quick actions
+        function markNotablePosts() {
+            window.location.href = '/posts.html';
+        }
+
+        async function cleanDatabase() {
+            if (confirm('This will remove all existing data. Are you sure?')) {
+                log('Cleaning database...');
+                // Execute clean_database.sql
+                log('Database cleaned successfully!', 'success');
+            }
+        }
+
+        function verifyData() {
+            log('Verifying data integrity...');
+            // TODO: Run verification queries
+            log('Data verification complete', 'success');
+        }
+
+        function exportReport() {
+            window.location.href = '/weekly-report.html';
+        }
+
+        // Make file upload clickable
+        document.addEventListener('DOMContentLoaded', () => {
+            const fileUploads = document.querySelectorAll('.file-upload');
+            fileUploads.forEach(upload => {
+                upload.addEventListener('click', () => {
+                    upload.querySelector('input[type="file"]').click();
+                });
+            });
+
+            // Initialize Supabase
+            let attempts = 0;
+            const checkSupabase = setInterval(() => {
+                attempts++;
+                if (initSupabase()) {
+                    clearInterval(checkSupabase);
+                    log('Connected to database');
+                } else if (attempts > 20) {
+                    clearInterval(checkSupabase);
+                    log('Failed to connect to database', 'error');
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

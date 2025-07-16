@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post URL Mapper - Signals & Actions</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    <style>
+        .mapper-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 2rem;
+        }
+        
+        .mapper-header {
+            margin-bottom: 2rem;
+        }
+        
+        .mapper-table {
+            width: 100%;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .mapper-table th {
+            background: #f5f5f5;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .mapper-table td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .url-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+        
+        .url-input:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+        
+        .save-button {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+        
+        .save-button:hover {
+            background: #1565c0;
+        }
+        
+        .output-section {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f5f5f5;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            display: none;
+        }
+        
+        .instruction-box {
+            background: #e3f2fd;
+            border: 1px solid #1976d2;
+            color: #0d47a1;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="mapper-container">
+        <div class="mapper-header">
+            <h1>Post URL Mapper</h1>
+            <p>Map your Apify run IDs to their corresponding LinkedIn post URLs for proper campaign attribution.</p>
+        </div>
+
+        <div class="instruction-box">
+            <i class="fas fa-info-circle mr-2"></i>
+            <strong>Instructions:</strong> Enter the LinkedIn post URL for each Apify run. These URLs will be used to match engagements with LinkedIn campaigns. After filling in the URLs, click "Generate Mapping" to get the code to update your master report.
+        </div>
+
+        <table class="mapper-table">
+            <thead>
+                <tr>
+                    <th>Run ID</th>
+                    <th>Description</th>
+                    <th>LinkedIn Post URL</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody id="mapper-tbody">
+                <!-- Will be populated by JavaScript -->
+            </tbody>
+        </table>
+
+        <button class="save-button" onclick="generateMapping()">
+            <i class="fas fa-code mr-2"></i>Generate Mapping
+        </button>
+
+        <div id="output" class="output-section"></div>
+    </div>
+
+    <script>
+        // The run IDs from your master report
+        const RUN_MAPPINGS = [
+            { runId: 'butuMDGrIRxOxee09', postUrl: null, description: 'Post 1' },
+            { runId: 'JqrdZuVDQz9AgQIIU', postUrl: null, description: 'Post 2' },
+            { runId: '3nlSqHwyJiQPsoqAC', postUrl: null, description: 'Post 3' },
+            { runId: 'PvNvNkbqvWNpaXiD8', postUrl: null, description: 'Post 4' },
+            { runId: 'hhHrpS4sCKvBjIsta', postUrl: null, description: 'Post 5' },
+            { runId: 'uBCxynShX9JejO2P2', postUrl: null, description: 'Post 6' },
+            { runId: 'oxzLwXzLwyICuw85w', postUrl: null, description: 'Post 7' },
+            { runId: 'dLF3uRnLs6nWStFGk', postUrl: null, description: 'Post 8' },
+            { runId: 'TWcaUmKsvJNO6Qf6Y', postUrl: null, description: 'Post 9' },
+            { runId: 'j56hR3kcejjgjhWcE', postUrl: null, description: 'Post 10' }
+        ];
+
+        // Initialize the table
+        function initTable() {
+            const tbody = document.getElementById('mapper-tbody');
+            
+            tbody.innerHTML = RUN_MAPPINGS.map((mapping, index) => `
+                <tr>
+                    <td>
+                        <code>${mapping.runId}</code>
+                    </td>
+                    <td>${mapping.description}</td>
+                    <td>
+                        <input 
+                            type="text" 
+                            class="url-input" 
+                            id="url-${index}"
+                            placeholder="https://www.linkedin.com/feed/update/..."
+                            value="${mapping.postUrl || ''}"
+                            onchange="updateMapping(${index}, this.value)"
+                        />
+                    </td>
+                    <td>
+                        <span id="status-${index}" style="color: #999;">
+                            <i class="fas fa-circle"></i> Not mapped
+                        </span>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Update mapping when URL is entered
+        function updateMapping(index, url) {
+            RUN_MAPPINGS[index].postUrl = url || null;
+            
+            const statusEl = document.getElementById(`status-${index}`);
+            if (url) {
+                statusEl.innerHTML = '<i class="fas fa-check-circle" style="color: #4caf50;"></i> Mapped';
+            } else {
+                statusEl.innerHTML = '<i class="fas fa-circle" style="color: #999;"></i> Not mapped';
+            }
+        }
+
+        // Generate the mapping code
+        function generateMapping() {
+            const output = document.getElementById('output');
+            
+            // Generate the JavaScript code
+            const mappingCode = `// Updated Apify run mappings with post URLs
+const APIFY_RUN_MAPPINGS = [
+${RUN_MAPPINGS.map(mapping => `    { runId: '${mapping.runId}', postUrl: ${mapping.postUrl ? `'${mapping.postUrl}'` : 'null'}, description: '${mapping.description}' }`).join(',\n')}
+];`;
+
+            output.textContent = mappingCode;
+            output.style.display = 'block';
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(mappingCode).then(() => {
+                alert('Mapping code copied to clipboard! Replace the APIFY_RUN_MAPPINGS constant in your master-signals-actions-report.html file.');
+            }).catch(err => {
+                console.error('Failed to copy to clipboard:', err);
+            });
+            
+            // Also log campaign search suggestions
+            const mappedCount = RUN_MAPPINGS.filter(m => m.postUrl).length;
+            console.log(`Mapped ${mappedCount} out of ${RUN_MAPPINGS.length} posts.`);
+            
+            if (mappedCount > 0) {
+                console.log('\nSuggested next steps:');
+                console.log('1. Update master-signals-actions-report.html with the new mappings');
+                console.log('2. Click "Link to Campaigns" in the Post Performance tab');
+                console.log('3. The system will attempt to match these URLs with campaign creatives');
+            }
+        }
+
+        // Initialize on load
+        initTable();
+    </script>
+</body>
+</html>

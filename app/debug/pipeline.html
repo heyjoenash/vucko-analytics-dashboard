@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline - Signals & Actions</title>
+    
+    <!-- External Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Configuration -->
+    <script src="config.js"></script>
+    
+    <!-- Swiss Design System -->
+    <link rel="stylesheet" href="styles/swiss-design.css">
+    
+    <!-- Components -->
+    <script src="components/breadcrumb.js"></script>
+    
+    <style>
+        /* Page-specific styles for pipeline */
+        .pipeline-container {
+            display: flex;
+            gap: var(--spacing-lg);
+            overflow-x: auto;
+            padding-bottom: var(--spacing-md);
+        }
+        .pipeline-stage {
+            flex: 1;
+            min-width: 280px;
+            background: var(--color-slate-50);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+        }
+        .pipeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-md);
+            border-bottom: 2px solid var(--color-slate-200);
+        }
+        .pipeline-card {
+            background: white;
+            border: 1px solid var(--color-slate-200);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .pipeline-card:hover {
+            border-color: var(--color-blue-500);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .pipeline-card.dragging {
+            opacity: 0.5;
+        }
+        .stage-count {
+            background: var(--color-slate-200);
+            color: var(--color-slate-700);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-semibold);
+        }
+    </style>
+</head>
+<body class="has-sidebar page-with-sidebar">
+    <div id="app" class="min-h-screen">
+        <!-- Sidebar Navigation -->
+        <div id="sidebar-container"></div>
+        
+        <!-- Mobile Sidebar Toggle -->
+        <button class="sidebar-toggle" onclick="toggleSidebar()">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Page Header -->
+            <div class="mb-6">
+                <div id="breadcrumb-container"></div>
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h1 class="text-xl font-semibold text-gray-900">Pipeline</h1>
+                        <div class="text-sm text-muted">Manage your LinkedIn CRM pipeline</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="app.showFilters()" class="btn btn-secondary">
+                            <i class="fas fa-filter mr-2"></i>Filters
+                        </button>
+                        <button onclick="app.exportPipeline()" class="btn btn-secondary">
+                            <i class="fas fa-file-export mr-2"></i>Export
+                        </button>
+                        <button onclick="app.showBulkActions()" class="btn btn-primary">
+                            <i class="fas fa-tasks mr-2"></i>Bulk Actions
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pipeline Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                <div class="metric-card text-center">
+                    <div class="text-2xl font-semibold text-slate-900" id="stat-total">0</div>
+                    <div class="text-xs text-muted">Total Leads</div>
+                </div>
+                <div class="metric-card text-center">
+                    <div class="text-2xl font-semibold text-slate-900" id="stat-new">0</div>
+                    <div class="text-xs text-muted">New This Week</div>
+                </div>
+                <div class="metric-card text-center">
+                    <div class="text-2xl font-semibold text-blue-600" id="stat-contacted">0</div>
+                    <div class="text-xs text-muted">Contacted</div>
+                </div>
+                <div class="metric-card text-center">
+                    <div class="text-2xl font-semibold text-amber-600" id="stat-responded">0</div>
+                    <div class="text-xs text-muted">Responded</div>
+                </div>
+                <div class="metric-card text-center">
+                    <div class="text-2xl font-semibold text-green-600" id="stat-meetings">0</div>
+                    <div class="text-xs text-muted">Meetings</div>
+                </div>
+            </div>
+
+            <!-- Filters (Hidden by default) -->
+            <div id="filterSection" class="metric-card mb-6 hidden">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="text-xs text-muted mb-1 block">Company</label>
+                        <select id="companyFilter" onchange="app.applyFilters()" class="w-full px-3 py-2 border border-slate-200 rounded text-sm">
+                            <option value="">All Companies</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-muted mb-1 block">Title Contains</label>
+                        <input type="text" id="titleFilter" onchange="app.applyFilters()" 
+                               placeholder="e.g. CEO, Director" 
+                               class="w-full px-3 py-2 border border-slate-200 rounded text-sm">
+                    </div>
+                    <div>
+                        <label class="text-xs text-muted mb-1 block">Engagement Score</label>
+                        <select id="scoreFilter" onchange="app.applyFilters()" class="w-full px-3 py-2 border border-slate-200 rounded text-sm">
+                            <option value="">Any Score</option>
+                            <option value="5">5+ (High Value)</option>
+                            <option value="10">10+ (Very High)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-muted mb-1 block">Last Activity</label>
+                        <select id="activityFilter" onchange="app.applyFilters()" class="w-full px-3 py-2 border border-slate-200 rounded text-sm">
+                            <option value="">Any Time</option>
+                            <option value="7">Last 7 days</option>
+                            <option value="30">Last 30 days</option>
+                            <option value="90">Last 90 days</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pipeline Kanban Board -->
+            <div class="pipeline-container">
+                <!-- New Leads -->
+                <div class="pipeline-stage" data-stage="new">
+                    <div class="pipeline-header">
+                        <h3 class="text-strong text-base">New Leads</h3>
+                        <span class="stage-count" id="count-new">0</span>
+                    </div>
+                    <div class="pipeline-cards" id="stage-new">
+                        <div class="text-center py-8 text-muted text-sm">
+                            No new leads yet
+                        </div>
+                    </div>
+                </div>
+
+                <!-- To Follow Up -->
+                <div class="pipeline-stage" data-stage="to_follow_up">
+                    <div class="pipeline-header">
+                        <h3 class="text-strong text-base">To Follow Up</h3>
+                        <span class="stage-count" id="count-to_follow_up">0</span>
+                    </div>
+                    <div class="pipeline-cards" id="stage-to_follow_up">
+                        <div class="text-center py-8 text-muted text-sm">
+                            No leads to follow up
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contacted -->
+                <div class="pipeline-stage" data-stage="contacted">
+                    <div class="pipeline-header">
+                        <h3 class="text-strong text-base">Contacted</h3>
+                        <span class="stage-count" id="count-contacted">0</span>
+                    </div>
+                    <div class="pipeline-cards" id="stage-contacted">
+                        <div class="text-center py-8 text-muted text-sm">
+                            No contacted leads
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Responded -->
+                <div class="pipeline-stage" data-stage="responded">
+                    <div class="pipeline-header">
+                        <h3 class="text-strong text-base">Responded</h3>
+                        <span class="stage-count" id="count-responded">0</span>
+                    </div>
+                    <div class="pipeline-cards" id="stage-responded">
+                        <div class="text-center py-8 text-muted text-sm">
+                            No responses yet
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Meeting Scheduled -->
+                <div class="pipeline-stage" data-stage="meeting_scheduled">
+                    <div class="pipeline-header">
+                        <h3 class="text-strong text-base">Meeting Scheduled</h3>
+                        <span class="stage-count" id="count-meeting_scheduled">0</span>
+                    </div>
+                    <div class="pipeline-cards" id="stage-meeting_scheduled">
+                        <div class="text-center py-8 text-muted text-sm">
+                            No meetings scheduled
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bulk Actions Modal (Hidden) -->
+            <div id="bulkActionsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+                <div class="bg-white rounded-lg p-6 max-w-md w-full">
+                    <h3 class="text-lg font-semibold mb-4">Bulk Actions</h3>
+                    <div class="space-y-4">
+                        <button onclick="app.bulkAddToLinkedIn()" class="w-full btn btn-primary">
+                            <i class="fab fa-linkedin mr-2"></i>Add Selected to LinkedIn
+                        </button>
+                        <button onclick="app.bulkChangeStage()" class="w-full btn btn-secondary">
+                            <i class="fas fa-exchange-alt mr-2"></i>Change Stage
+                        </button>
+                        <button onclick="app.bulkAddNote()" class="w-full btn btn-secondary">
+                            <i class="fas fa-sticky-note mr-2"></i>Add Note
+                        </button>
+                        <button onclick="app.bulkExport()" class="w-full btn btn-secondary">
+                            <i class="fas fa-download mr-2"></i>Export Selected
+                        </button>
+                    </div>
+                    <button onclick="app.closeBulkActions()" class="mt-4 text-sm text-muted hover:text-slate-900">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let supabaseClient;
+        let selectedLeads = new Set();
+        
+        // Lead status stages
+        const STAGES = {
+            'new': 'New Leads',
+            'to_follow_up': 'To Follow Up',
+            'contacted': 'Contacted',
+            'responded': 'Responded',
+            'meeting_scheduled': 'Meeting Scheduled'
+        };
+        
+        // Main application object
+        const app = {
+            // Data storage
+            leads: [],
+            filteredLeads: [],
+            
+            async init() {
+                // Initialize breadcrumb
+                BreadcrumbManager.inject(BreadcrumbManager.getPath('pipeline'));
+                
+                // Load data
+                await this.loadLeads();
+                
+                // Initialize drag and drop
+                this.initDragDrop();
+                
+                // Render pipeline
+                this.renderPipeline();
+            },
+            
+            async loadLeads() {
+                try {
+                    // Load persons with lead_status
+                    const { data: leads, error } = await supabaseClient
+                        .from('persons')
+                        .select('*')
+                        .not('lead_status', 'is', null)
+                        .order('last_lead_update', { ascending: false });
+                    
+                    if (error) throw error;
+                    
+                    this.leads = leads || [];
+                    this.filteredLeads = [...this.leads];
+                    
+                    // Also load high-value prospects without lead_status
+                    const { data: prospects, error: prospectError } = await supabaseClient
+                        .from('persons')
+                        .select('*')
+                        .is('lead_status', null)
+                        .or('engagement_score.gte.5,notable.eq.true')
+                        .order('engagement_score', { ascending: false })
+                        .limit(20);
+                    
+                    if (!prospectError && prospects) {
+                        // Add to new leads
+                        prospects.forEach(p => {
+                            if (!this.leads.find(l => l.id === p.id)) {
+                                this.leads.push({ ...p, lead_status: 'new' });
+                            }
+                        });
+                    }
+                    
+                    this.populateFilters();
+                    
+                } catch (error) {
+                    console.error('Error loading leads:', error);
+                }
+            },
+            
+            populateFilters() {
+                // Company filter
+                const companies = [...new Set(this.leads.map(l => l.current_company).filter(c => c))];
+                const companySelect = document.getElementById('companyFilter');
+                companies.forEach(company => {
+                    const option = document.createElement('option');
+                    option.value = company;
+                    option.textContent = company;
+                    companySelect.appendChild(option);
+                });
+            },
+            
+            initDragDrop() {
+                // Enable drag and drop between stages
+                document.querySelectorAll('.pipeline-cards').forEach(container => {
+                    container.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        container.classList.add('bg-blue-50');
+                    });
+                    
+                    container.addEventListener('dragleave', () => {
+                        container.classList.remove('bg-blue-50');
+                    });
+                    
+                    container.addEventListener('drop', async (e) => {
+                        e.preventDefault();
+                        container.classList.remove('bg-blue-50');
+                        
+                        const leadId = e.dataTransfer.getData('leadId');
+                        const newStage = container.id.replace('stage-', '');
+                        
+                        await this.updateLeadStage(leadId, newStage);
+                    });
+                });
+            },
+            
+            renderPipeline() {
+                // Update stats
+                this.updateStats();
+                
+                // Clear all stages
+                Object.keys(STAGES).forEach(stage => {
+                    document.getElementById(`stage-${stage}`).innerHTML = '';
+                });
+                
+                // Group leads by stage
+                const stageGroups = {};
+                this.filteredLeads.forEach(lead => {
+                    const stage = lead.lead_status || 'new';
+                    if (!stageGroups[stage]) stageGroups[stage] = [];
+                    stageGroups[stage].push(lead);
+                });
+                
+                // Render each stage
+                Object.entries(stageGroups).forEach(([stage, leads]) => {
+                    const container = document.getElementById(`stage-${stage}`);
+                    if (!container) return;
+                    
+                    // Update count
+                    document.getElementById(`count-${stage}`).textContent = leads.length;
+                    
+                    // Render cards
+                    container.innerHTML = leads.map(lead => this.renderLeadCard(lead)).join('');
+                });
+                
+                // Show empty state for stages with no leads
+                Object.keys(STAGES).forEach(stage => {
+                    const container = document.getElementById(`stage-${stage}`);
+                    if (container && container.children.length === 0) {
+                        container.innerHTML = `
+                            <div class="text-center py-8 text-muted text-sm">
+                                No leads in ${STAGES[stage].toLowerCase()}
+                            </div>
+                        `;
+                    }
+                });
+            },
+            
+            renderLeadCard(lead) {
+                const isSelected = selectedLeads.has(lead.id);
+                const scoreColor = lead.engagement_score >= 10 ? 'amber' : 
+                                 lead.engagement_score >= 5 ? 'blue' : 'green';
+                
+                return `
+                    <div class="pipeline-card ${isSelected ? 'border-blue-500' : ''}" 
+                         draggable="true"
+                         ondragstart="app.handleDragStart(event, ${lead.id})"
+                         onclick="app.toggleSelect(${lead.id})">
+                        <div class="flex items-start gap-3 mb-3">
+                            <input type="checkbox" 
+                                   ${isSelected ? 'checked' : ''} 
+                                   onclick="event.stopPropagation(); app.toggleSelect(${lead.id})"
+                                   class="mt-1">
+                            <div class="flex-1">
+                                <div class="font-medium text-sm">${lead.name}</div>
+                                <div class="text-xs text-muted">${lead.current_title || 'No title'}</div>
+                                <div class="text-xs text-muted">${lead.current_company || 'No company'}</div>
+                            </div>
+                            <div class="data-pill ${scoreColor}">
+                                ${lead.engagement_score || 0}
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-2">
+                                ${lead.is_follower ? '<span class="text-blue-600"><i class="fas fa-user-check"></i></span>' : ''}
+                                ${lead.notable ? '<span class="text-amber-600"><i class="fas fa-star"></i></span>' : ''}
+                            </div>
+                            <div class="text-muted">
+                                ${lead.last_lead_update ? 
+                                    `Updated ${new Date(lead.last_lead_update).toLocaleDateString()}` : 
+                                    'New'}
+                            </div>
+                        </div>
+                        
+                        <div class="mt-3 flex gap-2">
+                            <button onclick="event.stopPropagation(); window.location.href='person-detail.html?id=${lead.id}'" 
+                                    class="text-xs text-blue-600 hover:text-blue-800">
+                                View Profile
+                            </button>
+                            <button onclick="event.stopPropagation(); app.addNote(${lead.id})" 
+                                    class="text-xs text-slate-600 hover:text-slate-800">
+                                Add Note
+                            </button>
+                        </div>
+                    </div>
+                `;
+            },
+            
+            updateStats() {
+                const stats = {
+                    total: this.filteredLeads.length,
+                    new: 0,
+                    contacted: 0,
+                    responded: 0,
+                    meetings: 0
+                };
+                
+                // Count by stage
+                this.filteredLeads.forEach(lead => {
+                    const stage = lead.lead_status || 'new';
+                    if (stage === 'new' || stage === 'to_follow_up') stats.new++;
+                    if (stage === 'contacted') stats.contacted++;
+                    if (stage === 'responded') stats.responded++;
+                    if (stage === 'meeting_scheduled') stats.meetings++;
+                });
+                
+                // Update DOM
+                document.getElementById('stat-total').textContent = stats.total;
+                document.getElementById('stat-new').textContent = stats.new;
+                document.getElementById('stat-contacted').textContent = stats.contacted;
+                document.getElementById('stat-responded').textContent = stats.responded;
+                document.getElementById('stat-meetings').textContent = stats.meetings;
+            },
+            
+            handleDragStart(event, leadId) {
+                event.dataTransfer.setData('leadId', leadId);
+                event.target.classList.add('dragging');
+            },
+            
+            async updateLeadStage(leadId, newStage) {
+                try {
+                    const { error } = await supabaseClient
+                        .from('persons')
+                        .update({ 
+                            lead_status: newStage,
+                            last_lead_update: new Date().toISOString()
+                        })
+                        .eq('id', leadId);
+                    
+                    if (error) throw error;
+                    
+                    // Update local data
+                    const lead = this.leads.find(l => l.id == leadId);
+                    if (lead) {
+                        lead.lead_status = newStage;
+                        lead.last_lead_update = new Date().toISOString();
+                    }
+                    
+                    // Re-render
+                    this.renderPipeline();
+                    
+                } catch (error) {
+                    console.error('Error updating lead stage:', error);
+                    alert('Failed to update lead stage');
+                }
+            },
+            
+            toggleSelect(leadId) {
+                if (selectedLeads.has(leadId)) {
+                    selectedLeads.delete(leadId);
+                } else {
+                    selectedLeads.add(leadId);
+                }
+                this.renderPipeline();
+            },
+            
+            showFilters() {
+                const filterSection = document.getElementById('filterSection');
+                filterSection.classList.toggle('hidden');
+            },
+            
+            applyFilters() {
+                const company = document.getElementById('companyFilter').value;
+                const title = document.getElementById('titleFilter').value.toLowerCase();
+                const minScore = parseInt(document.getElementById('scoreFilter').value) || 0;
+                const activityDays = parseInt(document.getElementById('activityFilter').value) || 999;
+                
+                const cutoffDate = new Date();
+                cutoffDate.setDate(cutoffDate.getDate() - activityDays);
+                
+                this.filteredLeads = this.leads.filter(lead => {
+                    if (company && lead.current_company !== company) return false;
+                    if (title && !(lead.current_title || '').toLowerCase().includes(title)) return false;
+                    if (lead.engagement_score < minScore) return false;
+                    if (lead.last_lead_update && new Date(lead.last_lead_update) < cutoffDate) return false;
+                    
+                    return true;
+                });
+                
+                this.renderPipeline();
+            },
+            
+            showBulkActions() {
+                if (selectedLeads.size === 0) {
+                    alert('Please select at least one lead');
+                    return;
+                }
+                document.getElementById('bulkActionsModal').classList.remove('hidden');
+            },
+            
+            closeBulkActions() {
+                document.getElementById('bulkActionsModal').classList.add('hidden');
+            },
+            
+            async bulkAddToLinkedIn() {
+                const leads = Array.from(selectedLeads).map(id => 
+                    this.leads.find(l => l.id === id)
+                ).filter(l => l);
+                
+                // Prepare LinkedIn URLs
+                const urls = leads.map(l => l.linkedin_url).filter(url => url);
+                
+                if (urls.length === 0) {
+                    alert('No LinkedIn URLs found for selected leads');
+                    return;
+                }
+                
+                // Copy to clipboard
+                navigator.clipboard.writeText(urls.join('\n'));
+                alert(`${urls.length} LinkedIn URLs copied to clipboard`);
+                
+                this.closeBulkActions();
+            },
+            
+            async bulkChangeStage() {
+                const newStage = prompt('Enter new stage:\n- new\n- to_follow_up\n- contacted\n- responded\n- meeting_scheduled');
+                
+                if (!newStage || !Object.keys(STAGES).includes(newStage)) {
+                    alert('Invalid stage');
+                    return;
+                }
+                
+                try {
+                    const updates = Array.from(selectedLeads).map(id => 
+                        this.updateLeadStage(id, newStage)
+                    );
+                    
+                    await Promise.all(updates);
+                    
+                    selectedLeads.clear();
+                    this.closeBulkActions();
+                    
+                } catch (error) {
+                    console.error('Error updating leads:', error);
+                    alert('Failed to update some leads');
+                }
+            },
+            
+            async addNote(leadId) {
+                const note = prompt('Add a note for this lead:');
+                if (!note) return;
+                
+                // In a real implementation, you'd save this to a notes table
+                console.log('Note for lead', leadId, ':', note);
+                alert('Note added successfully');
+            },
+            
+            bulkAddNote() {
+                this.addNote('bulk');
+                this.closeBulkActions();
+            },
+            
+            async exportPipeline() {
+                const exportData = {
+                    exportDate: new Date().toISOString(),
+                    totalLeads: this.filteredLeads.length,
+                    pipeline: {}
+                };
+                
+                // Group by stage for export
+                this.filteredLeads.forEach(lead => {
+                    const stage = lead.lead_status || 'new';
+                    if (!exportData.pipeline[stage]) exportData.pipeline[stage] = [];
+                    exportData.pipeline[stage].push({
+                        name: lead.name,
+                        company: lead.current_company,
+                        title: lead.current_title,
+                        engagement_score: lead.engagement_score,
+                        linkedin_url: lead.linkedin_url
+                    });
+                });
+                
+                // Download JSON
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `pipeline-export-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+            },
+            
+            bulkExport() {
+                const selectedData = Array.from(selectedLeads).map(id => 
+                    this.leads.find(l => l.id === id)
+                ).filter(l => l);
+                
+                const blob = new Blob([JSON.stringify(selectedData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `selected-leads-${new Date().toISOString().split('T')[0]}.json`;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                this.closeBulkActions();
+            }
+        };
+        
+        // Load sidebar component
+        async function loadSidebar() {
+            try {
+                const response = await fetch('components/sidebar.html');
+                const sidebarHTML = await response.text();
+                document.getElementById('sidebar-container').innerHTML = sidebarHTML;
+            } catch (error) {
+                console.error('Failed to load sidebar:', error);
+            }
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load sidebar first
+            await loadSidebar();
+            
+            // Initialize Supabase client
+            supabaseClient = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+            
+            // Initialize app
+            window.app = app;
+            app.init();
+        });
+    </script>
+</body>
+</html>
